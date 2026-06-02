@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>控制台 — 成长星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Admin Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: transform 250ms ease;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.sidebar-logo-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.nav-link:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.nav-link.active {
+  background: rgba(93,68,50,0.06);
+  color: var(--primary);
+  font-weight: 600;
+  position: relative;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-link-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background: rgba(220,38,38,0.06);
+  color: var(--danger);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--surface);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.page-body {
+  padding: 24px 32px 32px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+/* Review List */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: box-shadow var(--transition-normal);
+}
+
+.review-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.review-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-task {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 4px;
+}
+
+.review-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 12px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Floating Action */
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  gap: 10px;
+  z-index: 40;
+}
+
+.fab-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fab-btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+.fab-btn.secondary {
+  background: var(--white);
+  color: var(--primary);
+  border: 1.5px solid var(--border);
+}
+
+.fab-btn.secondary:hover {
+  border-color: var(--primary);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--white);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 45;
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .mobile-overlay.active {
+    display: block;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .page-header {
+    padding: 16px 16px 0;
+  }
+
+  .page-body {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .review-actions {
+    width: 100%;
+  }
+
+  .review-actions .btn {
+    flex: 1;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9733;</div>
+      <span class="sidebar-logo-text">成长星球</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link active">
+        <span class="nav-link-icon">&#128202;</span>
+        控制台首页
+      </a>
+      <a href="admin-tasks.html" class="nav-link">
+        <span class="nav-link-icon">&#128203;</span>
+        任务管理
+      </a>
+      <a href="admin-wishes.html" class="nav-link">
+        <span class="nav-link-icon">&#127911;</span>
+        愿望管理
+      </a>
+      <a href="admin-children.html" class="nav-link">
+        <span class="nav-link-icon">&#128118;</span>
+        孩子管理
+      </a>
+      <a href="admin-records.html" class="nav-link">
+        <span class="nav-link-icon">&#128176;</span>
+        积分流水记录
+      </a>
+      <a href="admin-settings.html" class="nav-link">
+        <span class="nav-link-icon">&#9881;&#65039;</span>
+        系统设置
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-btn">
+        <span class="nav-link-icon">&#128682;</span>
+        退出登录
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <div class="flex items-center gap-12">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1 class="page-title">控制台首页</h1>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline btn-sm" onclick="window.location.href='child-mode.html'">
+          &#127775; 进入孩子模式
+        </button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon warning">&#128221;</div>
+          <div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">今日待审核</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon primary">&#11088;</div>
+          <div>
+            <div class="stat-value">1,280</div>
+            <div class="stat-label">孩子总积分</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success">&#9989;</div>
+          <div>
+            <div class="stat-value">5</div>
+            <div class="stat-label">今日已完成</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon info">&#127911;</div>
+          <div>
+            <div class="stat-value">2</div>
+            <div class="stat-label">待达成愿望</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Review -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">待审核任务</h3>
+          <span class="badge badge-warning">3 项待处理</span>
+        </div>
+
+        <div class="review-list">
+          <div class="review-item">
+            <div class="avatar" style="background:#E8D5C4;color:var(--primary)">&#128118;</div>
+            <div class="review-info">
+              <div class="review-task">刷牙打卡</div>
+              <div class="review-meta">
+                <span>小明</span>
+                <span>今天 08:30</span>
+                <span class="badge badge-success">+5 积分</span>
+              </div>
+            </div>
+            <div class="review-actions">
+              <button class="btn btn-success btn-sm" onclick="approveTask(this)">&#10003; 通过</button>
+              <button class="btn btn-outline btn-sm" onclick="rejectTask(this)">拒绝</button>
+            </div>
+          </div>
+
+          <div class="review-item">
+            <div class="avatar" style="background:#D5E8D4;color:#2D7D46">&#128118;</div>
+            <div class="review-info">
+              <div class="review-task">亲子阅读15分钟</div>
+              <div class="review-meta">
+                <span>小红</span>
+                <span>今天 09:15</span>
+                <span class="badge badge-success">+10 积分</span>
+              </div>
+            </div>
+            <div class="review-actions">
+              <button class="btn btn-success btn-sm" onclick="approveTask(this)">&#10003; 通过</button>
+              <button class="btn btn-outline btn-sm" onclick="rejectTask(this)">拒绝</button>
+            </div>
+          </div>
+
+          <div class="review-item">
+            <div class="avatar" style="background:#E8D5C4;color:var(--primary)">&#128118;</div>
+            <div class="review-info">
+              <div class="review-task">整理玩具</div>
+              <div class="review-meta">
+                <span>小明</span>
+                <span>今天 10:00</span>
+                <span class="badge badge-success">+5 积分</span>
+              </div>
+            </div>
+            <div class="review-actions">
+              <button class="btn btn-success btn-sm" onclick="approveTask(this)">&#10003; 通过</button>
+              <button class="btn btn-outline btn-sm" onclick="rejectTask(this)">拒绝</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Floating Actions -->
+<div class="fab">
+  <button class="fab-btn secondary" title="手动加分" onclick="openModal('pointModal')">&#10010;</button>
+  <button class="fab-btn secondary" title="手动扣分" onclick="openModal('deductModal')">&minus;</button>
+</div>
+
+<!-- Point Modal -->
+<div class="modal-overlay" id="pointModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">手动加分</span>
+      <button class="modal-close" onclick="closeModal('pointModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">选择孩子</label>
+        <select class="form-input">
+          <option>小明</option>
+          <option>小红</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">加分数值</label>
+        <input type="number" class="form-input" placeholder="请输入积分" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">原因说明</label>
+        <input type="text" class="form-input" placeholder="如：主动帮忙做家务">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('pointModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('pointModal')">确认加分</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deduct Modal -->
+<div class="modal-overlay" id="deductModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">手动扣分</span>
+      <button class="modal-close" onclick="closeModal('deductModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">选择孩子</label>
+        <select class="form-input">
+          <option>小明</option>
+          <option>小红</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">扣分数值</label>
+        <input type="number" class="form-input" placeholder="请输入积分" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">原因说明</label>
+        <input type="text" class="form-input" placeholder="如：未完成约定任务">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('deductModal')">取消</button>
+      <button class="btn btn-danger" onclick="closeModal('deductModal')">确认扣分</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function approveTask(btn) {
+  const item = btn.closest('.review-item');
+  item.style.opacity = '0.5';
+  item.querySelector('.review-actions').innerHTML = '<span class="badge badge-success">已通过</span>';
+  setTimeout(() => { item.style.opacity = '1'; }, 300);
+}
+
+function rejectTask(btn) {
+  if (!confirm('确定拒绝此任务提交？')) return;
+  const item = btn.closest('.review-item');
+  item.style.opacity = '0.5';
+  item.querySelector('.review-actions').innerHTML = '<span class="badge badge-danger">已拒绝</span>';
+  setTimeout(() => { item.style.opacity = '1'; }, 300);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('active');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积分流水记录 — 成长星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: transform 250ms ease;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-icon {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.95rem;
+}
+
+.sidebar-logo-text {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: 1rem;
+}
+
+.sidebar-nav {
+  flex: 1; padding: 12px; overflow-y: auto;
+}
+
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; font-family: var(--font-body);
+}
+
+.nav-link:hover { background: var(--surface); color: var(--text); }
+
+.nav-link.active {
+  background: rgba(93,68,50,0.06);
+  color: var(--primary); font-weight: 600;
+  position: relative;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-link-icon {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  width: 100%; border: none; background: none;
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover { background: rgba(220,38,38,0.06); color: var(--danger); }
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--surface);
+}
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 32px 0;
+}
+
+.page-title { font-size: 1.5rem; font-weight: 600; }
+
+.page-actions { display: flex; gap: 8px; }
+
+.page-body { padding: 24px 32px 32px; }
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-bar .form-input,
+.filter-bar select {
+  width: auto;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.filter-bar .form-input[type="date"] {
+  min-width: 150px;
+}
+
+/* Records Table */
+.record-row {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+  transition: box-shadow var(--transition-normal);
+}
+
+.record-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.record-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.record-child-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.record-source {
+  flex: 1;
+  min-width: 0;
+}
+
+.record-source-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+
+.record-source-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.record-points {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  min-width: 70px;
+  text-align: right;
+}
+
+.record-points.earn { color: var(--success); }
+.record-points.deduct { color: var(--danger); }
+
+.record-time {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  min-width: 130px;
+  text-align: right;
+}
+
+/* Mobile Card */
+.record-mobile-card {
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.record-mobile-card .top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.record-mobile-card .record-info {
+  flex: 1;
+}
+
+.record-mobile-card .record-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+
+.record-mobile-card .record-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.record-mobile-card .bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Summary Bar */
+.summary-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.summary-chip .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.summary-chip .dot.green { background: var(--success); }
+.summary-chip .dot.red { background: var(--danger); }
+
+.summary-chip .mono {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--white);
+  align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.25rem;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 45;
+}
+
+@media (max-width: 1023px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-toggle { display: flex; }
+  .mobile-overlay.active { display: block; }
+  .page-header { padding: 16px 16px 0; }
+  .page-body { padding: 16px; }
+  .record-row { display: none; }
+  .record-mobile-card { display: block; }
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-bar .form-input,
+  .filter-bar select {
+    width: 100%;
+    min-width: 0;
+  }
+  .summary-bar {
+    gap: 8px;
+  }
+  .summary-chip {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .record-grid { display: block; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9733;</div>
+      <span class="sidebar-logo-text">成长星球</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link">
+        <span class="nav-link-icon">&#128202;</span> 控制台首页
+      </a>
+      <a href="admin-tasks.html" class="nav-link">
+        <span class="nav-link-icon">&#128203;</span> 任务管理
+      </a>
+      <a href="admin-wishes.html" class="nav-link">
+        <span class="nav-link-icon">&#127911;</span> 愿望管理
+      </a>
+      <a href="admin-children.html" class="nav-link">
+        <span class="nav-link-icon">&#128118;</span> 孩子管理
+      </a>
+      <a href="admin-records.html" class="nav-link active">
+        <span class="nav-link-icon">&#128176;</span> 积分流水记录
+      </a>
+      <a href="admin-settings.html" class="nav-link">
+        <span class="nav-link-icon">&#9881;&#65039;</span> 系统设置
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-btn">
+        <span class="nav-link-icon">&#128682;</span> 退出登录
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="flex items-center gap-12">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1 class="page-title">积分流水记录</h1>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline btn-sm" onclick="exportData()">&#128229; 导出数据</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Summary -->
+      <div class="summary-bar">
+        <div class="summary-chip">
+          <span class="dot green"></span>
+          <span>本月获得</span>
+          <span class="mono" style="color:var(--success)">+320</span>
+        </div>
+        <div class="summary-chip">
+          <span class="dot red"></span>
+          <span>本月扣除</span>
+          <span class="mono" style="color:var(--danger)">-20</span>
+        </div>
+        <div class="summary-chip">
+          <span>净增</span>
+          <span class="mono">+300</span>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <select class="form-input" id="filterChild">
+          <option value="all">全部孩子</option>
+          <option value="xiaoming">小明</option>
+          <option value="xiaohong">小红</option>
+        </select>
+        <select class="form-input" id="filterType">
+          <option value="all">全部类型</option>
+          <option value="earn">获得积分</option>
+          <option value="deduct">扣除积分</option>
+          <option value="manual">手动调整</option>
+          <option value="wish">愿望兑换</option>
+        </select>
+        <input type="date" class="form-input" id="filterDateFrom" placeholder="开始日期">
+        <input type="date" class="form-input" id="filterDateTo" placeholder="结束日期">
+        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">重置</button>
+      </div>
+
+      <!-- Desktop Table -->
+      <div id="recordList">
+
+        <div class="record-row" data-child="xiaoming" data-type="earn">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <span class="record-child-name">小明</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">刷牙打卡</div>
+            <div class="record-source-meta">任务完成 · 自动审核</div>
+          </div>
+          <div class="record-points earn">+5</div>
+          <div class="record-time">今天 08:30</div>
+        </div>
+
+        <div class="record-row" data-child="xiaohong" data-type="earn">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <span class="record-child-name">小红</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">亲子阅读</div>
+            <div class="record-source-meta">任务完成 · 审核通过</div>
+          </div>
+          <div class="record-points earn">+10</div>
+          <div class="record-time">今天 09:15</div>
+        </div>
+
+        <div class="record-row" data-child="xiaoming" data-type="manual">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <span class="record-child-name">小明</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">主动帮忙做家务</div>
+            <div class="record-source-meta">手动加分 · 家长操作</div>
+          </div>
+          <div class="record-points earn">+20</div>
+          <div class="record-time">今天 14:20</div>
+        </div>
+
+        <div class="record-row" data-child="xiaohong" data-type="earn">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <span class="record-child-name">小红</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">整理玩具</div>
+            <div class="record-source-meta">任务完成 · 自动审核</div>
+          </div>
+          <div class="record-points earn">+5</div>
+          <div class="record-time">今天 16:45</div>
+        </div>
+
+        <div class="record-row" data-child="xiaoming" data-type="deduct">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <span class="record-child-name">小明</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">未按时完成作业</div>
+            <div class="record-source-meta">手动扣分 · 家长操作</div>
+          </div>
+          <div class="record-points deduct">-10</div>
+          <div class="record-time">昨天 19:30</div>
+        </div>
+
+        <div class="record-row" data-child="xiaohong" data-type="wish">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <span class="record-child-name">小红</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">兑换「看动画片30分钟」</div>
+            <div class="record-source-meta">愿望兑换 · 梦想宝库</div>
+          </div>
+          <div class="record-points deduct">-50</div>
+          <div class="record-time">昨天 18:00</div>
+        </div>
+
+        <div class="record-row" data-child="xiaoming" data-type="earn">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <span class="record-child-name">小明</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">户外运动</div>
+            <div class="record-source-meta">任务完成 · 审核通过</div>
+          </div>
+          <div class="record-points earn">+15</div>
+          <div class="record-time">前天 17:20</div>
+        </div>
+
+        <div class="record-row" data-child="xiaoming" data-type="earn">
+          <div class="record-child">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <span class="record-child-name">小明</span>
+          </div>
+          <div class="record-source">
+            <div class="record-source-title">刷牙打卡</div>
+            <div class="record-source-meta">任务完成 · 自动审核</div>
+          </div>
+          <div class="record-points earn">+5</div>
+          <div class="record-time">前天 08:10</div>
+        </div>
+
+      </div>
+
+      <!-- Mobile Cards -->
+      <div id="recordMobileList">
+        <div class="record-mobile-card" data-child="xiaoming" data-type="earn">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <div class="record-info">
+              <div class="record-title">刷牙打卡</div>
+              <div class="record-meta">小明 · 任务完成 · 今天 08:30</div>
+            </div>
+            <span class="record-points earn">+5</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaohong" data-type="earn">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <div class="record-info">
+              <div class="record-title">亲子阅读</div>
+              <div class="record-meta">小红 · 任务完成 · 今天 09:15</div>
+            </div>
+            <span class="record-points earn">+10</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaoming" data-type="manual">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <div class="record-info">
+              <div class="record-title">主动帮忙做家务</div>
+              <div class="record-meta">小明 · 手动加分 · 今天 14:20</div>
+            </div>
+            <span class="record-points earn">+20</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaohong" data-type="earn">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <div class="record-info">
+              <div class="record-title">整理玩具</div>
+              <div class="record-meta">小红 · 任务完成 · 今天 16:45</div>
+            </div>
+            <span class="record-points earn">+5</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaoming" data-type="deduct">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <div class="record-info">
+              <div class="record-title">未按时完成作业</div>
+              <div class="record-meta">小明 · 手动扣分 · 昨天 19:30</div>
+            </div>
+            <span class="record-points deduct">-10</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaohong" data-type="wish">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#D5E8D4;color:#2D7D46">红</div>
+            <div class="record-info">
+              <div class="record-title">兑换「看动画片30分钟」</div>
+              <div class="record-meta">小红 · 愿望兑换 · 昨天 18:00</div>
+            </div>
+            <span class="record-points deduct">-50</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaoming" data-type="earn">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <div class="record-info">
+              <div class="record-title">户外运动</div>
+              <div class="record-meta">小明 · 任务完成 · 前天 17:20</div>
+            </div>
+            <span class="record-points earn">+15</span>
+          </div>
+        </div>
+
+        <div class="record-mobile-card" data-child="xiaoming" data-type="earn">
+          <div class="top-row">
+            <div class="avatar avatar-sm" style="background:#E8D5C4;color:var(--primary)">明</div>
+            <div class="record-info">
+              <div class="record-title">刷牙打卡</div>
+              <div class="record-meta">小明 · 任务完成 · 前天 08:10</div>
+            </div>
+            <span class="record-points earn">+5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display:none">
+        <div class="empty-state-icon">&#128202;</div>
+        <div class="empty-state-text">暂无匹配的流水记录</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+
+function filterRecords() {
+  const child = document.getElementById('filterChild').value;
+  const type = document.getElementById('filterType').value;
+
+  const allRows = document.querySelectorAll('.record-row, .record-mobile-card');
+  let visibleCount = 0;
+
+  allRows.forEach(row => {
+    const matchChild = child === 'all' || row.dataset.child === child;
+    const matchType = type === 'all' || row.dataset.type === type;
+    if (matchChild && matchType) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+}
+
+function resetFilters() {
+  document.getElementById('filterChild').value = 'all';
+  document.getElementById('filterType').value = 'all';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  filterRecords();
+}
+
+function exportData() {
+  alert('数据导出功能将生成 CSV 文件，包含当前筛选条件下的所有流水记录。');
+}
+
+document.getElementById('filterChild').addEventListener('change', filterRecords);
+document.getElementById('filterType').addEventListener('change', filterRecords);
+</script>
+
+</body>
+</html>

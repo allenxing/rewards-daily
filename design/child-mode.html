@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>成长星球 — 我的世界</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky: #87CEEB;
+  --sky-deep: #5BA3D9;
+  --sun: #FFD93D;
+  --sun-glow: #FFC107;
+  --grass: #6BCB77;
+  --grass-dark: #4CAF50;
+  --coral: #FF6B6B;
+  --coral-dark: #E55555;
+  --lavender: #A78BFA;
+  --lavender-dark: #7C5AE6;
+  --mint: #4ECDC4;
+  --white: #FFFFFF;
+  --text-dark: #2D3436;
+  --text-light: #636E72;
+  --card-bg: rgba(255,255,255,0.92);
+  --font-display: 'Nunito', 'Poppins', sans-serif;
+  --font-body: 'Nunito', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+  background: linear-gradient(180deg, var(--sky) 0%, #B8E6FF 40%, var(--grass) 100%);
+  background-attachment: fixed;
+}
+
+/* === Stars decoration === */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.3) 1px, transparent 1px),
+              radial-gradient(circle at 60% 20%, rgba(255,255,255,0.4) 1.5px, transparent 1.5px),
+              radial-gradient(circle at 80% 50%, rgba(255,255,255,0.3) 1px, transparent 1px),
+              radial-gradient(circle at 40% 60%, rgba(255,255,255,0.2) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === Header === */
+.child-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(135,206,235,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+.child-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sun);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.child-greeting {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.child-greeting .name {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.child-greeting .sub {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.star-counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card-bg);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--sun-glow);
+  border: 2px solid var(--sun);
+  box-shadow: 0 2px 8px rgba(255,193,7,0.2);
+}
+
+.star-counter .star { font-size: 1.2rem; }
+
+/* === Content area === */
+.child-content {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* === Section titles === */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title .emoji { font-size: 1.4rem; }
+
+/* === Today's Tasks === */
+.task-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 14px;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.task-card:active {
+  transform: scale(0.98);
+}
+
+.task-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.task-icon.brush { background: linear-gradient(135deg, #74B9FF, #0984E3); }
+.task-icon.read { background: linear-gradient(135deg, #A29BFE, #6C5CE7); }
+.task-icon.exercise { background: linear-gradient(135deg, #55EFC0, #00B894); }
+.task-icon.organize { background: linear-gradient(135deg, #FFEAA7, #FDCB6E); }
+
+.task-info { flex: 1; min-width: 0; }
+
+.task-name {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.task-detail {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.task-points {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--sun), var(--sun-glow));
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.875rem;
+  color: #7C5A00;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+
+/* === Task sub-tabs (reuse wish-tabs style) === */
+.task-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Submit button (todo state) */
+.task-submit-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--grass), var(--grass-dark));
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 200ms ease;
+  box-shadow: 0 3px 10px rgba(107,203,119,0.35);
+}
+.task-submit-btn:active {
+  transform: scale(0.94);
+  box-shadow: 0 2px 6px rgba(107,203,119,0.25);
+}
+
+/* Pending badge */
+.task-pending-badge {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255,193,7,0.15);
+  color: #B8860B;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  animation: pendingPulse 2s ease-in-out infinite;
+}
+@keyframes pendingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Done badge */
+.task-done-badge {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(107,203,119,0.15);
+  color: var(--grass-dark);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+/* Done card subtle style */
+.done-card {
+  opacity: 0.75;
+}
+.done-card .task-icon {
+  filter: saturate(0.6);
+}
+.done-points {
+  opacity: 0.5;
+}
+
+/* Empty task states */
+.task-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+.task-empty-state .empty-emoji {
+  font-size: 3.5rem;
+  margin-bottom: 14px;
+}
+.task-empty-state .empty-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+.task-empty-state .empty-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* Submitting animation */
+.task-card.submitting {
+  animation: taskSubmit 400ms ease;
+}
+@keyframes taskSubmit {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.95); background: rgba(107,203,119,0.15); }
+  100% { transform: scale(1); }
+}
+
+/* === Tab content visibility === */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* === Bottom Navigation === */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 2px solid rgba(255,255,255,0.5);
+  padding: 6px 0;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: transform 200ms ease;
+}
+
+.nav-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-light);
+  transition: color 200ms ease;
+}
+
+.nav-item.active .nav-icon { transform: scale(1.15); }
+.nav-item.active .nav-label { color: var(--coral); }
+
+/* === Wish tabs (sub-tab) === */
+.wish-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.wish-tabs::-webkit-scrollbar { display: none; }
+
+.wish-tab-btn {
+  padding: 8px 18px;
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 9999px;
+  background: var(--card-bg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-light);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wish-tab-btn.active {
+  background: var(--coral);
+  color: var(--white);
+  border-color: var(--coral);
+  box-shadow: 0 3px 12px rgba(255,107,107,0.3);
+}
+
+.wish-tab-panel { display: none; }
+.wish-tab-panel.active { display: block; }
+
+/* === Wish scroll === */
+.wish-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.wish-scroll::-webkit-scrollbar { display: none; }
+
+/* === Wish card === */
+.wish-card {
+  min-width: 140px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 20px 16px;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 150ms ease;
+}
+
+.wish-card:active { transform: scale(0.97); }
+
+.wish-emoji {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.wish-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.wish-cost {
+  font-size: 0.8rem;
+  color: var(--sun-glow);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.wish-progress {
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.wish-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 600ms ease;
+}
+
+.wish-progress-bar.coral { background: linear-gradient(90deg, var(--coral), #FF9FF3); }
+.wish-progress-bar.lavender { background: linear-gradient(90deg, var(--lavender), #C4B5FD); }
+.wish-progress-bar.mint { background: linear-gradient(90deg, var(--mint), #88E4E0); }
+.wish-progress-bar.grass { background: linear-gradient(90deg, var(--grass), #A8E6CF); }
+
+.wish-card.completed {
+  border-color: var(--grass);
+  box-shadow: 0 4px 16px rgba(107,203,119,0.2);
+}
+
+.wish-redeem-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--sun), var(--sun-glow));
+  color: #7C5A00;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 3px 10px rgba(255,193,7,0.3);
+}
+.wish-redeem-btn:active {
+  transform: scale(0.96);
+}
+
+/* === History list === */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.history-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.history-info { flex: 1; min-width: 0; }
+
+.history-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.history-date {
+  font-size: 0.72rem;
+  color: var(--text-light);
+}
+
+.history-cost {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--sun-glow);
+  flex-shrink: 0;
+}
+
+.history-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.history-empty .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* === Redeem modal === */
+.redeem-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+.redeem-modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.redeem-modal {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 36px 32px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  transform: scale(0.9);
+  transition: transform 300ms ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.redeem-modal-overlay.show .redeem-modal {
+  transform: scale(1);
+}
+
+.redeem-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+.redeem-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.redeem-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.redeem-cost-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--sun-glow);
+  margin-bottom: 24px;
+}
+
+.redeem-btns {
+  display: flex;
+  gap: 10px;
+}
+.redeem-btn-cancel, .redeem-btn-confirm {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.redeem-btn-cancel {
+  background: rgba(0,0,0,0.06);
+  color: var(--text-dark);
+}
+.redeem-btn-confirm {
+  background: linear-gradient(135deg, var(--sun), var(--sun-glow));
+  color: #7C5A00;
+  box-shadow: 0 3px 10px rgba(255,193,7,0.3);
+}
+.redeem-btn-confirm:active { transform: scale(0.96); }
+
+/* === Confetti === */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+}
+.confetti-piece {
+  position: absolute;
+  animation: confettiFall 2s ease-out forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* === Modal pop keyframe === */
+@keyframes modalPop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === Responsive === */
+@media (min-width: 768px) {
+  .child-content { max-width: 500px; }
+}
+
+@media (min-width: 1024px) {
+  .child-content { max-width: 480px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="child-header">
+  <div class="child-avatar">&#127775;</div>
+  <div class="child-greeting">
+    <div class="name">嗨，小明！</div>
+    <div class="sub">今天也要加油哦</div>
+  </div>
+  <div class="star-counter">
+    <span class="star">&#11088;</span>
+    <span id="totalStars">128</span>
+  </div>
+</header>
+
+<!-- Tab: Home -->
+<div class="tab-content active" id="tab-home">
+  <div class="child-content">
+
+    <!-- Today's Tasks -->
+    <div class="section-title"><span class="emoji">&#128197;</span> 今日任务</div>
+
+    <div class="task-card">
+      <div class="task-icon brush">&#128167;</div>
+      <div class="task-info">
+        <div class="task-name">刷牙</div>
+        <div class="task-detail">早晚各一次</div>
+      </div>
+      <div class="task-points">&#11088; +5</div>
+      <div class="task-done-badge">&#10003; 已完成</div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-icon read">&#128218;</div>
+      <div class="task-info">
+        <div class="task-name">亲子阅读</div>
+        <div class="task-detail">每天15分钟</div>
+      </div>
+      <div class="task-points">&#11088; +10</div>
+      <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+    </div>
+
+    <div class="task-card">
+      <div class="task-icon exercise">&#127939;</div>
+      <div class="task-info">
+        <div class="task-name">户外运动</div>
+        <div class="task-detail">跑步或骑车30分钟</div>
+      </div>
+      <div class="task-points">&#11088; +15</div>
+      <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+    </div>
+
+    <div class="task-card">
+      <div class="task-icon organize">&#129529;</div>
+      <div class="task-info">
+        <div class="task-name">整理玩具</div>
+        <div class="task-detail">玩完后归位</div>
+      </div>
+      <div class="task-points">&#11088; +5</div>
+      <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+    </div>
+
+    <!-- Wishes -->
+    <div class="section-title" style="margin-top:28px"><span class="emoji">&#127911;</span> 我的梦想</div>
+    <div class="wish-scroll">
+      <div class="wish-card">
+        <div class="wish-emoji">&#127912;</div>
+        <div class="wish-name">画笔套装</div>
+        <div class="wish-cost">&#11088; 50</div>
+        <div class="wish-progress"><div class="wish-progress-bar coral" style="width:72%"></div></div>
+      </div>
+      <div class="wish-card">
+        <div class="wish-emoji">&#127922;</div>
+        <div class="wish-name">小吉他</div>
+        <div class="wish-cost">&#11088; 100</div>
+        <div class="wish-progress"><div class="wish-progress-bar lavender" style="width:40%"></div></div>
+      </div>
+      <div class="wish-card">
+        <div class="wish-emoji">&#128640;</div>
+        <div class="wish-name">恐龙模型</div>
+        <div class="wish-cost">&#11088; 80</div>
+        <div class="wish-progress"><div class="wish-progress-bar mint" style="width:55%"></div></div>
+      </div>
+      <div class="wish-card">
+        <div class="wish-emoji">&#127752;</div>
+        <div class="wish-name">游乐园</div>
+        <div class="wish-cost">&#11088; 200</div>
+        <div class="wish-progress"><div class="wish-progress-bar grass" style="width:25%"></div></div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- Tab: Tasks -->
+<div class="tab-content" id="tab-tasks">
+  <div class="child-content">
+    <div class="section-title"><span class="emoji">&#128203;</span> 任务大厅</div>
+
+    <!-- Task sub-tabs -->
+    <div class="wish-tabs" id="taskTabs">
+      <button class="wish-tab-btn active" onclick="switchTaskTab('todo', this)">&#9889; 可做任务</button>
+      <button class="wish-tab-btn" onclick="switchTaskTab('pending', this)">&#128269; 审核中</button>
+      <button class="wish-tab-btn" onclick="switchTaskTab('done', this)">&#127942; 已完成</button>
+    </div>
+
+    <!-- Todo tasks panel -->
+    <div class="wish-tab-panel active" id="task-panel-todo">
+      <div class="task-list-wrap" id="taskListTodo">
+
+        <div class="task-card" data-task-status="todo" data-task-id="1">
+          <div class="task-icon read">&#128218;</div>
+          <div class="task-info">
+            <div class="task-name">亲子阅读</div>
+            <div class="task-detail">每天15分钟</div>
+          </div>
+          <div class="task-points">&#11088; +10</div>
+          <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+        </div>
+
+        <div class="task-card" data-task-status="todo" data-task-id="2">
+          <div class="task-icon exercise">&#127939;</div>
+          <div class="task-info">
+            <div class="task-name">户外运动</div>
+            <div class="task-detail">跑步或骑车30分钟</div>
+          </div>
+          <div class="task-points">&#11088; +15</div>
+          <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+        </div>
+
+        <div class="task-card" data-task-status="todo" data-task-id="3">
+          <div class="task-icon organize">&#129529;</div>
+          <div class="task-info">
+            <div class="task-name">整理玩具</div>
+            <div class="task-detail">玩完后归位</div>
+          </div>
+          <div class="task-points">&#11088; +5</div>
+          <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+        </div>
+
+        <div class="task-card" data-task-status="todo" data-task-id="4">
+          <div class="task-icon" style="background:linear-gradient(135deg,#FD79A8,#E84393)">&#128156;</div>
+          <div class="task-info">
+            <div class="task-name">帮妈妈做家务</div>
+            <div class="task-detail">擦桌子或扫地</div>
+          </div>
+          <div class="task-points">&#11088; +10</div>
+          <button class="task-submit-btn" onclick="submitTask(this)">&#10003; 完成</button>
+        </div>
+
+      </div>
+      <div class="task-empty-state" id="taskEmptyTodo" style="display:none">
+        <div class="empty-emoji">&#127775;</div>
+        <div class="empty-title">今天任务全部完成啦！</div>
+        <div class="empty-desc">你真是太棒了，快去看看有没有新任务吧</div>
+      </div>
+    </div>
+
+    <!-- Pending review panel -->
+    <div class="wish-tab-panel" id="task-panel-pending">
+      <div class="task-list-wrap" id="taskListPending">
+
+        <div class="task-card pending-card" data-task-status="pending" data-task-id="5">
+          <div class="task-icon brush">&#128167;</div>
+          <div class="task-info">
+            <div class="task-name">刷牙</div>
+            <div class="task-detail">早晚各一次</div>
+          </div>
+          <div class="task-points">&#11088; +5</div>
+          <div class="task-pending-badge">&#128269; 等待审核</div>
+        </div>
+
+        <div class="task-card pending-card" data-task-status="pending" data-task-id="6">
+          <div class="task-icon" style="background:linear-gradient(135deg,#FD79A8,#E84393)">&#128159;</div>
+          <div class="task-info">
+            <div class="task-name">收拾书包</div>
+            <div class="task-detail">睡前整理好明天的书包</div>
+          </div>
+          <div class="task-points">&#11088; +8</div>
+          <div class="task-pending-badge">&#128269; 等待审核</div>
+        </div>
+
+      </div>
+      <div class="task-empty-state" id="taskEmptyPending" style="display:none">
+        <div class="empty-emoji">&#128269;</div>
+        <div class="empty-title">没有等待审核的任务</div>
+        <div class="empty-desc">完成任务后提交，等妈妈爸爸通过就能拿到星星啦</div>
+      </div>
+    </div>
+
+    <!-- Completed panel -->
+    <div class="wish-tab-panel" id="task-panel-done">
+      <div class="task-list-wrap" id="taskListDone">
+
+        <div class="task-card done-card" data-task-status="done" data-task-id="7">
+          <div class="task-icon brush">&#128167;</div>
+          <div class="task-info">
+            <div class="task-name">刷牙</div>
+            <div class="task-detail">早上刷牙打卡</div>
+          </div>
+          <div class="task-points done-points">&#11088; +5</div>
+          <div class="task-done-badge">&#10003; 已通过</div>
+        </div>
+
+        <div class="task-card done-card" data-task-status="done" data-task-id="8">
+          <div class="task-icon exercise">&#127939;</div>
+          <div class="task-info">
+            <div class="task-name">跳绳100个</div>
+            <div class="task-detail">体育锻炼打卡</div>
+          </div>
+          <div class="task-points done-points">&#11088; +10</div>
+          <div class="task-done-badge">&#10003; 已通过</div>
+        </div>
+
+        <div class="task-card done-card" data-task-status="done" data-task-id="9">
+          <div class="task-icon read">&#128218;</div>
+          <div class="task-info">
+            <div class="task-name">亲子阅读</div>
+            <div class="task-detail">昨天的阅读任务</div>
+          </div>
+          <div class="task-points done-points">&#11088; +10</div>
+          <div class="task-done-badge">&#10003; 已通过</div>
+        </div>
+
+      </div>
+      <div class="task-empty-state" id="taskEmptyDone" style="display:none">
+        <div class="empty-emoji">&#128203;</div>
+        <div class="empty-title">还没有完成过任务</div>
+        <div class="empty-desc">去可做任务里开始第一个任务吧</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Tab: Wishes -->
+<div class="tab-content" id="tab-wishes">
+  <div class="child-content">
+    <div class="section-title"><span class="emoji">&#127911;</span> 梦想宝库</div>
+    <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:16px">攒够星星就能实现梦想！</p>
+
+    <div class="wish-tabs">
+      <button class="wish-tab-btn active" onclick="switchWishTab('active', this)">&#127775; 我的心愿</button>
+      <button class="wish-tab-btn" onclick="switchWishTab('history', this)">&#128214; 兑换记录</button>
+    </div>
+
+    <!-- Active wishes -->
+    <div class="wish-tab-panel active" id="wish-panel-active">
+      <div class="wish-scroll" style="flex-wrap:wrap;overflow-x:hidden" id="wishList">
+        <!-- 画笔套装 - 72% -->
+        <div class="wish-card" style="min-width:calc(50% - 7px)" data-cost="50" data-current="36" data-color="coral">
+          <div class="wish-emoji">&#127912;</div>
+          <div class="wish-name">画笔套装</div>
+          <div class="wish-cost">&#11088; 50</div>
+          <div class="wish-progress"><div class="wish-progress-bar coral" style="width:72%"></div></div>
+          <div class="wish-progress-text" style="margin-top:10px;font-size:0.75rem;color:var(--text-light)">36 / 50 星星</div>
+        </div>
+        <!-- 小吉他 - 40% -->
+        <div class="wish-card" style="min-width:calc(50% - 7px)" data-cost="100" data-current="40" data-color="lavender">
+          <div class="wish-emoji">&#127922;</div>
+          <div class="wish-name">小吉他</div>
+          <div class="wish-cost">&#11088; 100</div>
+          <div class="wish-progress"><div class="wish-progress-bar lavender" style="width:40%"></div></div>
+          <div class="wish-progress-text" style="margin-top:10px;font-size:0.75rem;color:var(--text-light)">40 / 100 星星</div>
+        </div>
+        <!-- 恐龙模型 - 100% (已达标) -->
+        <div class="wish-card completed" style="min-width:calc(50% - 7px)" data-cost="80" data-current="80" data-color="mint">
+          <div class="wish-emoji">&#128640;</div>
+          <div class="wish-name">恐龙模型</div>
+          <div class="wish-cost">&#11088; 80</div>
+          <div class="wish-progress"><div class="wish-progress-bar mint" style="width:100%"></div></div>
+          <div class="wish-progress-text" style="margin-top:10px;font-size:0.75rem;color:var(--grass);font-weight:700">80 / 80 星星 &#127881;</div>
+          <button class="wish-redeem-btn" onclick="openRedeemModal(this)">&#127873; 兑换这个梦想</button>
+        </div>
+        <!-- 游乐园 - 25% -->
+        <div class="wish-card" style="min-width:calc(50% - 7px)" data-cost="200" data-current="50" data-color="grass">
+          <div class="wish-emoji">&#127752;</div>
+          <div class="wish-name">游乐园</div>
+          <div class="wish-cost">&#11088; 200</div>
+          <div class="wish-progress"><div class="wish-progress-bar grass" style="width:25%"></div></div>
+          <div class="wish-progress-text" style="margin-top:10px;font-size:0.75rem;color:var(--text-light)">50 / 200 星星</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redeem history -->
+    <div class="wish-tab-panel" id="wish-panel-history">
+      <div class="history-list" id="redeemHistory">
+        <div class="history-item">
+          <div class="history-icon" style="background:rgba(78,205,196,0.12)">&#128694;</div>
+          <div class="history-info">
+            <div class="history-name">遥控赛车</div>
+            <div class="history-date">2025年5月28日兑换</div>
+          </div>
+          <div class="history-cost">&#11088; 60</div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon" style="background:rgba(255,107,107,0.12)">&#127873;</div>
+          <div class="history-info">
+            <div class="history-name">冰淇淋派对</div>
+            <div class="history-date">2025年5月20日兑换</div>
+          </div>
+          <div class="history-cost">&#11088; 30</div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon" style="background:rgba(167,139,250,0.12)">&#128218;</div>
+          <div class="history-info">
+            <div class="history-name">恐龙绘本</div>
+            <div class="history-date">2025年5月12日兑换</div>
+          </div>
+          <div class="history-cost">&#11088; 40</div>
+        </div>
+      </div>
+      <div class="history-empty" id="historyEmpty" style="display:none">
+        <div class="empty-icon">&#127911;</div>
+        <p>还没有兑换过梦想哦<br>攒够星星就能实现第一个梦想！</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Redeem confirmation modal -->
+<div class="redeem-modal-overlay" id="redeemModal">
+  <div class="redeem-modal">
+    <div class="redeem-emoji" id="redeemEmoji">&#128640;</div>
+    <div class="redeem-title" id="redeemTitle">兑换梦想</div>
+    <div class="redeem-desc" id="redeemDesc">确认要用星星兑换这个梦想吗？</div>
+    <div class="redeem-cost-display" id="redeemCostDisplay">&#11088; 80 星星</div>
+    <div class="redeem-btns">
+      <button class="redeem-btn-cancel" onclick="closeRedeemModal()">再想想</button>
+      <button class="redeem-btn-confirm" onclick="confirmRedeem()">确认兑换！</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchTab('home', this)">
+    <span class="nav-icon">&#127968;</span>
+    <span class="nav-label">首页</span>
+  </button>
+  <button class="nav-item" onclick="switchTab('tasks', this)">
+    <span class="nav-icon">&#128203;</span>
+    <span class="nav-label">任务</span>
+  </button>
+  <button class="nav-item" onclick="switchTab('wishes', this)">
+    <span class="nav-icon">&#127911;</span>
+    <span class="nav-label">梦想</span>
+  </button>
+
+</nav>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchWishTab(panel, btn) {
+  document.querySelectorAll('.wish-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.wish-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('wish-panel-' + panel).classList.add('active');
+}
+
+/* === Task tab switching === */
+function switchTaskTab(panel, btn) {
+  document.querySelectorAll('#taskTabs .wish-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#tab-tasks .wish-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('task-panel-' + panel).classList.add('active');
+}
+
+/* === Submit task (todo → pending) === */
+function submitTask(btn) {
+  const card = btn.closest('.task-card');
+  card.classList.add('submitting');
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+
+  setTimeout(() => {
+    const taskName = card.querySelector('.task-name').textContent;
+    const taskDetail = card.querySelector('.task-detail').textContent;
+    const taskIcon = card.querySelector('.task-icon').innerHTML;
+    const taskIconClass = card.querySelector('.task-icon').className;
+    const taskPoints = card.querySelector('.task-points').textContent;
+    const taskId = card.dataset.taskId;
+
+    /* Remove from todo list */
+    card.remove();
+    checkTaskEmpty('todo');
+
+    /* Create pending card */
+    const pendingCard = document.createElement('div');
+    pendingCard.className = 'task-card pending-card';
+    pendingCard.dataset.taskStatus = 'pending';
+    pendingCard.dataset.taskId = 'p' + Date.now();
+    pendingCard.innerHTML =
+      '<div class="' + taskIconClass + '">' + taskIcon + '</div>' +
+      '<div class="task-info">' +
+        '<div class="task-name">' + taskName + '</div>' +
+        '<div class="task-detail">' + taskDetail + '</div>' +
+      '</div>' +
+      '<div class="task-points">' + taskPoints + '</div>' +
+      '<div class="task-pending-badge">&#128269; 等待审核</div>';
+    pendingCard.style.animation = 'modalPop 300ms ease';
+
+    const pendingList = document.getElementById('taskListPending');
+    pendingList.insertBefore(pendingCard, pendingList.firstChild);
+    checkTaskEmpty('pending');
+
+    /* Update star counter visual hint */
+    const counter = document.querySelector('.star-counter');
+    counter.style.transform = 'scale(1.08)';
+    setTimeout(() => { counter.style.transform = ''; }, 300);
+  }, 500);
+}
+
+/* === Check empty states === */
+function checkTaskEmpty(type) {
+  const listId = type === 'todo' ? 'taskListTodo' : type === 'pending' ? 'taskListPending' : 'taskListDone';
+  const emptyId = type === 'todo' ? 'taskEmptyTodo' : type === 'pending' ? 'taskEmptyPending' : 'taskEmptyDone';
+  const list = document.getElementById(listId);
+  const empty = document.getElementById(emptyId);
+  if (list && empty) {
+    empty.style.display = list.children.length === 0 ? 'block' : 'none';
+  }
+}
+
+/* === Redeem logic === */
+let pendingRedeemCard = null;
+
+function openRedeemModal(btn) {
+  const card = btn.closest('.wish-card');
+  pendingRedeemCard = card;
+  const emoji = card.querySelector('.wish-emoji').textContent;
+  const name = card.querySelector('.wish-name').textContent;
+  const cost = card.dataset.cost;
+  document.getElementById('redeemEmoji').textContent = emoji;
+  document.getElementById('redeemTitle').textContent = '兑换「' + name + '」';
+  document.getElementById('redeemDesc').textContent = '确认要用星星兑换这个梦想吗？兑换后星星将被扣除。';
+  document.getElementById('redeemCostDisplay').innerHTML = '&#11088; ' + cost + ' 星星';
+  document.getElementById('redeemModal').classList.add('show');
+}
+
+function closeRedeemModal() {
+  document.getElementById('redeemModal').classList.remove('show');
+  pendingRedeemCard = null;
+}
+
+function confirmRedeem() {
+  if (!pendingRedeemCard) return;
+  const card = pendingRedeemCard;
+  const emoji = card.querySelector('.wish-emoji').textContent;
+  const name = card.querySelector('.wish-name').textContent;
+  const cost = parseInt(card.dataset.cost);
+
+  /* Deduct stars */
+  const stars = document.getElementById('totalStars');
+  stars.textContent = parseInt(stars.textContent) - cost;
+
+  /* Remove card from active list */
+  card.remove();
+
+  /* Add to history */
+  const now = new Date();
+  const dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日兑换';
+  const historyItem = document.createElement('div');
+  historyItem.className = 'history-item';
+  historyItem.style.animation = 'modalPop 300ms ease';
+  historyItem.innerHTML =
+    '<div class="history-icon" style="background:rgba(255,217,61,0.15)">' + emoji + '</div>' +
+    '<div class="history-info">' +
+      '<div class="history-name">' + name + '</div>' +
+      '<div class="history-date">' + dateStr + '</div>' +
+    '</div>' +
+    '<div class="history-cost">&#11088; ' + cost + '</div>';
+  const historyList = document.getElementById('redeemHistory');
+  historyList.insertBefore(historyItem, historyList.firstChild);
+
+  /* Hide empty state */
+  document.getElementById('historyEmpty').style.display = 'none';
+
+  closeRedeemModal();
+  launchConfetti();
+}
+
+/* === Confetti === */
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#FFD93D', '#FF6B6B', '#6BCB77', '#A78BFA', '#4ECDC4', '#FF9FF3'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animation = 'confettiFall ' + (1.5 + Math.random() * 1.5) + 's ease-out ' + (Math.random() * 0.5) + 's forwards';
+    container.appendChild(piece);
+  }
+  setTimeout(() => { container.innerHTML = ''; }, 3500);
+}
+</script>
+
+</body>
+</html>

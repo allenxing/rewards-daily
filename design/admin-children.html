@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孩子管理 — 成长星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-width); height: 100vh;
+  position: fixed; top: 0; left: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 50; transition: transform 250ms ease;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-icon {
+  width: 36px; height: 36px;
+  background: var(--primary); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.95rem;
+}
+
+.sidebar-logo-text { font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+.sidebar-nav { flex: 1; padding: 12px; overflow-y: auto; }
+
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; font-family: var(--font-body);
+}
+
+.nav-link:hover { background: var(--surface); color: var(--text); }
+.nav-link.active {
+  background: rgba(93,68,50,0.06); color: var(--primary); font-weight: 600;
+  position: relative;
+}
+
+.nav-link.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--primary); border-radius: 0 3px 3px 0;
+}
+
+.nav-link-icon {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  width: 100%; border: none; background: none;
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover { background: rgba(220,38,38,0.06); color: var(--danger); }
+
+.main-content {
+  flex: 1; margin-left: var(--sidebar-width);
+  min-height: 100vh; background: var(--surface);
+}
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 32px 0;
+}
+
+.page-title { font-size: 1.5rem; font-weight: 600; }
+.page-actions { display: flex; gap: 8px; }
+.page-body { padding: 24px 32px 32px; }
+
+/* Children Grid */
+.children-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.child-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+  cursor: pointer;
+}
+
+.child-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.child-avatar-lg {
+  width: 72px; height: 72px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 16px;
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow-md);
+}
+
+.child-card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.child-card-points {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.child-card-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.child-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--primary);
+  font-weight: 500;
+  margin-bottom: 16px;
+  padding: 6px 14px;
+  background: rgba(93,68,50,0.06);
+  border-radius: var(--radius-full);
+  word-break: break-all;
+}
+
+.child-card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.child-action-enter {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border-radius: var(--radius-full);
+  font-size: 0.75rem; font-weight: 600;
+  background: rgba(93,68,50,0.08); color: var(--primary);
+  border: 1px solid rgba(93,68,50,0.15);
+  cursor: pointer; transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+.child-action-enter:hover { background: var(--primary); color: #fff; }
+
+.child-action-copy {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border-radius: var(--radius-full);
+  font-size: 0.75rem; font-weight: 500;
+  background: var(--surface); color: var(--text-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+.child-action-copy:hover { background: var(--border); color: var(--text); }
+.child-action-copy.copied { background: rgba(22,163,74,0.1); color: var(--success); border-color: rgba(22,163,74,0.25); }
+
+/* Theme colors */
+.theme-coral { background: linear-gradient(135deg, #FECDD3, #FCA5A5); }
+.theme-sky { background: linear-gradient(135deg, #BAE6FD, #7DD3FC); }
+.theme-mint { background: linear-gradient(135deg, #A7F3D0, #6EE7B7); }
+.theme-lavender { background: linear-gradient(135deg, #DDD6FE, #C4B5FD); }
+.theme-sun { background: linear-gradient(135deg, #FDE68A, #FCD34D); }
+
+/* Theme color picker */
+.theme-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.theme-option {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-full);
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-option:hover { transform: scale(1.1); }
+.theme-option.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--white); }
+
+/* Mobile */
+.mobile-menu-toggle {
+  display: none;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--white);
+  align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.25rem;
+}
+
+.mobile-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3); z-index: 45;
+}
+
+@media (max-width: 1023px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-toggle { display: flex; }
+  .mobile-overlay.active { display: block; }
+  .page-header { padding: 16px 16px 0; }
+  .page-body { padding: 16px; }
+  .children-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9733;</div>
+      <span class="sidebar-logo-text">成长星球</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link">
+        <span class="nav-link-icon">&#128202;</span> 控制台首页
+      </a>
+      <a href="admin-tasks.html" class="nav-link">
+        <span class="nav-link-icon">&#128203;</span> 任务管理
+      </a>
+      <a href="admin-wishes.html" class="nav-link">
+        <span class="nav-link-icon">&#127911;</span> 愿望管理
+      </a>
+      <a href="admin-children.html" class="nav-link active">
+        <span class="nav-link-icon">&#128118;</span> 孩子管理
+      </a>
+      <a href="admin-records.html" class="nav-link">
+        <span class="nav-link-icon">&#128176;</span> 积分流水记录
+      </a>
+      <a href="admin-settings.html" class="nav-link">
+        <span class="nav-link-icon">&#9881;&#65039;</span> 系统设置
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-btn">
+        <span class="nav-link-icon">&#128682;</span> 退出登录
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="flex items-center gap-12">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1 class="page-title">孩子管理</h1>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary btn-sm" onclick="openModal('childModal')">&#10010; 新增孩子</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="children-grid">
+        <!-- Child 1 -->
+        <div class="child-card" onclick="viewChild('小明')">
+          <div class="child-avatar-lg theme-sky">&#128118;</div>
+          <div class="child-card-name">小明</div>
+          <div class="child-card-points">860</div>
+          <div class="child-card-label">累计积分</div>
+          <div class="child-card-link">/child/xiaoming</div>
+          <div class="child-card-actions" onclick="event.stopPropagation()">
+            <button class="child-action-enter" onclick="enterChildMode('xiaoming')">&#128102; 孩子模式</button>
+            <button class="child-action-copy" onclick="copyChildLink(this, 'xiaoming')">&#128279; 复制地址</button>
+          </div>
+          <div class="child-card-actions" onclick="event.stopPropagation()" style="border-top:none;padding-top:8px">
+            <button class="btn btn-ghost btn-sm" onclick="editChild('小明', '#7DD3FC')">&#9998; 编辑</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteChild(this)">&#128465; 删除</button>
+          </div>
+        </div>
+
+        <!-- Child 2 -->
+        <div class="child-card" onclick="viewChild('小红')">
+          <div class="child-avatar-lg theme-coral">&#128118;</div>
+          <div class="child-card-name">小红</div>
+          <div class="child-card-points">420</div>
+          <div class="child-card-label">累计积分</div>
+          <div class="child-card-link">/child/xiaohong</div>
+          <div class="child-card-actions" onclick="event.stopPropagation()">
+            <button class="child-action-enter" onclick="enterChildMode('xiaohong')">&#128102; 孩子模式</button>
+            <button class="child-action-copy" onclick="copyChildLink(this, 'xiaohong')">&#128279; 复制地址</button>
+          </div>
+          <div class="child-card-actions" onclick="event.stopPropagation()" style="border-top:none;padding-top:8px">
+            <button class="btn btn-ghost btn-sm" onclick="editChild('小红', '#FCA5A5')">&#9998; 编辑</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteChild(this)">&#128465; 删除</button>
+          </div>
+        </div>
+
+        <!-- Add Child Card -->
+        <div class="child-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px;color:var(--text-secondary);cursor:pointer" onclick="openModal('childModal')">
+          <div style="font-size:2.5rem;margin-bottom:12px;opacity:0.4">&#10010;</div>
+          <div style="font-weight:500">添加新孩子</div>
+          <div style="font-size:0.8125rem;margin-top:4px">自动生成专属路由</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Child Modal -->
+<div class="modal-overlay" id="childModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <span class="modal-title" id="childModalTitle">新增孩子</span>
+      <button class="modal-close" onclick="closeModal('childModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">头像</label>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div id="avatarPreview" style="width:64px;height:64px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px dashed var(--border);cursor:pointer">&#128118;</div>
+          <div style="font-size:0.8125rem;color:var(--text-secondary)">点击上传头像<br>或使用默认头像</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">昵称</label>
+        <input type="text" class="form-input" id="childName" placeholder="如：小明">
+      </div>
+      <div class="form-group">
+        <label class="form-label">主题色</label>
+        <div class="theme-grid">
+          <div class="theme-option theme-sky selected" style="background:linear-gradient(135deg,#BAE6FD,#7DD3FC)" onclick="selectTheme(this, '#7DD3FC')"></div>
+          <div class="theme-option theme-coral" style="background:linear-gradient(135deg,#FECDD3,#FCA5A5)" onclick="selectTheme(this, '#FCA5A5')"></div>
+          <div class="theme-option theme-mint" style="background:linear-gradient(135deg,#A7F3D0,#6EE7B7)" onclick="selectTheme(this, '#6EE7B7')"></div>
+          <div class="theme-option theme-lavender" style="background:linear-gradient(135deg,#DDD6FE,#C4B5FD)" onclick="selectTheme(this, '#C4B5FD')"></div>
+          <div class="theme-option theme-sun" style="background:linear-gradient(135deg,#FDE68A,#FCD34D)" onclick="selectTheme(this, '#FCD34D')"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">专属路由</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:var(--text-secondary);font-size:0.875rem">/child/</span>
+          <input type="text" class="form-input" id="childSlug" placeholder="自动生成" style="flex:1">
+        </div>
+        <div class="form-hint" style="margin-top:4px;font-size:0.75rem;color:var(--text-secondary)">留空将根据昵称自动生成</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('childModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveChild()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function selectTheme(el, color) {
+  el.closest('.theme-grid').querySelectorAll('.theme-option').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function editChild(name, color) {
+  document.getElementById('childModalTitle').textContent = '编辑孩子';
+  document.getElementById('childName').value = name;
+  openModal('childModal');
+}
+
+function saveChild() {
+  closeModal('childModal');
+  document.getElementById('childModalTitle').textContent = '新增孩子';
+}
+
+function deleteChild(btn) {
+  if (!confirm('确定删除此孩子？所有相关数据将被清除。')) return;
+  const card = btn.closest('.child-card');
+  card.style.opacity = '0.5';
+  setTimeout(() => card.remove(), 300);
+}
+
+function batchDelete() {
+  const selected = document.querySelectorAll('.child-card input[type=checkbox]:checked');
+  if (selected.length === 0) {
+    alert('请先选择要删除的孩子');
+    return;
+  }
+  if (!confirm(`确定删除选中的 ${selected.length} 个孩子？`)) return;
+}
+
+function viewChild(name) {
+  alert(`跳转到 ${name} 的孩子端：/child/${name.toLowerCase()}`);
+}
+
+function enterChildMode(slug) {
+  window.open(`child-mode.html?child=${slug}`, '_blank');
+}
+
+function copyChildLink(btn, slug) {
+  const url = `${window.location.origin}/child/${slug}`;
+  navigator.clipboard.writeText(url).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '&#10003; 已复制';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '&#128279; 复制地址';
+    }, 2000);
+  }).catch(() => {
+    const input = document.createElement('input');
+    input.value = url;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    btn.classList.add('copied');
+    btn.innerHTML = '&#10003; 已复制';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '&#128279; 复制地址';
+    }, 2000);
+  });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+});
+</script>
+
+</body>
+</html>

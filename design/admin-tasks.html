@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务管理 — 成长星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-width); height: 100vh; position: fixed;
+  top: 0; left: 0; background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; z-index: 50;
+  transition: transform 250ms ease;
+}
+.sidebar-logo { padding: 20px 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.sidebar-logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.95rem; }
+.sidebar-logo-text { font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+.sidebar-nav { flex: 1; padding: 12px; overflow-y: auto; }
+.nav-link { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 44px; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); transition: all var(--transition-fast); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: var(--font-body); }
+.nav-link:hover { background: var(--surface); color: var(--text); }
+.nav-link.active { background: rgba(93,68,50,0.06); color: var(--primary); font-weight: 600; position: relative; }
+.nav-link.active::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--primary); border-radius: 0 3px 3px 0; }
+.nav-link-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+.logout-btn { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 44px; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); width: 100%; border: none; background: none; cursor: pointer; font-family: var(--font-body); transition: all var(--transition-fast); }
+.logout-btn:hover { background: rgba(220,38,38,0.06); color: var(--danger); }
+.main-content { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; background: var(--surface); }
+.page-header { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px 0; }
+.page-title { font-size: 1.5rem; font-weight: 600; }
+.page-body { padding: 24px 32px 32px; }
+
+/* Tabs */
+.page-tabs { display: flex; gap: var(--space-4); border-bottom: 1.5px solid var(--border); margin-bottom: 24px; }
+.page-tab { padding: 10px 20px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: all var(--transition-fast); white-space: nowrap; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-body); display: flex; align-items: center; gap: 6px; }
+.page-tab:hover { color: var(--text); }
+.page-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-count { font-size: 0.7rem; font-weight: 600; background: var(--border); color: var(--text-secondary); padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; }
+.page-tab.active .tab-count { background: rgba(93,68,50,0.12); color: var(--primary); }
+
+/* Batch toolbar */
+.batch-toolbar {
+  display: none; align-items: center; gap: 12px;
+  padding: 10px 16px; margin-bottom: 16px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); font-size: 0.875rem;
+}
+.batch-toolbar.visible { display: flex; }
+.batch-toolbar .batch-count { font-weight: 600; color: var(--primary); }
+.batch-toolbar .batch-actions { display: flex; gap: 8px; margin-left: auto; }
+
+/* Select all checkbox */
+.select-all-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 0.875rem; color: var(--text-secondary); cursor: pointer; user-select: none; }
+.select-all-wrap input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+
+/* Task rows */
+.task-table-row {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 10px; transition: all 280ms ease;
+  position: relative;
+}
+.task-table-row:hover { box-shadow: var(--shadow-sm); }
+.task-table-row.selected { border-color: var(--primary); background: rgba(93,68,50,0.02); }
+.task-table-row.closing { animation: taskFadeOut 350ms ease forwards; }
+.task-table-row.closed-row { opacity: 0.65; }
+.task-table-row.closed-row .task-name-cell h4 { text-decoration: line-through; color: var(--text-secondary); }
+
+@keyframes taskFadeOut {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.98); }
+  100% { opacity: 0.65; transform: scale(1); }
+}
+@keyframes taskRestore {
+  0% { opacity: 0.65; transform: scale(0.98); }
+  50% { opacity: 0.9; transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.task-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+.task-icon-cell { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.task-name-cell { flex: 1; min-width: 0; }
+.task-name-cell h4 { font-size: 0.9375rem; font-weight: 600; margin-bottom: 2px; transition: all 200ms; }
+.task-name-cell .meta { font-size: 0.8125rem; color: var(--text-secondary); display: flex; gap: 12px; flex-wrap: wrap; }
+.task-points-cell { font-family: var(--font-mono); font-weight: 600; font-size: 0.9375rem; color: var(--primary); flex-shrink: 0; }
+.task-status-cell { flex-shrink: 0; }
+.task-actions-cell { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+
+/* Toggle buttons */
+.task-toggle-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; font-size: 0.8rem; font-weight: 500;
+  border-radius: var(--radius-full); border: 1.5px solid;
+  cursor: pointer; transition: all var(--transition-fast);
+  white-space: nowrap; font-family: var(--font-body);
+}
+.task-toggle-btn.disable { border: 1.5px solid var(--danger); color: var(--danger); background: transparent; }
+.task-toggle-btn.disable:hover { background: var(--danger); color: #fff; }
+.task-toggle-btn.enable { border-color: var(--success); color: var(--success); background: transparent; }
+.task-toggle-btn.enable:hover { background: #DCFCE7; }
+
+/* Closed task restore - more prominent */
+.task-restore-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 16px; font-size: 0.8rem; font-weight: 600;
+  border-radius: var(--radius-full); border: none;
+  cursor: pointer; transition: all var(--transition-fast);
+  white-space: nowrap; font-family: var(--font-body);
+  background: var(--success); color: white;
+}
+.task-restore-btn:hover { background: #15803D; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(22,163,74,0.3); }
+
+/* Closed reason tag */
+.closed-reason {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.75rem; color: var(--text-secondary);
+  background: var(--surface); padding: 2px 8px;
+  border-radius: var(--radius-sm); margin-left: 8px;
+  font-style: italic;
+}
+
+/* Mobile Cards */
+.task-mobile-card {
+  display: none; background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px; margin-bottom: 10px; transition: all 280ms ease;
+}
+.task-mobile-card.selected { border-color: var(--primary); background: rgba(93,68,50,0.02); }
+.task-mobile-card.closing { animation: taskFadeOut 350ms ease forwards; }
+.task-mobile-card.closed-card { opacity: 0.65; }
+.task-mobile-card.closed-card .task-name { text-decoration: line-through; color: var(--text-secondary); }
+.task-mobile-card .top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.task-mobile-card .task-info { flex: 1; }
+.task-mobile-card .task-name { font-weight: 600; font-size: 0.9375rem; margin-bottom: 2px; transition: all 200ms; }
+.task-mobile-card .task-meta { font-size: 0.8125rem; color: var(--text-secondary); }
+.task-mobile-card .bottom-row { display: flex; align-items: center; justify-content: space-between; }
+.mobile-menu-toggle { display: none; width: 40px; height: 40px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--white); align-items: center; justify-content: center; cursor: pointer; font-size: 1.25rem; }
+.mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 45; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+  padding: 12px 24px; border-radius: var(--radius-lg);
+  font-size: 0.875rem; font-weight: 500; color: white;
+  z-index: 200; opacity: 0; transition: all 300ms ease;
+  pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--success); }
+.toast.warning { background: var(--warning); }
+.toast.danger { background: var(--danger); }
+
+/* Close reason modal */
+.close-reason-modal .modal { max-width: 420px; }
+
+.close-reason-modal .close-preview {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--surface);
+  border-radius: var(--radius-md); margin-bottom: 20px;
+  font-size: 0.875rem;
+}
+.close-reason-modal .close-preview .preview-icon { font-size: 1.4rem; }
+.close-reason-modal .close-preview .preview-name { font-weight: 600; }
+
+/* Icon selector */
+.icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.icon-option { width: 100%; aspect-ratio: 1; border-radius: var(--radius-md); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: all var(--transition-fast); background: var(--white); }
+.icon-option:hover { border-color: var(--primary); }
+.icon-option.selected { border-color: var(--primary); background: rgba(93,68,50,0.06); }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-secondary); }
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+.empty-state p { font-size: 0.9375rem; }
+
+/* Responsive */
+@media (max-width: 1023px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-toggle { display: flex; }
+  .mobile-overlay.active { display: block; }
+  .page-header { padding: 16px 16px 0; }
+  .page-body { padding: 16px; }
+  .task-table-row { display: none; }
+  .task-mobile-card { display: block; }
+  .batch-toolbar { flex-wrap: wrap; }
+  .batch-toolbar .batch-actions { width: 100%; justify-content: flex-end; }
+}
+@media (min-width: 1024px) {
+  .task-grid { display: block; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9733;</div>
+      <span class="sidebar-logo-text">成长星球</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link"><span class="nav-link-icon">&#128202;</span> 控制台首页</a>
+      <a href="admin-tasks.html" class="nav-link active"><span class="nav-link-icon">&#128203;</span> 任务管理</a>
+      <a href="admin-wishes.html" class="nav-link"><span class="nav-link-icon">&#127911;</span> 愿望管理</a>
+      <a href="admin-children.html" class="nav-link"><span class="nav-link-icon">&#128118;</span> 孩子管理</a>
+      <a href="admin-records.html" class="nav-link"><span class="nav-link-icon">&#128176;</span> 积分流水记录</a>
+      <a href="admin-settings.html" class="nav-link"><span class="nav-link-icon">&#9881;&#65039;</span> 系统设置</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-btn"><span class="nav-link-icon">&#128682;</span> 退出登录</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="flex items-center gap-12">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1 class="page-title">任务管理</h1>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('taskModal')">&#10010; 新增任务</button>
+    </div>
+
+    <div class="page-body">
+      <div class="page-tabs" id="pageTabs">
+        <button class="page-tab active" onclick="filterTasks('all', this)">全部任务 <span class="tab-count" id="countAll">5</span></button>
+        <button class="page-tab" onclick="filterTasks('active', this)">启用任务 <span class="tab-count" id="countActive">4</span></button>
+        <button class="page-tab" onclick="filterTasks('closed', this)">已关闭任务 <span class="tab-count" id="countClosed">1</span></button>
+      </div>
+
+      <!-- Batch toolbar -->
+      <div class="batch-toolbar" id="batchToolbar">
+        <span>已选 <span class="batch-count" id="batchCount">0</span> 项</span>
+        <div class="batch-actions">
+          <button class="btn btn-outline btn-sm" onclick="batchAction('enable')">&#9654; 批量启用</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--warning);border-color:var(--warning)" onclick="batchAction('close')">&#9207; 批量关闭</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearSelection()">取消选择</button>
+        </div>
+      </div>
+
+      <label class="select-all-wrap" id="selectAllWrap">
+        <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"> 全选当前列表
+      </label>
+
+      <!-- Desktop Table View -->
+      <div class="task-grid" id="taskList">
+        <div class="task-table-row" data-status="active" data-id="1">
+          <input type="checkbox" class="task-check" onchange="updateSelection()">
+          <div class="task-icon-cell" style="background:#DBEAFE;color:#2563EB">&#128167;</div>
+          <div class="task-name-cell">
+            <h4>刷牙打卡</h4>
+            <div class="meta">
+              <span>&#128197; 每日</span>
+              <span>&#128118; 小明、小红</span>
+            </div>
+          </div>
+          <div class="task-points-cell">+5</div>
+          <div class="task-status-cell"><span class="badge badge-success">启用</span></div>
+          <div class="task-actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="editTask('刷牙打卡', 5, '每日', '&#128167;', ['小明','小红'], false)">&#9998; 编辑</button>
+            <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+          </div>
+        </div>
+
+        <div class="task-table-row" data-status="active" data-id="2">
+          <input type="checkbox" class="task-check" onchange="updateSelection()">
+          <div class="task-icon-cell" style="background:#EDE9FE;color:#7C3AED">&#128218;</div>
+          <div class="task-name-cell">
+            <h4>亲子阅读</h4>
+            <div class="meta">
+              <span>&#128197; 每日</span>
+              <span>&#128118; 小明、小红</span>
+            </div>
+          </div>
+          <div class="task-points-cell">+10</div>
+          <div class="task-status-cell"><span class="badge badge-success">启用</span></div>
+          <div class="task-actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="editTask('亲子阅读', 10, '每日', '&#128218;', ['小明','小红'], false)">&#9998; 编辑</button>
+            <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+          </div>
+        </div>
+
+        <div class="task-table-row" data-status="active" data-id="3">
+          <input type="checkbox" class="task-check" onchange="updateSelection()">
+          <div class="task-icon-cell" style="background:#D1FAE5;color:#059669">&#127939;</div>
+          <div class="task-name-cell">
+            <h4>户外运动</h4>
+            <div class="meta">
+              <span>&#128197; 每日</span>
+              <span>&#128118; 小明</span>
+            </div>
+          </div>
+          <div class="task-points-cell">+15</div>
+          <div class="task-status-cell"><span class="badge badge-success">启用</span></div>
+          <div class="task-actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="editTask('户外运动', 15, '每日', '&#127939;', ['小明'], false)">&#9998; 编辑</button>
+            <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+          </div>
+        </div>
+
+        <div class="task-table-row" data-status="active" data-id="4">
+          <input type="checkbox" class="task-check" onchange="updateSelection()">
+          <div class="task-icon-cell" style="background:#FEF3C7;color:#D97706">&#129529;</div>
+          <div class="task-name-cell">
+            <h4>整理玩具</h4>
+            <div class="meta">
+              <span>&#128197; 每日</span>
+              <span>&#128118; 小明、小红</span>
+            </div>
+          </div>
+          <div class="task-points-cell">+5</div>
+          <div class="task-status-cell"><span class="badge badge-success">启用</span></div>
+          <div class="task-actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="editTask('整理玩具', 5, '每日', '&#129529;', ['小明','小红'], false)">&#9998; 编辑</button>
+            <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+          </div>
+        </div>
+
+        <div class="task-table-row closed-row" data-status="closed" data-id="5">
+          <input type="checkbox" class="task-check" onchange="updateSelection()">
+          <div class="task-icon-cell" style="background:#FEE2E2;color:#DC2626">&#128156;</div>
+          <div class="task-name-cell">
+            <h4>帮忙做家务</h4>
+            <div class="meta">
+              <span>&#128197; 每周</span>
+              <span>&#128118; 小明</span>
+              <span class="closed-reason" id="closedReason5">&#128196; 暂时不需要</span>
+            </div>
+          </div>
+          <div class="task-points-cell">+10</div>
+          <div class="task-status-cell"><span class="badge badge-neutral">已关闭</span></div>
+          <div class="task-actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="editTask('帮忙做家务', 10, '每周', '&#128156;', ['小明'], false)">&#9998; 编辑</button>
+            <button class="task-restore-btn" onclick="restoreTask(this)">&#9654; 恢复启用</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Card View -->
+      <div id="taskMobileList">
+        <div class="task-mobile-card" data-status="active" data-id="1">
+          <div class="top-row">
+            <input type="checkbox" class="task-check" onchange="updateSelection()">
+            <div class="task-icon-cell" style="background:#DBEAFE;color:#2563EB">&#128167;</div>
+            <div class="task-info">
+              <div class="task-name">刷牙打卡</div>
+              <div class="task-meta">每日 · 小明、小红</div>
+            </div>
+            <span class="badge badge-success">启用</span>
+          </div>
+          <div class="bottom-row">
+            <span style="font-family:var(--font-mono);font-weight:600;color:var(--primary)">+5 积分</span>
+            <div class="flex gap-4">
+              <button class="btn btn-ghost btn-sm" onclick="editTask('刷牙打卡', 5, '每日', '&#128167;', ['小明','小红'], false)">&#9998; 编辑</button>
+              <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-mobile-card" data-status="active" data-id="2">
+          <div class="top-row">
+            <input type="checkbox" class="task-check" onchange="updateSelection()">
+            <div class="task-icon-cell" style="background:#EDE9FE;color:#7C3AED">&#128218;</div>
+            <div class="task-info">
+              <div class="task-name">亲子阅读</div>
+              <div class="task-meta">每日 · 小明、小红</div>
+            </div>
+            <span class="badge badge-success">启用</span>
+          </div>
+          <div class="bottom-row">
+            <span style="font-family:var(--font-mono);font-weight:600;color:var(--primary)">+10 积分</span>
+            <div class="flex gap-4">
+              <button class="btn btn-ghost btn-sm" onclick="editTask('亲子阅读', 10, '每日', '&#128218;', ['小明','小红'], false)">&#9998; 编辑</button>
+              <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-mobile-card" data-status="active" data-id="3">
+          <div class="top-row">
+            <input type="checkbox" class="task-check" onchange="updateSelection()">
+            <div class="task-icon-cell" style="background:#D1FAE5;color:#059669">&#127939;</div>
+            <div class="task-info">
+              <div class="task-name">户外运动</div>
+              <div class="task-meta">每日 · 小明</div>
+            </div>
+            <span class="badge badge-success">启用</span>
+          </div>
+          <div class="bottom-row">
+            <span style="font-family:var(--font-mono);font-weight:600;color:var(--primary)">+15 积分</span>
+            <div class="flex gap-4">
+              <button class="btn btn-ghost btn-sm" onclick="editTask('户外运动', 15, '每日', '&#127939;', ['小明'], false)">&#9998; 编辑</button>
+              <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-mobile-card" data-status="active" data-id="4">
+          <div class="top-row">
+            <input type="checkbox" class="task-check" onchange="updateSelection()">
+            <div class="task-icon-cell" style="background:#FEF3C7;color:#D97706">&#129529;</div>
+            <div class="task-info">
+              <div class="task-name">整理玩具</div>
+              <div class="task-meta">每日 · 小明、小红</div>
+            </div>
+            <span class="badge badge-success">启用</span>
+          </div>
+          <div class="bottom-row">
+            <span style="font-family:var(--font-mono);font-weight:600;color:var(--primary)">+5 积分</span>
+            <div class="flex gap-4">
+              <button class="btn btn-ghost btn-sm" onclick="editTask('整理玩具', 5, '每日', '&#129529;', ['小明','小红'], false)">&#9998; 编辑</button>
+              <button class="task-toggle-btn disable" onclick="promptClose(this)">&#9207; 关闭</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-mobile-card closed-card" data-status="closed" data-id="5">
+          <div class="top-row">
+            <input type="checkbox" class="task-check" onchange="updateSelection()">
+            <div class="task-icon-cell" style="background:#FEE2E2;color:#DC2626">&#128156;</div>
+            <div class="task-info">
+              <div class="task-name">帮忙做家务</div>
+              <div class="task-meta">每周 · 小明 <span class="closed-reason">&#128196; 暂时不需要</span></div>
+            </div>
+            <span class="badge badge-neutral">已关闭</span>
+          </div>
+          <div class="bottom-row">
+            <span style="font-family:var(--font-mono);font-weight:600;color:var(--primary)">+10 积分</span>
+            <div class="flex gap-4">
+              <button class="btn btn-ghost btn-sm" onclick="editTask('帮忙做家务', 10, '每周', '&#128156;', ['小明'], false)">&#9998; 编辑</button>
+              <button class="task-restore-btn" onclick="restoreTask(this)">&#9654; 恢复</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteTask(this)">&#128465;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Task Modal (Add/Edit) -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <span class="modal-title" id="taskModalTitle">新增任务</span>
+      <button class="modal-close" onclick="closeModal('taskModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">任务图标</label>
+        <div class="icon-grid">
+          <div class="icon-option selected" onclick="selectIcon(this)">&#128167;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#128218;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#127939;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#129529;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#128156;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#127912;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#127925;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#128588;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#128170;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#127807;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#128054;</div>
+          <div class="icon-option" onclick="selectIcon(this)">&#11088;</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">任务名称</label>
+        <input type="text" class="form-input" id="taskName" placeholder="如：刷牙打卡">
+      </div>
+      <div class="form-group">
+        <label class="form-label">积分设置</label>
+        <input type="number" class="form-input" id="taskPoints" placeholder="完成可获得的积分" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">执行周期</label>
+        <select class="form-input" id="taskCycle">
+          <option value="daily">每日</option>
+          <option value="weekly">每周</option>
+          <option value="once">一次</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">指派孩子</label>
+        <div class="flex gap-8">
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.875rem;cursor:pointer">
+            <input type="checkbox" class="child-check" value="小明"> 小明
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.875rem;cursor:pointer">
+            <input type="checkbox" class="child-check" value="小红"> 小红
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">自动审核</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer">
+          <input type="checkbox" id="taskAuto"> 提交后自动通过
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('taskModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveTask()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Close Confirm Modal -->
+<div class="modal-overlay" id="closeReasonModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title">关闭任务</span>
+      <button class="modal-close" onclick="closeModal('closeReasonModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="close-preview" id="closePreview" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:16px">
+        <span class="preview-icon" id="closeTaskIcon" style="font-size:1.75rem">&#128167;</span>
+        <span class="preview-name" id="closeTaskName" style="font-weight:600;font-size:0.9375rem">刷牙打卡</span>
+      </div>
+      <p style="font-size:0.875rem;color:var(--text-secondary)">关闭后孩子将无法看到和执行此任务，已有积分不受影响，可随时恢复。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('closeReasonModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmCloseTask()">确认关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// Toast
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+// Tab counters
+function updateCounts() {
+  var all = document.querySelectorAll('.task-table-row').length;
+  var active = document.querySelectorAll('.task-table-row[data-status="active"]').length;
+  var closed = document.querySelectorAll('.task-table-row[data-status="closed"]').length;
+  document.getElementById('countAll').textContent = all;
+  document.getElementById('countActive').textContent = active;
+  document.getElementById('countClosed').textContent = closed;
+}
+
+// Filter
+function filterTasks(status, btn) {
+  document.querySelectorAll('.page-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.task-table-row, .task-mobile-card').forEach(function(row) {
+    if (status === 'all') {
+      row.style.display = '';
+    } else {
+      row.style.display = row.dataset.status === status ? '' : 'none';
+    }
+  });
+  updateSelectAllVisibility();
+}
+
+// Selection
+function updateSelection() {
+  var desktop = document.querySelectorAll('.task-table-row');
+  var mobile = document.querySelectorAll('.task-mobile-card');
+  var allChecks = document.querySelectorAll('.task-check');
+  var selected = 0;
+  allChecks.forEach(function(c) { if (c.checked) selected++; });
+  document.getElementById('batchCount').textContent = selected;
+  document.getElementById('batchToolbar').classList.toggle('visible', selected > 0);
+  var visibleChecks = [];
+  allChecks.forEach(function(c) {
+    var row = c.closest('.task-table-row, .task-mobile-card');
+    if (row && row.style.display !== 'none') visibleChecks.push(c);
+  });
+  var allVisibleChecked = visibleChecks.length > 0 && visibleChecks.every(function(c) { return c.checked; });
+  document.getElementById('selectAll').checked = allVisibleChecked;
+  // sync desktop/mobile checkboxes
+  syncRowChecks();
+}
+
+function syncRowChecks() {
+  var rows = document.querySelectorAll('.task-table-row');
+  var cards = document.querySelectorAll('.task-mobile-card');
+  rows.forEach(function(r) {
+    var id = r.dataset.id;
+    var check = r.querySelector('.task-check');
+    var card = document.querySelector('.task-mobile-card[data-id="' + id + '"]');
+    if (card) card.querySelector('.task-check').checked = check.checked;
+    r.classList.toggle('selected', check.checked);
+    if (card) card.classList.toggle('selected', check.checked);
+  });
+}
+
+function toggleSelectAll(el) {
+  var visible = [];
+  document.querySelectorAll('.task-table-row, .task-mobile-card').forEach(function(r) {
+    if (r.style.display !== 'none') {
+      var c = r.querySelector('.task-check');
+      if (c) visible.push(c);
+    }
+  });
+  visible.forEach(function(c) { c.checked = el.checked; });
+  syncRowChecks();
+  updateSelection();
+}
+
+function clearSelection() {
+  document.querySelectorAll('.task-check').forEach(function(c) { c.checked = false; });
+  document.getElementById('selectAll').checked = false;
+  document.querySelectorAll('.task-table-row, .task-mobile-card').forEach(function(r) {
+    r.classList.remove('selected');
+  });
+  document.getElementById('batchToolbar').classList.remove('visible');
+  document.getElementById('batchCount').textContent = '0';
+}
+
+function updateSelectAllVisibility() {
+  var visibleRows = document.querySelectorAll('.task-table-row:not([style*="display: none"]), .task-mobile-card:not([style*="display: none"])');
+  document.getElementById('selectAllWrap').style.display = visibleRows.length > 0 ? '' : 'none';
+}
+
+// Icon selector
+function selectIcon(el) {
+  el.closest('.icon-grid').querySelectorAll('.icon-option').forEach(function(i) { i.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+// Edit task
+function editTask(name, points, cycle, icon, children, auto) {
+  document.getElementById('taskModalTitle').textContent = '编辑任务';
+  document.getElementById('taskName').value = name;
+  document.getElementById('taskPoints').value = points;
+  var cycleSelect = document.getElementById('taskCycle');
+  var cycleMap = {'每日':'daily','每周':'weekly','一次':'once'};
+  cycleSelect.value = cycleMap[cycle] || 'daily';
+  document.querySelectorAll('.icon-option').forEach(function(i) {
+    i.classList.toggle('selected', i.textContent.trim() === icon);
+  });
+  document.querySelectorAll('.child-check').forEach(function(c) {
+    c.checked = children.indexOf(c.value) !== -1;
+  });
+  document.getElementById('taskAuto').checked = auto;
+  openModal('taskModal');
+}
+
+function saveTask() {
+  closeModal('taskModal');
+  document.getElementById('taskModalTitle').textContent = '新增任务';
+  showToast('任务已保存', 'success');
+}
+
+// Delete
+function deleteTask(btn) {
+  if (!confirm('确定删除此任务？删除后不可恢复。')) return;
+  var row = btn.closest('.task-table-row, .task-mobile-card');
+  var id = row.dataset.id;
+  row.style.transition = 'all 300ms ease';
+  row.style.opacity = '0';
+  row.style.transform = 'translateX(-20px)';
+  setTimeout(function() {
+    row.remove();
+    var other = document.querySelector('[data-id="' + id + '"]');
+    if (other) other.remove();
+    updateCounts();
+    updateSelectAllVisibility();
+    showToast('任务已删除', 'danger');
+  }, 300);
+}
+
+// Close task — prompt with custom modal
+var _closeTarget = null;
+
+
+function promptClose(btn) {
+  _closeTarget = btn;
+  var row = btn.closest('.task-table-row, .task-mobile-card');
+  var name = row.querySelector('h4, .task-name').textContent;
+  var icon = row.querySelector('.task-icon-cell').textContent.trim();
+  document.getElementById('closeTaskName').textContent = name;
+  document.getElementById('closeTaskIcon').textContent = icon;
+  openModal('closeReasonModal');
+}
+
+function confirmCloseTask() {
+  closeModal('closeReasonModal');
+  if (!_closeTarget) return;
+  var row = _closeTarget.closest('.task-table-row, .task-mobile-card');
+  if (!row) return;
+  var id = row.dataset.id;
+  // Animate
+  row.classList.add('closing');
+  setTimeout(function() {
+    // Update both desktop and mobile rows
+    [row, document.querySelector('[data-id="' + id + '"]')].forEach(function(r) {
+      if (!r) return;
+      r.dataset.status = 'closed';
+      r.classList.remove('closing');
+      if (r.classList.contains('task-table-row')) {
+        r.classList.add('closed-row');
+      } else {
+        r.classList.add('closed-card');
+      }
+      // Update badge
+      r.querySelectorAll('.badge').forEach(function(b) {
+        b.className = 'badge badge-neutral';
+        b.textContent = '已关闭';
+      });
+      // Replace toggle button with restore
+      r.querySelectorAll('.task-toggle-btn').forEach(function(b) {
+        var restoreBtn = document.createElement('button');
+        restoreBtn.className = 'task-restore-btn';
+        restoreBtn.innerHTML = '&#9654; 恢复启用';
+        restoreBtn.onclick = function() { restoreTask(this); };
+        b.replaceWith(restoreBtn);
+      });
+      // Add reason tag
+      var meta = r.querySelector('.meta, .task-meta');
+      if (meta && reason) {
+        var existing = meta.querySelector('.closed-reason');
+        if (existing) existing.remove();
+        var tag = document.createElement('span');
+        tag.className = 'closed-reason';
+        tag.id = 'closedReason' + id;
+        tag.innerHTML = '&#128196; ' + reason;
+        meta.appendChild(tag);
+      }
+    });
+    updateCounts();
+    var currentTab = document.querySelector('.page-tab.active');
+    if (currentTab) currentTab.click();
+    showToast('任务已关闭', 'warning');
+  }, 350);
+  _closeTarget = null;
+}
+
+// Restore task
+function restoreTask(btn) {
+  var row = btn.closest('.task-table-row, .task-mobile-card');
+  if (!row) return;
+  var id = row.dataset.id;
+  row.style.animation = 'taskRestore 350ms ease';
+  setTimeout(function() {
+    [row, document.querySelector('[data-id="' + id + '"]')].forEach(function(r) {
+      if (!r) return;
+      r.dataset.status = 'active';
+      r.classList.remove('closed-row', 'closed-card');
+      r.style.animation = '';
+      r.querySelectorAll('.badge').forEach(function(b) {
+        b.className = 'badge badge-success';
+        b.textContent = '启用';
+      });
+      r.querySelectorAll('.task-restore-btn').forEach(function(b) {
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'task-toggle-btn disable';
+        toggleBtn.innerHTML = '&#9207; 关闭';
+        toggleBtn.onclick = function() { promptClose(this); };
+        b.replaceWith(toggleBtn);
+      });
+      // Remove reason tag
+      var reasonTag = r.querySelector('.closed-reason');
+      if (reasonTag) reasonTag.remove();
+    });
+    updateCounts();
+    var currentTab = document.querySelector('.page-tab.active');
+    if (currentTab) currentTab.click();
+    showToast('任务已恢复启用', 'success');
+  }, 350);
+}
+
+// Batch actions
+function batchAction(action) {
+  var selectedIds = [];
+  document.querySelectorAll('.task-table-row .task-check:checked').forEach(function(c) {
+    var row = c.closest('.task-table-row');
+    if (row && row.dataset.status !== (action === 'close' ? 'closed' : 'active')) {
+      selectedIds.push(row.dataset.id);
+    }
+  });
+  if (selectedIds.length === 0) {
+    showToast('没有需要操作的任务', 'warning');
+    return;
+  }
+  var label = action === 'close' ? '关闭' : '启用';
+  if (!confirm('确定' + label + '选中的 ' + selectedIds.length + ' 个任务？')) return;
+  selectedIds.forEach(function(id) {
+    var desktopRow = document.querySelector('.task-table-row[data-id="' + id + '"]');
+    var mobileCard = document.querySelector('.task-mobile-card[data-id="' + id + '"]');
+    [desktopRow, mobileCard].forEach(function(r) {
+      if (!r) return;
+      if (action === 'close') {
+        r.dataset.status = 'closed';
+        r.classList.add(r.classList.contains('task-table-row') ? 'closed-row' : 'closed-card');
+        r.querySelectorAll('.badge').forEach(function(b) {
+          b.className = 'badge badge-neutral'; b.textContent = '已关闭';
+        });
+        r.querySelectorAll('.task-toggle-btn').forEach(function(b) {
+          var rb = document.createElement('button');
+          rb.className = 'task-restore-btn';
+          rb.innerHTML = '&#9654; 恢复启用';
+          rb.onclick = function() { restoreTask(this); };
+          b.replaceWith(rb);
+        });
+      } else {
+        r.dataset.status = 'active';
+        r.classList.remove('closed-row', 'closed-card');
+        r.querySelectorAll('.badge').forEach(function(b) {
+          b.className = 'badge badge-success'; b.textContent = '启用';
+        });
+        r.querySelectorAll('.task-restore-btn').forEach(function(b) {
+          var tb = document.createElement('button');
+          tb.className = 'task-toggle-btn disable';
+          tb.innerHTML = '&#9207; 关闭';
+          tb.onclick = function() { promptClose(this); };
+          b.replaceWith(tb);
+        });
+        var reasonTag = r.querySelector('.closed-reason');
+        if (reasonTag) reasonTag.remove();
+      }
+    });
+  });
+  clearSelection();
+  updateCounts();
+  var currentTab = document.querySelector('.page-tab.active');
+  if (currentTab) currentTab.click();
+  showToast('已' + label + ' ' + selectedIds.length + ' 个任务', action === 'close' ? 'warning' : 'success');
+}
+
+// Init
+updateCounts();
+document.querySelectorAll('.modal-overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('active'); });
+});
+</script>
+</body>
+</html>

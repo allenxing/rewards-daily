@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统设置 — 成长星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: transform 250ms ease;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-icon {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.95rem;
+}
+
+.sidebar-logo-text {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: 1rem;
+}
+
+.sidebar-nav {
+  flex: 1; padding: 12px; overflow-y: auto;
+}
+
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; font-family: var(--font-body);
+}
+
+.nav-link:hover { background: var(--surface); color: var(--text); }
+
+.nav-link.active {
+  background: rgba(93,68,50,0.06);
+  color: var(--primary); font-weight: 600;
+  position: relative;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; background: var(--primary);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-link-icon {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary);
+  width: 100%; border: none; background: none;
+  cursor: pointer; font-family: var(--font-body);
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover { background: rgba(220,38,38,0.06); color: var(--danger); }
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--surface);
+}
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 32px 0;
+}
+
+.page-title { font-size: 1.5rem; font-weight: 600; }
+
+.page-body { padding: 24px 32px 48px; }
+
+/* Settings Sections */
+.settings-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.settings-section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-section-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.settings-section-icon.security { background: #DBEAFE; color: #2563EB; }
+.settings-section-icon.data { background: #D1FAE5; color: #059669; }
+.settings-section-icon.theme { background: #FEF3C7; color: #D97706; }
+.settings-section-icon.about { background: #F3E8DB; color: var(--primary); }
+
+.settings-section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.settings-section-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+/* Settings Rows */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.settings-row-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.settings-row-action {
+  flex-shrink: 0;
+}
+
+/* Toggle Switch */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 12px;
+  transition: background var(--transition-fast);
+}
+
+.toggle input:checked + .toggle-track {
+  background: var(--primary);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggle input:checked ~ .toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* Color Picker */
+.color-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.selected {
+  border-color: var(--text);
+}
+
+.color-option.selected::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Danger Zone */
+.settings-section.danger {
+  border-color: #FCA5A5;
+}
+
+.settings-section.danger .settings-section-header {
+  border-bottom-color: #FCA5A5;
+  background: #FEF2F2;
+}
+
+.settings-section.danger .settings-section-icon {
+  background: #FEE2E2;
+  color: var(--danger);
+}
+
+.mobile-menu-toggle {
+  display: none;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--white);
+  align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.25rem;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 45;
+}
+
+@media (max-width: 1023px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-toggle { display: flex; }
+  .mobile-overlay.active { display: block; }
+  .page-header { padding: 16px 16px 0; }
+  .page-body { padding: 16px 16px 48px; }
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .settings-row-action {
+    align-self: flex-end;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#9733;</div>
+      <span class="sidebar-logo-text">成长星球</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-link">
+        <span class="nav-link-icon">&#128202;</span> 控制台首页
+      </a>
+      <a href="admin-tasks.html" class="nav-link">
+        <span class="nav-link-icon">&#128203;</span> 任务管理
+      </a>
+      <a href="admin-wishes.html" class="nav-link">
+        <span class="nav-link-icon">&#127911;</span> 愿望管理
+      </a>
+      <a href="admin-children.html" class="nav-link">
+        <span class="nav-link-icon">&#128118;</span> 孩子管理
+      </a>
+      <a href="admin-records.html" class="nav-link">
+        <span class="nav-link-icon">&#128176;</span> 积分流水记录
+      </a>
+      <a href="admin-settings.html" class="nav-link active">
+        <span class="nav-link-icon">&#9881;&#65039;</span> 系统设置
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="logout-btn">
+        <span class="nav-link-icon">&#128682;</span> 退出登录
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="flex items-center gap-12">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1 class="page-title">系统设置</h1>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Security Settings -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon security">&#128274;</div>
+          <div>
+            <div class="settings-section-title">安全设置</div>
+            <div class="settings-section-desc">管理登录密码和密保问题</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">登录密码</div>
+            <div class="settings-row-desc">用于家长端登录的4位数字密码</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="openModal('passwordModal')">修改密码</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">密保问题</div>
+            <div class="settings-row-desc">用于找回密码的安全问题</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="openModal('secretModal')">设置密保</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">登录通知</div>
+            <div class="settings-row-desc">每次登录时发送通知提醒</div>
+          </div>
+          <div class="settings-row-action">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Management -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon data">&#128190;</div>
+          <div>
+            <div class="settings-section-title">数据管理</div>
+            <div class="settings-section-desc">备份、恢复或清空所有数据</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">数据备份</div>
+            <div class="settings-row-desc">将所有数据导出为 JSON 文件，可用于跨设备迁移</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="backupData()">立即备份</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">数据恢复</div>
+            <div class="settings-row-desc">从备份文件恢复数据，当前数据将被覆盖</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('restoreFile').click()">选择文件</button>
+            <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(this)">
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">自动备份</div>
+            <div class="settings-row-desc">每周自动备份一次数据到本地存储</div>
+          </div>
+          <div class="settings-row-action">
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personalization -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon theme">&#127912;</div>
+          <div>
+            <div class="settings-section-title">个性化设置</div>
+            <div class="settings-section-desc">自定义界面主题和交互体验</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">主题色</div>
+            <div class="settings-row-desc">选择家长端的主色调</div>
+          </div>
+          <div class="settings-row-action">
+            <div class="color-options">
+              <div class="color-option selected" style="background:#5D4432" onclick="selectColor(this)" title="咖啡棕"></div>
+              <div class="color-option" style="background:#2563EB" onclick="selectColor(this)" title="海蓝"></div>
+              <div class="color-option" style="background:#059669" onclick="selectColor(this)" title="森林绿"></div>
+              <div class="color-option" style="background:#7C3AED" onclick="selectColor(this)" title="紫藤"></div>
+              <div class="color-option" style="background:#DC2626" onclick="selectColor(this)" title="中国红"></div>
+              <div class="color-option" style="background:#D97706" onclick="selectColor(this)" title="琥珀"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">操作音效</div>
+            <div class="settings-row-desc">按钮点击和任务完成时的提示音</div>
+          </div>
+          <div class="settings-row-action">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">紧凑模式</div>
+            <div class="settings-row-desc">减小间距，在一屏内展示更多内容</div>
+          </div>
+          <div class="settings-row-action">
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon about">&#9733;</div>
+          <div>
+            <div class="settings-section-title">关于</div>
+            <div class="settings-section-desc">产品信息与帮助</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">版本号</div>
+            <div class="settings-row-desc">当前版本 v1.0.0</div>
+          </div>
+          <div class="settings-row-action">
+            <span class="badge badge-neutral">最新</span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">意见反馈</div>
+            <div class="settings-row-desc">遇到问题或有好的建议？</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="alert('反馈功能将跳转至反馈表单页面。')">提交反馈</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">使用帮助</div>
+            <div class="settings-row-desc">查看产品使用指南和常见问题</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-outline btn-sm" onclick="alert('帮助文档加载中...')">查看帮助</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="settings-section danger">
+        <div class="settings-section-header">
+          <div class="settings-section-icon">&#9888;&#65039;</div>
+          <div>
+            <div class="settings-section-title">危险操作</div>
+            <div class="settings-section-desc">以下操作不可逆，请谨慎执行</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-label">清空所有数据</div>
+            <div class="settings-row-desc">删除全部孩子、任务、积分和愿望数据，此操作无法恢复</div>
+          </div>
+          <div class="settings-row-action">
+            <button class="btn btn-danger btn-sm" onclick="clearAllData()">清空数据</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">修改登录密码</span>
+      <button class="modal-close" onclick="closeModal('passwordModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">当前密码</label>
+        <input type="password" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="输入当前4位密码">
+      </div>
+      <div class="form-group">
+        <label class="form-label">新密码</label>
+        <input type="password" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="输入新的4位密码">
+      </div>
+      <div class="form-group">
+        <label class="form-label">确认新密码</label>
+        <input type="password" class="form-input" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="再次输入新密码">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('passwordModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('passwordModal')">确认修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- Secret Question Modal -->
+<div class="modal-overlay" id="secretModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">设置密保问题</span>
+      <button class="modal-close" onclick="closeModal('secretModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">密保问题</label>
+        <select class="form-input">
+          <option>您母亲的姓名是？</option>
+          <option>您的第一所学校是？</option>
+          <option>您最喜欢的宠物名字是？</option>
+          <option>自定义问题</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">密保答案</label>
+        <input type="text" class="form-input" placeholder="请输入答案">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('secretModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('secretModal')">保存密保</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function selectColor(el) {
+  el.closest('.color-options').querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function backupData() {
+  const data = { version: '1.0.0', timestamp: new Date().toISOString(), message: '数据备份文件' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '成长星球-备份-' + new Date().toLocaleDateString('zh-CN').replace(/\//g, '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  alert('数据备份已开始下载。');
+}
+
+function restoreData(input) {
+  if (!input.files.length) return;
+  if (!confirm('确定从文件恢复数据？当前所有数据将被覆盖。')) {
+    input.value = '';
+    return;
+  }
+  alert('数据恢复功能将解析上传的 JSON 文件并替换当前数据。');
+  input.value = '';
+}
+
+function clearAllData() {
+  const step1 = confirm('⚠️ 此操作将永久删除所有数据，包括：\n\n• 所有孩子档案\n• 所有任务和愿望\n• 所有积分流水记录\n\n此操作不可逆！\n\n是否继续？');
+  if (!step1) return;
+  const step2 = prompt('请输入「确认清空」以执行操作：');
+  if (step2 !== '确认清空') {
+    alert('操作已取消。');
+    return;
+  }
+  alert('数据已清空。页面将刷新。');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+});
+</script>
+
+</body>
+</html>
