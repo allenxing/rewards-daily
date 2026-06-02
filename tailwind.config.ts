@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animatePlugin from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -10,7 +11,30 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-poppins)", "Poppins", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        display: ["var(--font-poppins)", "Poppins", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        body: ["var(--font-poppins)", "Poppins", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
+      },
       colors: {
+        // Cafe design tokens (直接 hex 暴露,组件需要纯色时用)
+        cafe: {
+          primary: "#5D4432",
+          "primary-light": "#7A5C48",
+          "primary-dark": "#4A3628",
+          secondary: "#E9E3DD",
+          surface: "#F9F7F5",
+          "surface-alt": "#F3EFEB",
+          text: "#3E2B1E",
+          "text-secondary": "#8B7B6B",
+          border: "#E5DDD5",
+          success: "#16A34A",
+          warning: "#D97706",
+          danger: "#DC2626",
+          info: "#2563EB",
+        },
+        // shadcn 变量(以下指向 globals.css 的 HSL CSS 变量)
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -59,5 +83,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animatePlugin],
 } satisfies Config;

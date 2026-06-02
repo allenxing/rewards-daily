@@ -1,0 +1,255 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { Plus, User, Copy, Pencil, Check } from "lucide-react";
+import { Modal } from "@/components/common/modal";
+import { ColorPicker } from "@/components/common/color-picker";
+import { useToast } from "@/components/common/toast";
+import { addChildAction, updateChildAction } from "@/lib/actions";
+import { themePresets } from "@/lib/mock-data";
+import type { Child } from "@/lib/mock-data";
+import styles from "@/app/admin/admin.module.css";
+
+const themeClassMap: Record<string, string> = {
+  sky: styles.themeSky,
+  coral: styles.themeCoral,
+  mint: styles.themeMint,
+  lavender: styles.themeLavender,
+  sun: styles.themeSun,
+};
+
+type Props = {
+  initialChildren: Child[];
+};
+
+export function ChildrenClient({ initialChildren }: Props) {
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingChild, setEditingChild] = useState<Child | null>(null);
+  const [themeKey, setThemeKey] = useState("sky");
+  const [pending, startTransition] = useTransition();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const toast = useToast();
+
+  const handleCopy = (slug: string, id: string) => {
+    const url = `${window.location.origin}/child/${slug}`;
+    navigator.clipboard?.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+    toast.success("链接已复制");
+  };
+
+  const openAdd = () => {
+    setEditingChild(null);
+    setThemeKey("sky");
+    setFormOpen(true);
+  };
+
+  const openEdit = (child: Child) => {
+    setEditingChild(child);
+    setThemeKey(child.themeKey);
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditingChild(null);
+    setThemeKey("sky");
+  };
+
+  const isEdit = editingChild !== null;
+  const formKey = editingChild ? `edit-${editingChild.id}` : "add";
+  const activePreset = themePresets.find((p) => p.key === themeKey) ?? themePresets[0];
+
+  const colorOptions = themePresets.map((t) => ({
+    key: t.key,
+    color: t.color,
+    gradient: t.gradient,
+    label: t.label,
+  }));
+
+  return (
+    <div className={styles.pageBody}>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>孩子管理</h1>
+        <div className={styles.pageActions}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
+            onClick={openAdd}
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            新增孩子
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.childrenGrid}>
+        {initialChildren.map((child) => (
+          <div key={child.id} className={styles.childCard}>
+            <div className={`${styles.childAvatarLg} ${themeClassMap[child.themeKey] ?? ""}`}>
+              <User size={32} strokeWidth={1.5} />
+            </div>
+            <div className={styles.childCardName}>{child.name}</div>
+            <div className={styles.childCardPoints}>{child.totalPoints}</div>
+            <div className={styles.childCardLabel}>累计积分 · Lv.{child.level}</div>
+            <div className={styles.childCardLink}>/child/{child.slug}</div>
+            <div className={styles.childCardActions}>
+              <a
+                href={`/child/${child.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.childActionEnter}
+              >
+                <User size={12} /> 孩子模式
+              </a>
+              <button
+                type="button"
+                className={styles.childActionCopy}
+                onClick={() => handleCopy(child.slug, child.id)}
+              >
+                {copiedId === child.id ? <Check size={12} /> : <Copy size={12} />}
+                {copiedId === child.id ? "已复制" : "复制地址"}
+              </button>
+            </div>
+            <div className={`${styles.childCardActions} ${styles.childCardActionsSecondary}`}>
+              <button
+                type="button"
+                className={styles.btnGhost}
+                onClick={() => openEdit(child)}
+              >
+                <Pencil size={12} /> 编辑
+              </button>
+              <button type="button" className={`${styles.btnGhost} ${styles.btnGhostDanger}`}>
+                🗑 删除
+              </button>
+            </div>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          className={`${styles.childCard} ${styles.childCardAdd}`}
+          onClick={openAdd}
+          aria-label="添加新孩子"
+        >
+          <div className={styles.addCardIcon}>+</div>
+          <div className={styles.addCardTitle}>添加新孩子</div>
+          <div className={styles.addCardSub}>自动生成专属路由</div>
+        </button>
+      </div>
+
+      <Modal
+        open={formOpen}
+        onClose={closeForm}
+        title={isEdit ? "编辑孩子" : "新增孩子"}
+        maxWidth={440}
+        footer={
+          <>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
+              onClick={closeForm}
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
+              disabled={pending}
+              onClick={() => {
+                const form = document.getElementById(`child-form-${formKey}`) as HTMLFormElement | null;
+                if (!form) return;
+                const name = (form.elements.namedItem("name") as HTMLInputElement)?.value?.trim();
+                if (!name) {
+                  toast.error("请填写昵称");
+                  return;
+                }
+                startTransition(async () => {
+                  if (isEdit && editingChild) {
+                    const fd = new FormData(form);
+                    fd.set("childId", editingChild.id);
+                    await updateChildAction(fd);
+                    toast.success("孩子已更新");
+                  } else {
+                    await addChildAction(new FormData(form));
+                    toast.success("孩子已添加");
+                  }
+                  closeForm();
+                });
+              }}
+            >
+              {pending
+                ? isEdit
+                  ? "保存中…"
+                  : "保存中…"
+                : isEdit
+                  ? "保存修改"
+                  : "保存"}
+            </button>
+          </>
+        }
+      >
+        <form
+          key={formKey}
+          id={`child-form-${formKey}`}
+          onSubmit={(e) => e.preventDefault()}
+        >
+          {isEdit && editingChild ? (
+            <input type="hidden" name="childId" value={editingChild.id} />
+          ) : null}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>头像</label>
+            <div className={styles.avatarUpload}>
+              <div className={styles.avatarUploadPreview}>
+                <User size={28} strokeWidth={1.5} />
+              </div>
+              <div className={styles.avatarUploadText}>
+                点击上传头像
+                <br />
+                或使用默认头像
+              </div>
+            </div>
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>昵称</label>
+            <input
+              type="text"
+              name="name"
+              className={styles.formInput}
+              placeholder="如:小明"
+              defaultValue={editingChild?.name ?? ""}
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>主题色</label>
+            <ColorPicker
+              name="themeKey"
+              value={themeKey}
+              onChange={(k) => setThemeKey(k)}
+              options={colorOptions}
+            />
+            <input
+              type="hidden"
+              name="themeColor"
+              value={activePreset?.color ?? "#7DD3FC"}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>专属路由</label>
+            <div className={styles.formInputRow}>
+              <span className={styles.formInputPrefix}>/child/</span>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="自动生成"
+                defaultValue={editingChild?.slug ?? ""}
+              />
+            </div>
+            <div className={styles.formHint}>留空将根据昵称自动生成</div>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}

@@ -1,0 +1,371 @@
+/* Landing 私有样式 — 来自 design/index.html
+   颜色统一引用 globals.css 里的 CSS 变量,后续主题切换改 :root 即可 */
+
+.page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #3e2b1e;
+}
+
+/* === Navbar === */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--cafe-border, #e5ddd5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 5vw, 64px);
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandLogo {
+  width: 32px;
+  height: 32px;
+  background: var(--cafe-primary, #5d4432);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.brandName {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--cafe-text, #3e2b1e);
+}
+
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: var(--cafe-primary, #5d4432);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+  text-decoration: none;
+}
+
+.loginBtn:hover {
+  background: var(--cafe-primary-light, #7a5c48);
+}
+
+.signupBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: #ffffff;
+  color: var(--cafe-primary, #5d4432);
+  border: 1.5px solid var(--cafe-primary, #5d4432);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  font-family: inherit;
+}
+
+.signupBtn:hover {
+  background: var(--cafe-surface, #f9f7f5);
+}
+
+.userArea {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--cafe-text, #3e2b1e);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--cafe-surface, #f9f7f5);
+  color: var(--cafe-text, #3e2b1e);
+  border: 1px solid var(--cafe-border, #e5ddd5);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.iconBtn:hover {
+  background: var(--cafe-secondary, #e9e3dd);
+  color: var(--cafe-primary, #5d4432);
+  border-color: var(--cafe-primary, #5d4432);
+}
+
+/* === Hero === */
+.hero {
+  padding: 160px clamp(24px, 5vw, 64px) 100px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--cafe-surface, #f9f7f5) 0%, #ffffff 100%);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--cafe-secondary, #e9e3dd);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--cafe-text-secondary, #8b7b6b);
+  margin-bottom: 24px;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cafe-text, #3e2b1e);
+  margin: 0 0 20px;
+}
+
+.heroTitleAccent {
+  color: var(--cafe-primary, #5d4432);
+}
+
+.heroSub {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  color: var(--cafe-text-secondary, #8b7b6b);
+  max-width: 540px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+
+.heroActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* === Buttons === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.btnPrimary {
+  background: var(--cafe-primary, #5d4432);
+  color: #ffffff;
+}
+
+.btnPrimary:hover {
+  background: var(--cafe-primary-light, #7a5c48);
+}
+
+.btnOutline {
+  background: #ffffff;
+  color: var(--cafe-text, #3e2b1e);
+  border: 1.5px solid var(--cafe-border, #e5ddd5);
+}
+
+.btnOutline:hover {
+  border-color: var(--cafe-primary, #5d4432);
+  color: var(--cafe-primary, #5d4432);
+}
+
+/* === Features === */
+.features {
+  padding: 80px clamp(24px, 5vw, 64px);
+  background: #ffffff;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.sectionTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--cafe-text, #3e2b1e);
+}
+
+.sectionSub {
+  color: var(--cafe-text-secondary, #8b7b6b);
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  padding: 32px;
+  border: 1px solid var(--cafe-border, #e5ddd5);
+  border-radius: 12px;
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+  background: #ffffff;
+}
+
+.featureCard:hover {
+  box-shadow: 0 4px 16px rgba(62, 43, 30, 0.06);
+  border-color: var(--cafe-primary, #5d4432);
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--cafe-surface, #f9f7f5);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+.featureCardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--cafe-text, #3e2b1e);
+}
+
+.featureCardDesc {
+  font-size: 0.875rem;
+  color: var(--cafe-text-secondary, #8b7b6b);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* === Advantages === */
+.advantages {
+  padding: 80px clamp(24px, 5vw, 64px);
+  background: var(--cafe-surface, #f9f7f5);
+}
+
+.advantagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.advantageItem {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--cafe-border, #e5ddd5);
+}
+
+.advantageIcon {
+  width: 40px;
+  height: 40px;
+  background: var(--cafe-surface, #f9f7f5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.advantageTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--cafe-text, #3e2b1e);
+}
+
+.advantageDesc {
+  font-size: 0.8125rem;
+  color: var(--cafe-text-secondary, #8b7b6b);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* === Footer === */
+.footer {
+  padding: 40px clamp(24px, 5vw, 64px);
+  border-top: 1px solid var(--cafe-border, #e5ddd5);
+  text-align: center;
+  background: #ffffff;
+}
+
+.footerText {
+  font-size: 0.8125rem;
+  color: var(--cafe-text-secondary, #8b7b6b);
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero {
+    padding: 120px 24px 60px;
+  }
+
+  .features,
+  .advantages {
+    padding: 48px 24px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .advantagesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 0 20px;
+  }
+}
