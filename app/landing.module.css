@@ -237,10 +237,22 @@
 
 .featuresGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .featureCard {
@@ -355,10 +367,6 @@
   .features,
   .advantages {
     padding: 48px 24px;
-  }
-
-  .featuresGrid {
-    grid-template-columns: 1fr;
   }
 
   .advantagesGrid {
