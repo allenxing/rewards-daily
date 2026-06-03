@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Pencil, Lock, Star } from "lucide-react";
 import { Tabs } from "@/components/common/tabs";
 import { Modal } from "@/components/common/modal";
@@ -22,15 +23,18 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [pending, startTransition] = useTransition();
   const toast = useToast();
+  const t = useTranslations("admin.wishes");
+  const c = useTranslations("common");
+  const e = useTranslations("error");
 
   const all = initialWishes;
   const personal = initialWishes.filter((w) => !w.isFamily);
   const family = initialWishes.filter((w) => w.isFamily);
 
   const tabs = [
-    { key: "all", label: "全部愿望", count: all.length },
-    { key: "personal", label: "个人愿望", count: personal.length },
-    { key: "family", label: "家庭愿望", count: family.length },
+    { key: "all", label: t("tabAll"), count: all.length },
+    { key: "personal", label: t("tabPersonal"), count: personal.length },
+    { key: "family", label: t("tabFamily"), count: family.length },
   ];
 
   const visible =
@@ -55,14 +59,14 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
   const formKey = editingWish ? `edit-${editingWish.id}` : "add";
   const ownerDefault = editingWish
     ? editingWish.isFamily
-      ? "家庭"
+      ? "family"
       : String(kidsList.find((c) => c.name === editingWish.owner)?.id ?? kidsList[0]?.id ?? "")
     : String(kidsList[0]?.id ?? "");
 
   return (
     <div className={styles.pageBody}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>愿望管理</h1>
+        <h1 className={styles.pageTitle}>{t("pageTitle")}</h1>
         <div className={styles.pageActions}>
           <button
             type="button"
@@ -70,7 +74,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
             onClick={openAdd}
           >
             <Plus size={18} strokeWidth={2.5} />
-            新增愿望
+            {t("addTitle")}
           </button>
         </div>
       </div>
@@ -90,7 +94,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
               <div className={styles.wishTitle}>{wish.name}</div>
               <div className={styles.wishMeta}>
                 <span className={styles.wishPoints}>
-                  <Star size={12} fill="currentColor" /> {wish.points} 积分
+                  <Star size={12} fill="currentColor" /> {t("points", { points: wish.points })}
                 </span>
                 <span className={styles.wishOwner}>{wish.owner}</span>
               </div>
@@ -101,7 +105,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                 />
               </div>
               <div className={styles.wishProgressText}>
-                进度:{wish.progress} / {wish.points}
+                {t("progress", { current: wish.progress, target: wish.points })}
               </div>
             </div>
             <div className={styles.wishFooter}>
@@ -110,7 +114,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                 className={styles.btnGhost}
                 onClick={() => openEdit(wish)}
               >
-                <Pencil size={12} /> 编辑
+                <Pencil size={12} /> {t("edit")}
               </button>
               <button
                 type="button"
@@ -119,23 +123,23 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                 onClick={() => {
                   startTransition(async () => {
                     const r = await lockWishAction(wish.id, !wish.locked);
-                    if (r.ok) toast.success(wish.locked ? "已解锁" : "已锁定");
-                    else toast.error(r.error);
+                    if (r.ok) toast.success(wish.locked ? t("unlocked") : t("locked"));
+                    else toast.error(e(r.error));
                   });
                 }}
               >
-                <Lock size={12} /> {wish.locked ? "解锁" : "锁定"}
+                <Lock size={12} /> {wish.locked ? t("unlock") : t("lock")}
               </button>
               <button
                 type="button"
                 className={`${styles.btnGhost} ${styles.btnGhostDanger}`}
                 disabled={pending}
                 onClick={() => {
-                  if (!window.confirm(`确定删除愿望「${wish.name}」?`)) return;
+                  if (!window.confirm(t("confirmDelete", { name: wish.name }))) return;
                   startTransition(async () => {
                     const r = await deleteWishAction(wish.id);
-                    if (r.ok) toast.success("愿望已删除");
-                    else toast.error(r.error);
+                    if (r.ok) toast.success(t("toast.deleted"));
+                    else toast.error(e(r.error));
                   });
                 }}
               >
@@ -149,7 +153,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
       <Modal
         open={formOpen}
         onClose={closeForm}
-        title={isEdit ? "编辑愿望" : "新增愿望"}
+        title={isEdit ? t("editTitle") : t("addTitle")}
         maxWidth={520}
         footer={
           <>
@@ -158,7 +162,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={closeForm}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -169,7 +173,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                 if (!form) return;
                 const name = (form.elements.namedItem("name") as HTMLInputElement)?.value?.trim();
                 if (!name) {
-                  toast.error("请填写愿望名称");
+                  toast.error(t("nameRequired"));
                   return;
                 }
                 startTransition(async () => {
@@ -177,24 +181,18 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                     const fd = new FormData(form);
                     fd.set("wishId", String(editingWish.id));
                     const r = await updateWishAction(fd);
-                    if (r.ok) toast.success("愿望已更新");
-                    else toast.error(r.error);
+                    if (r.ok) toast.success(t("toast.updated"));
+                    else toast.error(e(r.error));
                   } else {
                     const r = await addWishAction(new FormData(form));
-                    if (r.ok) toast.success("愿望已添加");
-                    else toast.error(r.error);
+                    if (r.ok) toast.success(t("toast.added"));
+                    else toast.error(e(r.error));
                   }
                   closeForm();
                 });
               }}
             >
-              {pending
-                ? isEdit
-                  ? "保存中…"
-                  : "保存中…"
-                : isEdit
-                  ? "保存修改"
-                  : "保存"}
+              {pending ? c("saving") : isEdit ? c("saveEdit") : t("save")}
             </button>
           </>
         }
@@ -208,48 +206,48 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
             <input type="hidden" name="wishId" value={String(editingWish.id)} />
           ) : null}
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>愿望配图</label>
-            <div className={styles.uploadDropzone}>点击上传配图(可选)</div>
+            <label className={styles.formLabel}>{t("imageLabel")}</label>
+            <div className={styles.uploadDropzone}>{t("uploadImage")}</div>
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>愿望名称</label>
+            <label className={styles.formLabel}>{t("nameLabel")}</label>
             <input
               type="text"
               name="name"
               className={styles.formInput}
-              placeholder="如:恐龙模型"
+              placeholder={t("namePlaceholder")}
               defaultValue={editingWish?.name ?? ""}
               required
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>目标积分</label>
+            <label className={styles.formLabel}>{t("targetPointsLabel")}</label>
             <input
               type="number"
               name="points"
               className={styles.formInput}
-              placeholder="兑换需要的积分"
+              placeholder={t("targetPlaceholder")}
               min={1}
               defaultValue={editingWish?.points ?? 50}
               required
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>归属</label>
+            <label className={styles.formLabel}>{t("ownerLabel")}</label>
             <select
               name="owner"
               className={styles.formInput}
               defaultValue={ownerDefault}
             >
-              <optgroup label="个人愿望">
+              <optgroup label={t("optPersonal")}>
                 {kidsList.map((c) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.name}
                   </option>
                 ))}
               </optgroup>
-              <optgroup label="家庭愿望">
-                <option value="家庭">家庭(共同)</option>
+              <optgroup label={t("optFamily")}>
+                <option value="family">{t("optFamilyLabel")}</option>
               </optgroup>
             </select>
           </div>

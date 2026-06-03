@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Star,
   LayoutDashboard,
@@ -18,20 +19,21 @@ import styles from "@/app/admin/admin.module.css";
 
 type NavItem = {
   href: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
 };
 
 const navItems: NavItem[] = [
-  { href: "/admin", label: "控制台首页", icon: LayoutDashboard },
-  { href: "/admin/tasks", label: "任务管理", icon: ListTodo },
-  { href: "/admin/wishes", label: "愿望管理", icon: Sparkles },
-  { href: "/admin/children", label: "孩子管理", icon: Users },
-  { href: "/admin/records", label: "积分流水记录", icon: Coins },
-  { href: "/admin/settings", label: "系统设置", icon: Settings },
+  { href: "/admin", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/admin/tasks", labelKey: "tasks", icon: ListTodo },
+  { href: "/admin/wishes", labelKey: "wishes", icon: Sparkles },
+  { href: "/admin/children", labelKey: "children", icon: Users },
+  { href: "/admin/records", labelKey: "records", icon: Coins },
+  { href: "/admin/settings", labelKey: "settings", icon: Settings },
 ];
 
 export function Sidebar() {
+  const t = useTranslations("admin.sidebar");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -48,11 +50,11 @@ export function Sidebar() {
         <div className={styles.sidebarLogoIcon}>
           <Star size={20} strokeWidth={2.5} fill="currentColor" />
         </div>
-        <span className={styles.sidebarLogoText}>成长星球</span>
+        <span className={styles.sidebarLogoText}>{t("brand")}</span>
       </div>
 
       <nav className={styles.sidebarNav}>
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, labelKey, icon: Icon }) => {
           const isActive = pathname === href;
           return (
             <Link
@@ -63,7 +65,7 @@ export function Sidebar() {
               <span className={styles.navLinkIcon}>
                 <Icon size={18} strokeWidth={2} />
               </span>
-              {label}
+              {t(labelKey)}
             </Link>
           );
         })}
@@ -78,7 +80,7 @@ export function Sidebar() {
           <span className={styles.navLinkIcon}>
             <LogOut size={18} strokeWidth={2} />
           </span>
-          退出登录
+          {t("logout")}
         </button>
       </div>
     </aside>

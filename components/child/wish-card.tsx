@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import type { ChildWish } from "@/lib/ui-types";
 import { redeemWishAction } from "@/lib/actions";
 import { useToast } from "@/components/common/toast";
@@ -18,6 +19,7 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
   const [confettiCount, setConfettiCount] = useState(0);
   const [pending, startTransition] = useTransition();
   const toast = useToast();
+  const t = useTranslations("child.wishCard");
 
   const percent = Math.min(100, Math.round((wish.current / wish.cost) * 100));
   const completed = wish.current >= wish.cost;
@@ -28,9 +30,9 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
       if (r.ok) {
         setRedeemOpen(false);
         setConfettiCount((c) => c + 1);
-        toast.success(`已兑换「${wish.name}」!`);
+        toast.success(t("redeemed", { name: wish.name }));
       } else {
-        toast.error(r.error || "兑换失败,请重试");
+        toast.error(r.error || t("redeemError"));
       }
     });
   };
@@ -54,7 +56,7 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
         <div
           className={`${styles.wishProgressText} ${completed ? styles.completed : ""}`}
         >
-          {wish.current} / {wish.cost} 星星 {completed ? "🎉" : ""}
+          {t("stars", { current: wish.current, cost: wish.cost })}{completed ? " 🎉" : ""}
         </div>
         {completed && (
           <button
@@ -62,7 +64,7 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
             className={styles.wishRedeem}
             onClick={() => setRedeemOpen(true)}
           >
-            🎁 兑换这个梦想
+            {t("redeemButton")}
           </button>
         )}
       </div>
@@ -79,11 +81,9 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.redeemEmoji}>{wish.emoji}</div>
-            <div className={styles.redeemTitle}>兑换「{wish.name}」</div>
-            <div className={styles.redeemDesc}>
-              确认要用星星兑换这个梦想吗?兑换后星星将被扣除。
-            </div>
-            <div className={styles.redeemCost}>⭐ {wish.cost} 星星</div>
+            <div className={styles.redeemTitle}>{t("modalTitle", { name: wish.name })}</div>
+            <div className={styles.redeemDesc}>{t("modalDesc")}</div>
+            <div className={styles.redeemCost}>{t("modalCost", { cost: wish.cost })}</div>
             <div className={styles.redeemBtns}>
               <button
                 type="button"
@@ -91,7 +91,7 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
                 onClick={() => setRedeemOpen(false)}
                 disabled={pending}
               >
-                再想想
+                {t("modalCancel")}
               </button>
               <button
                 type="button"
@@ -99,7 +99,7 @@ export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
                 onClick={handleConfirm}
                 disabled={pending}
               >
-                {pending ? "兑换中…" : "确认兑换!"}
+                {pending ? t("modalConfirming") : t("modalConfirm")}
               </button>
             </div>
           </div>

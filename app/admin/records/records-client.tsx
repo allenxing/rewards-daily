@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Download, Receipt } from "lucide-react";
 import { useRecordFilters } from "@/lib/hooks/use-record-filters";
 import type { PointsRecord, Child, RecordSummary } from "@/lib/ui-types";
@@ -21,6 +22,7 @@ const typeLabel: Record<string, string> = {
 
 export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
   const { filters, setFilter } = useRecordFilters();
+  const t = useTranslations("admin.records");
 
   const filtered = useMemo(() => {
     return initialRecords.filter((r) => {
@@ -48,7 +50,7 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
   return (
     <div className={styles.pageBody}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>积分流水记录</h1>
+        <h1 className={styles.pageTitle}>{t("pageTitle")}</h1>
         <div className={styles.pageActions}>
           <button
             type="button"
@@ -56,7 +58,7 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
             onClick={handleExport}
           >
             <Download size={14} strokeWidth={2} />
-            导出数据
+            {t("exportData")}
           </button>
         </div>
       </div>
@@ -64,20 +66,20 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
       <div className={styles.summaryBar}>
         <div className={styles.summaryChip}>
           <span className={`${styles.summaryDot} ${styles.summaryDotGreen}`} />
-          <span>本月获得</span>
+          <span>{t("earnedThisMonth")}</span>
           <span className={`${styles.summaryMono} ${styles.summaryEarn}`}>
             +{summary.monthEarn}
           </span>
         </div>
         <div className={styles.summaryChip}>
           <span className={`${styles.summaryDot} ${styles.summaryDotRed}`} />
-          <span>本月扣除</span>
+          <span>{t("deductedThisMonth")}</span>
           <span className={`${styles.summaryMono} ${styles.summaryDeduct}`}>
             -{summary.monthDeduct}
           </span>
         </div>
         <div className={styles.summaryChip}>
-          <span>净增</span>
+          <span>{t("netChange")}</span>
           <span className={`${styles.summaryMono}`}>+{summary.netAdd}</span>
         </div>
       </div>
@@ -90,7 +92,7 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
             setFilter({ childId: e.target.value === "all" ? undefined : Number(e.target.value) })
           }
         >
-          <option value="all">全部孩子</option>
+          <option value="all">{t("filterAllChildren")}</option>
           {kidsList.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -104,11 +106,11 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
             setFilter({ type: e.target.value === "all" ? undefined : (e.target.value as RecordFiltersType) })
           }
         >
-          <option value="all">全部类型</option>
-          <option value="earn">获得积分</option>
-          <option value="deduct">扣除积分</option>
-          <option value="manual">手动调整</option>
-          <option value="wish">愿望兑换</option>
+          <option value="all">{t("filterAllTypes")}</option>
+          <option value="earn">{t("filterEarn")}</option>
+          <option value="deduct">{t("filterDeduct")}</option>
+          <option value="manual">{t("filterManual")}</option>
+          <option value="wish">{t("filterWish")}</option>
         </select>
         <input
           type="date"
@@ -127,7 +129,7 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
           className={`${styles.btn} ${styles.btnOutline}`}
           onClick={reset}
         >
-          重置
+          {t("reset")}
         </button>
       </div>
 
@@ -136,7 +138,7 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
           <div className={styles.emptyStateIcon}>
             <Receipt size={48} strokeWidth={1.5} />
           </div>
-          <div className={styles.emptyStateText}>暂无流水记录</div>
+          <div className={styles.emptyStateText}>{t("empty")}</div>
         </div>
       ) : (
         filtered.map((record) => {

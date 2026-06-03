@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Gift, Sparkles } from "lucide-react";
 import { getWishesForChild, getRedeemHistoryForChild } from "@/lib/queries/wishes";
 import { WishCard } from "@/components/child/wish-card";
@@ -12,6 +13,7 @@ type Props = {
 export default async function ChildWishesPage({ params, searchParams }: Props) {
   const { shareToken } = await params;
   const { tab = "active" } = await searchParams;
+  const t = await getTranslations("child.wishes");
 
   const [wishes, history] = await Promise.all([
     getWishesForChild(shareToken),
@@ -19,17 +21,17 @@ export default async function ChildWishesPage({ params, searchParams }: Props) {
   ]);
 
   const tabs = [
-    { key: "active", label: "我的心愿", icon: "✨" },
-    { key: "history", label: "兑换记录", icon: "📖" },
+    { key: "active", label: t("tabWishes"), icon: "✨" },
+    { key: "history", label: t("tabHistory"), icon: "📖" },
   ];
 
   return (
     <div className={styles.content}>
       <div className={styles.sectionTitle}>
         <span className={styles.sectionTitleEmoji}>🎉</span>
-        梦想宝库
+        {t("sectionTitle")}
       </div>
-      <p className={styles.sectionSubtitle}>攒够星星就能实现梦想!</p>
+      <p className={styles.sectionSubtitle}>{t("sectionSubtitle")}</p>
 
       <WishTabs tabs={tabs} active={tab} basePath={`/child/${shareToken}/wishes`} />
 
@@ -55,8 +57,8 @@ export default async function ChildWishesPage({ params, searchParams }: Props) {
         ) : (
           <div className={styles.empty}>
             <Gift size={48} strokeWidth={1.5} className={styles.emptyEmoji} />
-            <div className={styles.emptyTitle}>还没有兑换过梦想</div>
-            <div>攒够星星就能实现第一个梦想,加油!</div>
+            <div className={styles.emptyTitle}>{t("emptyHistory.title")}</div>
+            <div>{t("emptyHistory.desc")}</div>
           </div>
         )
       ) : wishes.length > 0 ? (
@@ -68,8 +70,8 @@ export default async function ChildWishesPage({ params, searchParams }: Props) {
       ) : (
         <div className={styles.empty}>
           <Sparkles size={48} strokeWidth={1.5} className={styles.emptyEmoji} />
-          <div className={styles.emptyTitle}>梦想宝库还在建设中</div>
-          <div>让家长帮你添加几个愿望吧</div>
+          <div className={styles.emptyTitle}>{t("emptyWishes.title")}</div>
+          <div>{t("emptyWishes.desc")}</div>
         </div>
       )}
     </div>

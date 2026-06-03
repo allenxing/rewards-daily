@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Poppins, Nunito } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/common/toast";
+import { IntlProvider } from "@/components/common/intl-provider";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -32,14 +34,18 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className={`${poppins.variable} ${nunito.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ToastProvider>{children}</ToastProvider>
-        </ThemeProvider>
+        <Suspense fallback={null}>
+          <IntlProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ToastProvider>{children}</ToastProvider>
+            </ThemeProvider>
+          </IntlProvider>
+        </Suspense>
       </body>
     </html>
   );

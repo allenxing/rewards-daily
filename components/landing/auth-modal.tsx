@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./auth-modal.module.css";
 
@@ -16,6 +17,8 @@ type Props = {
 
 export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
   const router = useRouter();
+  const t = useTranslations("auth");
+  const ct = useTranslations("common");
   const [tab, setTab] = useState<Tab>(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,7 +77,7 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
       router.push("/admin");
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "登录失败,请重试");
+      setError(err instanceof Error ? err.message : t("error.loginFailed"));
     } finally {
       setLoading(false);
     }
@@ -85,11 +88,11 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
     setError(null);
     setInfo(null);
     if (password !== confirm) {
-      setError("两次输入的密码不一致");
+      setError(t("error.passwordMismatch"));
       return;
     }
     if (password.length < 6) {
-      setError("密码至少 6 位");
+      setError(t("error.passwordTooShort"));
       return;
     }
     setLoading(true);
@@ -107,9 +110,9 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
         router.refresh();
         return;
       }
-      setInfo("注册成功!请前往邮箱完成确认,然后登录。");
+      setInfo(t("signupSuccess"));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "注册失败,请重试");
+      setError(err instanceof Error ? err.message : t("error.signupFailed"));
     } finally {
       setLoading(false);
     }
@@ -125,14 +128,14 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
       className={styles.overlay}
       role="dialog"
       aria-modal="true"
-      aria-label={tab === "login" ? "管理员登录" : "注册账号"}
+      aria-label={tab === "login" ? t("modal.loginTitle") : t("modal.signupTitle")}
       onClick={onClose}
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
           className={styles.close}
-          aria-label="关闭"
+          aria-label={ct("close")}
           onClick={onClose}
         >
           <X size={18} strokeWidth={2.5} />
@@ -143,12 +146,12 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
             <Lock size={20} strokeWidth={2.5} />
           </div>
           <h2 className={styles.title}>
-            {tab === "login" ? "管理员登录" : "创建账号"}
+            {tab === "login" ? t("modal.loginTitle") : t("modal.signupTitle")}
           </h2>
           <p className={styles.sub}>
             {tab === "login"
-              ? "登录以进入管理后台"
-              : "注册一个家长账号,开始使用"}
+              ? t("modal.loginSubtitle")
+              : t("modal.signupSubtitle")}
           </p>
         </div>
 
@@ -160,7 +163,7 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
             onClick={() => switchTab("login")}
             className={`${styles.tab} ${tab === "login" ? styles.tabActive : ""}`}
           >
-            登录
+            {t("tabs.login")}
           </button>
           <button
             type="button"
@@ -169,21 +172,21 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
             onClick={() => switchTab("signup")}
             className={`${styles.tab} ${tab === "signup" ? styles.tabActive : ""}`}
           >
-            注册
+            {t("tabs.signup")}
           </button>
         </div>
 
         {tab === "login" ? (
           <form onSubmit={handleLogin} className={styles.form}>
             <label className={styles.field}>
-              <span className={styles.label}>邮箱</span>
+              <span className={styles.label}>{t("form.email")}</span>
               <div className={styles.inputWrap}>
                 <Mail size={16} className={styles.inputIcon} />
                 <input
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t("form.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={styles.input}
@@ -192,20 +195,20 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
             </label>
             <label className={styles.field}>
               <div className={styles.labelRow}>
-                <span className={styles.label}>密码</span>
+                <span className={styles.label}>{t("form.password")}</span>
                 <button
                   type="button"
                   onClick={goForgot}
                   className={styles.forgot}
                 >
-                  忘记密码?
+                  {t("form.forgotPassword")}
                 </button>
               </div>
               <input
                 type="password"
                 required
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder={t("form.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={styles.input}
@@ -221,20 +224,20 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
               className={styles.submit}
               disabled={loading || !email || !password}
             >
-              {loading ? "登录中…" : "登 录"}
+              {loading ? t("login.loading") : t("login.label")}
             </button>
           </form>
         ) : (
           <form onSubmit={handleSignup} className={styles.form}>
             <label className={styles.field}>
-              <span className={styles.label}>邮箱</span>
+              <span className={styles.label}>{t("form.email")}</span>
               <div className={styles.inputWrap}>
                 <Mail size={16} className={styles.inputIcon} />
                 <input
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t("form.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={styles.input}
@@ -242,26 +245,26 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
               </div>
             </label>
             <label className={styles.field}>
-              <span className={styles.label}>密码(至少 6 位)</span>
+              <span className={styles.label}>{t("form.passwordHint")}</span>
               <input
                 type="password"
                 required
                 minLength={6}
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder={t("form.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={styles.input}
               />
             </label>
             <label className={styles.field}>
-              <span className={styles.label}>确认密码</span>
+              <span className={styles.label}>{t("form.confirmPassword")}</span>
               <input
                 type="password"
                 required
                 minLength={6}
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder={t("form.passwordPlaceholder")}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 className={styles.input}
@@ -282,7 +285,7 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
               className={styles.submit}
               disabled={loading || !email || !password || !confirm}
             >
-              {loading ? "注册中…" : "注 册"}
+              {loading ? t("signup.loading") : t("signup.label")}
             </button>
           </form>
         )}
@@ -290,24 +293,24 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
         <div className={styles.footer}>
           {tab === "login" ? (
             <>
-              还没有账号?
+              {t("footer.noAccount")}
               <button
                 type="button"
                 onClick={() => switchTab("signup")}
                 className={styles.linkBtn}
               >
-                立即注册
+                {t("footer.signup")}
               </button>
             </>
           ) : (
             <>
-              已有账号?
+              {t("footer.hasAccount")}
               <button
                 type="button"
                 onClick={() => switchTab("login")}
                 className={styles.linkBtn}
               >
-                去登录
+                {t("footer.login")}
               </button>
             </>
           )}

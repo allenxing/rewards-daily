@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, User, Copy, Pencil, Check } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { ColorPicker } from "@/components/common/color-picker";
@@ -30,13 +31,16 @@ export function ChildrenClient({ initialChildren }: Props) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const toast = useToast();
+  const t = useTranslations("admin.children");
+  const c = useTranslations("common");
+  const e = useTranslations("error");
 
   const handleCopy = (shareToken: string, id: number) => {
     const url = `${window.location.origin}/child/${shareToken}`;
     navigator.clipboard?.writeText(url);
     setCopiedId(String(id));
     setTimeout(() => setCopiedId(null), 1500);
-    toast.success("链接已复制");
+    toast.success(t("linkCopied"));
   };
 
   const openAdd = () => {
@@ -74,7 +78,7 @@ export function ChildrenClient({ initialChildren }: Props) {
   return (
     <div className={styles.pageBody}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>孩子管理</h1>
+        <h1 className={styles.pageTitle}>{t("pageTitle")}</h1>
         <div className={styles.pageActions}>
           <button
             type="button"
@@ -82,7 +86,7 @@ export function ChildrenClient({ initialChildren }: Props) {
             onClick={openAdd}
           >
             <Plus size={18} strokeWidth={2.5} />
-            新增孩子
+            {t("addTitle")}
           </button>
         </div>
       </div>
@@ -95,7 +99,7 @@ export function ChildrenClient({ initialChildren }: Props) {
             </div>
             <div className={styles.childCardName}>{child.name}</div>
             <div className={styles.childCardPoints}>{child.totalPoints}</div>
-            <div className={styles.childCardLabel}>累计积分 · Lv.{child.level}</div>
+            <div className={styles.childCardLabel}>{t("cumulativePoints")}{child.level}</div>
             <div className={styles.childCardLink}>/child/{child.shareToken.slice(0, 8)}…</div>
             <div className={styles.childCardActions}>
               <a
@@ -104,7 +108,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 rel="noreferrer"
                 className={styles.childActionEnter}
               >
-                <User size={12} /> 孩子模式
+                <User size={12} /> {t("childMode")}
               </a>
               <button
                 type="button"
@@ -112,7 +116,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 onClick={() => handleCopy(child.shareToken, child.id)}
               >
                 {copiedId === String(child.id) ? <Check size={12} /> : <Copy size={12} />}
-                {copiedId === String(child.id) ? "已复制" : "复制地址"}
+                {copiedId === String(child.id) ? t("linkCopied") : t("copyLink")}
               </button>
             </div>
             <div className={`${styles.childCardActions} ${styles.childCardActionsSecondary}`}>
@@ -121,7 +125,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 className={styles.btnGhost}
                 onClick={() => openEdit(child)}
               >
-                <Pencil size={12} /> 编辑
+                <Pencil size={12} /> {c("edit")}
               </button>
               <button
                 type="button"
@@ -129,9 +133,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 disabled={pending}
                 onClick={() => {
                   if (
-                    !window.confirm(
-                      `确定删除「${child.name}」?\n将同时删除该孩子的任务记录、积分流水和愿望。此操作不可恢复。`
-                    )
+                    !window.confirm(t("confirmDelete", { name: child.name }))
                   )
                     return;
                   startTransition(async () => {
@@ -139,15 +141,15 @@ export function ChildrenClient({ initialChildren }: Props) {
                     if (r.ok) {
                       const c = r.data?.counts;
                       toast.success(
-                        `已删除 (任务 ${c?.tasks ?? 0} · 流水 ${c?.records ?? 0})`
+                        t("deleted", { tasks: c?.tasks ?? 0, records: c?.records ?? 0 })
                       );
                     } else {
-                      toast.error(r.error);
+                      toast.error(e(r.error));
                     }
                   });
                 }}
               >
-                🗑 删除
+                🗑 {c("delete")}
               </button>
             </div>
           </div>
@@ -157,18 +159,18 @@ export function ChildrenClient({ initialChildren }: Props) {
           type="button"
           className={`${styles.childCard} ${styles.childCardAdd}`}
           onClick={openAdd}
-          aria-label="添加新孩子"
+          aria-label={t("addAriaLabel")}
         >
           <div className={styles.addCardIcon}>+</div>
-          <div className={styles.addCardTitle}>添加新孩子</div>
-          <div className={styles.addCardSub}>自动生成专属路由</div>
+          <div className={styles.addCardTitle}>{t("addCardTitle")}</div>
+          <div className={styles.addCardSub}>{t("addCardSub")}</div>
         </button>
       </div>
 
       <Modal
         open={formOpen}
         onClose={closeForm}
-        title={isEdit ? "编辑孩子" : "新增孩子"}
+        title={isEdit ? t("editTitle") : t("addTitle")}
         maxWidth={440}
         footer={
           <>
@@ -177,7 +179,7 @@ export function ChildrenClient({ initialChildren }: Props) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={closeForm}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -188,7 +190,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 if (!form) return;
                 const name = (form.elements.namedItem("name") as HTMLInputElement)?.value?.trim();
                 if (!name) {
-                  toast.error("请填写昵称");
+                  toast.error(t("nameRequired"));
                   return;
                 }
                 startTransition(async () => {
@@ -197,7 +199,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                     fd.set("childId", String(editingChild.id));
                     const r = await updateChildAction(fd);
                     if (!r.ok) {
-                      toast.error(r.error);
+                      toast.error(e(r.error));
                       return;
                     }
                     if (avatarFile) {
@@ -205,37 +207,35 @@ export function ChildrenClient({ initialChildren }: Props) {
                       afd.set("file", avatarFile);
                       const ar = await uploadAvatarAction(editingChild.id, afd);
                       if (!ar.ok) {
-                        toast.error(`头像上传失败: ${ar.error}`);
+                        toast.error(t("toast.avatarUploadFailed", { error: ar.error }));
                         return;
                       }
                     }
-                    toast.success("孩子已更新");
+                    toast.success(t("toast.updated"));
                   } else {
                     const addFd = new FormData(form);
                     const r = await addChildAction(addFd);
                     if (!r.ok) {
-                      toast.error(r.error);
+                      toast.error(e(r.error));
                       return;
                     }
                     if (avatarFile && r.data) {
                       const afd = new FormData();
                       afd.set("file", avatarFile);
                       const ar = await uploadAvatarAction(r.data, afd);
-                      if (!ar.ok) toast.error(`头像上传失败: ${ar.error}`);
+                      if (!ar.ok) toast.error(t("toast.avatarUploadFailed", { error: ar.error }));
                     }
-                    toast.success("孩子已添加");
+                    toast.success(t("toast.added"));
                   }
                   closeForm();
                 });
               }}
             >
               {pending
-                ? isEdit
-                  ? "保存中…"
-                  : "保存中…"
+                ? c("saving")
                 : isEdit
-                  ? "保存修改"
-                  : "保存"}
+                  ? c("saveEdit")
+                  : c("save")}
             </button>
           </>
         }
@@ -249,7 +249,7 @@ export function ChildrenClient({ initialChildren }: Props) {
             <input type="hidden" name="childId" value={String(editingChild.id)} />
           ) : null}
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>头像</label>
+            <label className={styles.formLabel}>{t("avatarLabel")}</label>
             <div className={styles.avatarUpload}>
               <div
                 className={styles.avatarUploadPreview}
@@ -265,7 +265,7 @@ export function ChildrenClient({ initialChildren }: Props) {
               </div>
               <div className={styles.avatarUploadText}>
                 <label className={styles.avatarUploadLink}>
-                  点击上传头像
+                  {t("uploadAvatar")}
                   <input
                     type="file"
                     accept="image/*"
@@ -274,23 +274,23 @@ export function ChildrenClient({ initialChildren }: Props) {
                   />
                 </label>
                 <br />
-                或使用默认头像
+                {t("orUseDefault")}
               </div>
             </div>
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>昵称</label>
+            <label className={styles.formLabel}>{t("nameLabel")}</label>
             <input
               type="text"
               name="name"
               className={styles.formInput}
-              placeholder="如:小明"
+              placeholder={t("namePlaceholder")}
               defaultValue={editingChild?.name ?? ""}
               required
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>主题色</label>
+            <label className={styles.formLabel}>{t("themeLabel")}</label>
             <ColorPicker
               name="themeKey"
               value={themeKey}
@@ -304,17 +304,17 @@ export function ChildrenClient({ initialChildren }: Props) {
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>专属分享链接</label>
+            <label className={styles.formLabel}>{t("shareLinkLabel")}</label>
             <div className={styles.formInputRow}>
               <span className={styles.formInputPrefix}>/child/</span>
               <input
                 type="text"
                 className={styles.formInput}
                 readOnly
-                value={editingChild?.shareToken ?? "(新建后自动生成)"}
+                value={editingChild?.shareToken ?? t("autoGenerate")}
               />
             </div>
-            <div className={styles.formHint}>新链接在孩子创建后自动生成,可点击「复制地址」获取</div>
+            <div className={styles.formHint}>{t("shareLinkHint")}</div>
           </div>
         </form>
       </Modal>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import styles from "@/app/child/child.module.css";
 
@@ -11,7 +12,7 @@ type Props = {
   avatarUrl: string | null;
 };
 
-export function ChildHeader({
+export async function ChildHeader({
   childId,
   shareToken,
   name,
@@ -20,6 +21,7 @@ export function ChildHeader({
   avatarColor,
   avatarUrl,
 }: Props) {
+  const t = await getTranslations("child.header");
   return (
     <header className={styles.header}>
       <div
@@ -31,18 +33,18 @@ export function ChildHeader({
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        aria-label="孩子头像"
+        aria-label={t("avatarLabel")}
       >
         {!avatarUrl ? "✨" : ""}
       </div>
       <div className={styles.greeting}>
-        <div className={styles.name}>嗨,{name}!</div>
-        <div className={styles.sub}>今天也要加油哦</div>
+        <div className={styles.name}>{t("greeting", { name })}</div>
+        <div className={styles.sub}>{t("subGreeting")}</div>
       </div>
       <Link
         href="/admin/children"
         className={styles.starCounter}
-        aria-label="查看家长入口"
+        aria-label={t("parentEntry")}
       >
         <span className={styles.starIcon}>⭐</span>
         <span>{totalPoints}</span>

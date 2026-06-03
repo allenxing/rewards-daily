@@ -1,0 +1,536 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "loading": "Processing…",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "saving": "Saving…",
+    "saveEdit": "Save Changes"
+  },
+  "metadata": {
+    "title": "Rewards Daily — Build Great Habits",
+    "description": "A gamified habit-building system for ages 3-6 using task points, wish rewards, and achievement badges to help children develop good habits."
+  },
+  "landing": {
+    "nav": {
+      "brand": "Rewards Daily"
+    },
+    "hero": {
+      "badge": "★ Habit Builder",
+      "titleLine1": "Good Habits,",
+      "titleLine2": "Grow Naturally",
+      "subtitle": "A complete system of tasks, points, wishes, and badges to help children ages 3-6 build great habits through gamification — with parent oversight and cloud data.",
+      "ctaLoggedIn": "Go to Dashboard",
+      "ctaNotLoggedIn": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "sectionTitle": "Four Core Abilities",
+      "sectionSubtitle": "Tasks, Points, Wishes, and Badges — a complete habit-building ecosystem",
+      "task": {
+        "title": "Task Habits",
+        "desc": "Create custom daily tasks with point rewards and photo proof submissions. Make good habits visible and trackable."
+      },
+      "points": {
+        "title": "Point Rewards",
+        "desc": "Earn points by completing tasks. Parents can manually adjust points. Track every change in the activity log."
+      },
+      "wish": {
+        "title": "Wish Rewards",
+        "desc": "Kids set wish goals and redeem them with earned points. Learn delayed gratification and goal management."
+      },
+      "medal": {
+        "title": "Achievement Badges",
+        "desc": "Unlock milestone badges to build confidence and pride. Every step forward deserves to be celebrated."
+      }
+    },
+    "advantages": {
+      "sectionTitle": "Why Rewards Daily",
+      "sectionSubtitle": "Lightweight, secure, and ready to use",
+      "cloud": {
+        "title": "Cloud Storage",
+        "desc": "Data persisted on Supabase cloud — securely backed up, never lost."
+      },
+      "sync": {
+        "title": "Multi-device",
+        "desc": "Access from phone, tablet, or computer. Data syncs in real time."
+      },
+      "permissions": {
+        "title": "Access Control",
+        "desc": "Parent admin and child modes are strictly separated. Safe and reliable."
+      },
+      "lightweight": {
+        "title": "Lightweight",
+        "desc": "No backend setup needed. Ready out of the box with zero technical overhead."
+      }
+    },
+    "footer": {
+      "text": "© 2026 Rewards Daily — Build Great Habits",
+      "subtext": "Powered by Supabase · Secure Cloud · Multi-device Sync"
+    }
+  },
+  "auth": {
+    "modal": {
+      "loginTitle": "Admin Login",
+      "signupTitle": "Create Account",
+      "loginSubtitle": "Sign in to access the admin dashboard",
+      "signupSubtitle": "Register a parent account to get started"
+    },
+    "tabs": {
+      "login": "Login",
+      "signup": "Sign Up"
+    },
+    "form": {
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Password (at least 6 characters)",
+      "confirmPassword": "Confirm Password",
+      "passwordPlaceholder": "••••••••",
+      "emailPlaceholder": "m@example.com",
+      "forgotPassword": "Forgot Password?"
+    },
+    "login": {
+      "label": "Login",
+      "loading": "Logging in…"
+    },
+    "signup": {
+      "label": "Sign Up",
+      "loading": "Signing up…"
+    },
+    "error": {
+      "loginFailed": "Login failed. Please try again.",
+      "signupFailed": "Sign up failed. Please try again.",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters"
+    },
+    "signupSuccess": "Sign up successful! Check your email to confirm, then log in.",
+    "footer": {
+      "noAccount": "Don't have an account?",
+      "signup": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "login": "Log In"
+    }
+  },
+  "admin": {
+    "sidebar": {
+      "brand": "Rewards Daily",
+      "dashboard": "Dashboard",
+      "tasks": "Tasks",
+      "wishes": "Wishes",
+      "children": "Children",
+      "records": "Points Records",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "pageHeader": {
+      "enterChildMode": "Child Mode"
+    },
+    "dashboard": {
+      "pageTitle": "Dashboard",
+      "stats": {
+        "pendingReview": "Pending Review",
+        "totalPoints": "Total Points",
+        "completedToday": "Completed Today",
+        "wishesPending": "Wishes Pending"
+      }
+    },
+    "review": {
+      "sectionTitle": "Pending Review",
+      "empty": "No tasks pending review",
+      "pendingCount": "pending",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectPrompt": "Enter a reason (optional)",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "points": "pts"
+    },
+    "floatingActions": {
+      "addTitle": "Add Points",
+      "deductTitle": "Deduct Points",
+      "confirmAdd": "Confirm Add",
+      "confirmDeduct": "Confirm Deduct",
+      "addLabel": "Points to Add",
+      "deductLabel": "Points to Deduct",
+      "pointsPlaceholder": "e.g. 5",
+      "reasonPlaceholderAdd": "e.g. Helped with chores",
+      "reasonPlaceholderDeduct": "e.g. Missed a task",
+      "childSelectLabel": "Select Child",
+      "childSelectPlaceholder": "Select",
+      "currentPoints": "Current",
+      "reasonLabel": "Reason",
+      "selectChild": "Please select a child",
+      "enterPoints": "Enter points (>0)",
+      "successAdd": "Points added",
+      "successDeduct": "Points deducted",
+      "errorAdd": "Failed to add points",
+      "errorDeduct": "Failed to deduct points — insufficient balance?",
+      "processing": "Processing…",
+      "fabAddTitle": "Add Points",
+      "fabDeductTitle": "Deduct Points"
+    },
+    "children": {
+      "pageTitle": "Children",
+      "addTitle": "Add Child",
+      "editTitle": "Edit Child",
+      "addCardTitle": "Add New Child",
+      "addCardSub": "Auto-generates a unique link",
+      "cumulativePoints": "Total Points · Lv.",
+      "childMode": "Child Mode",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link Copied",
+      "confirmDelete": "Delete 「{name}」?\nThis will delete their task records, points history, and wishes. This action cannot be undone.",
+      "deleted": "Deleted (tasks {tasks} · records {records})",
+      "avatarLabel": "Avatar",
+      "uploadAvatar": "Click to Upload",
+      "orUseDefault": "Or use default avatar",
+      "nameLabel": "Nickname",
+      "namePlaceholder": "e.g. Amy",
+      "themeLabel": "Theme Color",
+      "shareLinkLabel": "Share Link",
+      "autoGenerate": "(auto-generated on create)",
+      "shareLinkHint": "The link is auto-generated when the child is created. Click 「Copy Link」 to get it.",
+      "nameRequired": "Please enter a nickname",
+      "addAriaLabel": "Add new child",
+      "toast": {
+        "updated": "Child updated",
+        "added": "Child added",
+        "avatarUploadFailed": "Avatar upload failed: {error}"
+      }
+    },
+    "tasks": {
+      "pageTitle": "Task Management",
+      "addTitle": "New Task",
+      "editTitle": "Edit Task",
+      "tabActive": "All Tasks",
+      "tabClosed": "Closed Tasks",
+      "emptyActive": "No tasks yet",
+      "cycleDaily": "Daily",
+      "cycleWeekly": "Weekly",
+      "cycleOnce": "Once",
+      "unassigned": "Unassigned",
+      "autoReview": "Auto-approve",
+      "closedReasonPrefix": "Reason:",
+      "nameLabel": "Task Name",
+      "namePlaceholder": "e.g. Brush teeth",
+      "iconLabel": "Task Icon",
+      "pointsLabel": "Points",
+      "cycleLabel": "Cycle",
+      "assignLabel": "Assign to",
+      "closeTitle": "Close Task",
+      "closeHint": "Closed tasks won't appear to children. History is preserved. You can restore anytime.",
+      "closeReasonLabel": "Close Reason",
+      "closeReasonDefault": "Not needed for now",
+      "closeReasonMastered": "Child has mastered it",
+      "closeReasonDuplicate": "Duplicate task",
+      "closeReasonOther": "Other",
+      "confirmClose": "Confirm Close",
+      "restore": "Restore",
+      "close": "Close",
+      "editAriaLabel": "Edit task",
+      "editButton": "Edit",
+      "toast": {
+        "created": "Task created",
+        "updated": "Task updated",
+        "closed": "Task closed",
+        "restored": "Restored",
+        "nameRequired": "Please enter a task name"
+      }
+    },
+    "wishes": {
+      "pageTitle": "Wish Management",
+      "addTitle": "New Wish",
+      "editTitle": "Edit Wish",
+      "tabAll": "All Wishes",
+      "tabPersonal": "Personal",
+      "tabFamily": "Family",
+      "points": "{points} pts",
+      "progress": "Progress: {current} / {target}",
+      "edit": "Edit",
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "locked": "Locked",
+      "unlocked": "Unlocked",
+      "delete": "Delete",
+      "confirmDelete": "Delete wish 「{name}」?",
+      "imageLabel": "Wish Image",
+      "uploadImage": "Click to upload an image (optional)",
+      "nameLabel": "Wish Name",
+      "namePlaceholder": "e.g. Dinosaur toy",
+      "targetPointsLabel": "Target Points",
+      "targetPlaceholder": "Points required to redeem",
+      "ownerLabel": "Owner",
+      "optPersonal": "Personal Wishes",
+      "optFamily": "Family Wishes",
+      "optFamilyLabel": "Family (Shared)",
+      "nameRequired": "Please enter a wish name",
+      "save": "Save",
+      "toast": {
+        "added": "Wish added",
+        "updated": "Wish updated",
+        "deleted": "Wish deleted"
+      }
+    },
+    "records": {
+      "pageTitle": "Points Records",
+      "exportData": "Export",
+      "earnedThisMonth": "Earned This Month",
+      "deductedThisMonth": "Deducted This Month",
+      "netChange": "Net Change",
+      "filterAllChildren": "All Children",
+      "filterAllTypes": "All Types",
+      "filterEarn": "Points Earned",
+      "filterDeduct": "Points Deducted",
+      "filterManual": "Manual Adjustment",
+      "filterWish": "Wish Redemption",
+      "reset": "Reset",
+      "empty": "No records yet"
+    },
+    "settings": {
+      "pageTitle": "Settings",
+      "security": {
+        "title": "Security",
+        "desc": "Manage login password and security questions",
+        "passwordLabel": "Login Password",
+        "passwordDesc": "4-digit password for parent admin access",
+        "changePassword": "Change Password",
+        "questionLabel": "Security Question",
+        "questionDesc": "Used to recover your password",
+        "modifyQuestion": "Edit Question",
+        "setQuestion": "Set Question"
+      },
+      "data": {
+        "title": "Data Management",
+        "desc": "Backup, restore, or clear all data",
+        "exportLabel": "Export Records",
+        "exportDesc": "Export recent points records (max 1000)",
+        "exportButton": "Export JSON",
+        "backupLabel": "Backup Data",
+        "backupDesc": "Export all data to a JSON file for migration",
+        "backupButton": "Backup Now",
+        "restoreLabel": "Restore Data",
+        "restoreDesc": "Restore from a backup file — current data will be overwritten",
+        "selectFile": "Select File"
+      },
+      "personalization": {
+        "title": "Personalization",
+        "desc": "Customize the interface theme and interaction",
+        "themeLabel": "Theme Color",
+        "themeDesc": "Choose the admin panel accent color",
+        "soundLabel": "Sound Effects",
+        "soundDesc": "Play sounds on button clicks and task completion",
+        "compactLabel": "Compact Mode",
+        "compactDesc": "Reduce spacing to show more content per screen"
+      },
+      "about": {
+        "title": "About",
+        "desc": "Product info and help",
+        "versionLabel": "Version",
+        "versionDesc": "Current version v1.0.0",
+        "versionBadge": "Latest",
+        "feedbackLabel": "Feedback",
+        "feedbackDesc": "Found a bug or have a suggestion?",
+        "feedbackButton": "Submit Feedback",
+        "helpLabel": "Help",
+        "helpDesc": "View user guide and FAQ",
+        "helpButton": "View Help"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "desc": "These actions are irreversible. Proceed with caution.",
+        "clearLabel": "Clear All Data",
+        "clearDesc": "Delete all children, tasks, points, and wishes. This cannot be undone.",
+        "clearButton": "Clear Data"
+      },
+      "changePasswordModal": {
+        "title": "Change Login Password",
+        "currentLabel": "Current Password",
+        "currentPlaceholder": "Enter current 4-digit password",
+        "newLabel": "New Password",
+        "newPlaceholder": "Enter new 4-digit password",
+        "confirmLabel": "Confirm New Password",
+        "confirmPlaceholder": "Re-enter new password",
+        "submit": "Confirm",
+        "success": "Password changed successfully"
+      },
+      "securityQuestionModal": {
+        "title": "Set Security Question",
+        "questionLabel": "Security Question",
+        "selectPlaceholder": "Select",
+        "q1": "What is your mother's name?",
+        "q2": "What was your first school?",
+        "q3": "What is your favorite pet's name?",
+        "q4": "Custom question",
+        "answerLabel": "Answer",
+        "answerPlaceholder": "Enter your answer",
+        "submit": "Save",
+        "success": "Security question saved"
+      },
+      "clearDataModal": {
+        "title": "Clear All Data",
+        "desc": "This will permanently delete all children, tasks, points, and wishes. This action cannot be undone.",
+        "label": "Type 「CONFIRM CLEAR」 to proceed",
+        "placeholder": "confirm clear",
+        "submit": "Confirm Clear",
+        "confirmText": "confirm clear",
+        "inputRequired": "Please type 「confirm clear」",
+        "success": "All data cleared"
+      },
+      "toast": {
+        "exported": "Records exported",
+        "backupDone": "Backup complete, downloaded",
+        "restored": "Restored (children {children} · tasks {tasks})",
+        "clearDone": "All data cleared"
+      }
+    }
+  },
+  "child": {
+    "header": {
+      "greeting": "Hi, {name}!",
+      "subGreeting": "Keep up the great work!",
+      "avatarLabel": "Child avatar",
+      "parentEntry": "Parent portal"
+    },
+    "nav": {
+      "home": "Home",
+      "tasks": "Tasks",
+      "wishes": "Wishes"
+    },
+    "home": {
+      "sectionTasks": "Today's Tasks",
+      "sectionWishes": "My Wishes",
+      "taskCycleDaily": "Daily",
+      "taskCycleWeekly": "Weekly",
+      "taskCycleOnce": "One-time",
+      "empty": {
+        "title": "All done for today!",
+        "desc": "Great job! Check your wish list to see what you can redeem."
+      }
+    },
+    "tasks": {
+      "sectionTitle": "Task Center",
+      "tabTodo": "Available",
+      "tabPending": "Pending Review",
+      "tabDone": "Completed",
+      "cycleDaily": "Daily",
+      "cycleWeekly": "Weekly",
+      "cycleOnce": "One-time",
+      "emptyTodo": {
+        "title": "No new tasks yet",
+        "desc": "Wait for mom or dad to give you new tasks, then you can earn more stars!"
+      },
+      "emptyPending": {
+        "title": "No tasks pending review",
+        "desc": "Complete a task and submit it — once approved, you'll get your stars!"
+      },
+      "emptyDone": {
+        "title": "No tasks completed yet",
+        "desc": "Go to Available Tasks to pick one. Every completed task earns you stars!"
+      }
+    },
+    "wishes": {
+      "sectionTitle": "Wish Vault",
+      "sectionSubtitle": "Save up stars to make wishes come true!",
+      "tabWishes": "My Wishes",
+      "tabHistory": "History",
+      "emptyHistory": {
+        "title": "No wishes redeemed yet",
+        "desc": "Save up stars to make your first wish come true!"
+      },
+      "emptyWishes": {
+        "title": "Wish vault is still empty",
+        "desc": "Ask your parents to add some wishes for you!"
+      }
+    },
+    "taskCard": {
+      "doneBadge": "✓ Approved",
+      "pendingBadge": "🔍 Pending",
+      "submitted": "Submitted! Waiting for parent review.",
+      "submitting": "Submitting…",
+      "complete": "✓ Done"
+    },
+    "wishCard": {
+      "stars": "{current} / {cost} stars",
+      "redeemed": "「{name}」redeemed!",
+      "redeemError": "Redemption failed. Please try again.",
+      "redeemButton": "🎁 Redeem This Wish",
+      "modalTitle": "Redeem 「{name}」",
+      "modalDesc": "Redeem this wish with your stars? Stars will be deducted.",
+      "modalCost": "⭐ {cost} stars",
+      "modalCancel": "Maybe Later",
+      "modalConfirm": "Redeem!",
+      "modalConfirming": "Redeeming…"
+    },
+    "notFound": {
+      "title": "Child Not Found",
+      "desc": "Check the link or go back to select a child.",
+      "backHome": "🏠 Back to Home"
+    }
+  },
+  "error": {
+    "LOGIN_REQUIRED": "Login required",
+    "TASK_NAME_REQUIRED": "Please enter a task name and points",
+    "MISSING_TASK_ID": "Missing task ID",
+    "ALREADY_CLOSED": "Already closed",
+    "INVALID_SHARE_LINK": "Invalid share link",
+    "MISSING_INFO": "Please fill in all required fields",
+    "MISSING_WISH_ID": "Missing wish ID",
+    "CHILD_NAME_REQUIRED": "Please enter a nickname",
+    "MISSING_CHILD_ID": "Missing child ID",
+    "CHILD_NOT_FOUND": "Child not found",
+    "FILE_NOT_SELECTED": "No file selected",
+    "FILE_EMPTY": "File is empty",
+    "FILE_TOO_LARGE": "File exceeds 5MB",
+    "INVALID_OPERATION_TYPE": "Invalid operation type",
+    "INVALID_PASSWORD_FORMAT": "New password must be 4 digits",
+    "PASSWORD_MISMATCH": "Passwords do not match",
+    "WRONG_CURRENT_PASSWORD": "Current password is incorrect",
+    "QUESTION_ANSWER_REQUIRED": "Please enter a question and answer",
+    "INVALID_JSON": "File is not valid JSON",
+    "INVALID_BACKUP_FORMAT": "Invalid backup file format",
+    "INSUFFICIENT_POINTS": "Insufficient points",
+    "PERMISSION_DENIED": "Permission denied",
+    "ALREADY_AUDITED": "This task has already been reviewed",
+    "TASK_NOT_FOUND": "Task not found or no permission",
+    "WISH_NOT_REDEEMABLE": "This wish is locked or already redeemed",
+    "WISH_NOT_FOUND": "Wish not found",
+    "CHILD_NOT_FOUND_OR_OWNED": "Child not found or no permission",
+    "DUPLICATE_ENTRY": "Duplicate entry",
+    "POINTS_REQUIRED": "Please select a child and enter points",
+    "NAME_REQUIRED": "Please enter a name",
+    "NAME_PLACEHOLDER": "Please enter a task name"
+  },
+  "recordTypes": {
+    "earn": "Task Completed",
+    "manual": "Manual Adjustment",
+    "deduct": "Points Deducted",
+    "wish": "Wish Redeemed",
+    "task": "Task Reward",
+    "fallback": "Points Change",
+    "metaEarn": "Task Completed · Auto-approved",
+    "metaManual": "Manual Add · Parent operation",
+    "metaDeduct": "Manual Deduct · Parent operation",
+    "metaWish": "Wish Redeemed · Wish Vault",
+    "metaTask": "Task Reward"
+  },
+  "themePresets": {
+    "sky": "Sky",
+    "coral": "Coral",
+    "mint": "Mint",
+    "lavender": "Lavender",
+    "sun": "Sun"
+  },
+  "adminColorPresets": {
+    "coffee": "Coffee",
+    "ocean": "Ocean",
+    "forest": "Forest",
+    "wisteria": "Wisteria",
+    "chineseRed": "Chinese Red",
+    "amber": "Amber"
+  }
+}

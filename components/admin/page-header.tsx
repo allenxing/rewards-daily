@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import styles from "@/app/admin/admin.module.css";
 
-export function PageHeader({
+export async function PageHeader({
   title,
   actions,
 }: {
   title: string;
   actions?: ReactNode;
 }) {
+  const t = await getTranslations("admin.pageHeader");
   return (
     <div className={styles.pageHeader}>
       <h1 className={styles.pageTitle}>{title}</h1>
@@ -20,7 +22,7 @@ export function PageHeader({
             className={`${styles.btn} ${styles.btnOutline}`}
           >
             <Sparkles size={14} strokeWidth={2} />
-            进入孩子模式
+            {t("enterChildMode")}
           </Link>
         )}
       </div>

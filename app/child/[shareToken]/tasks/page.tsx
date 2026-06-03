@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { ClipboardList, Clock, Trophy } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
 import { getAuditsForChild } from "@/lib/queries/task-audit";
@@ -16,6 +17,7 @@ type Props = {
 export default async function ChildTasksPage({ params, searchParams }: Props) {
   const { shareToken } = await params;
   const { tab = "todo" } = await searchParams;
+  const t = await getTranslations("child.tasks");
 
   const [taskRows, allAudits] = await Promise.all([
     getTasksForChildByShareToken(shareToken),
@@ -29,17 +31,17 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
   const pendingTasks: ChildTask[] = [];
   const doneTasks: ChildTask[] = [];
 
-  for (const t of taskRows) {
-    const a = auditByTask.get(t.id);
+  for (const row of taskRows) {
+    const a = auditByTask.get(row.id);
     const item: ChildTask = {
-      id: t.id,
-      name: t.name,
-      detail: t.cycle === "daily" ? "每天可做" : t.cycle === "weekly" ? "每周可做" : "一次性任务",
-      icon: t.icon,
-      iconClass: iconClassFor(t.icon),
-      points: t.points,
+      id: row.id,
+      name: row.name,
+      detail: row.cycle === "daily" ? t("cycleDaily") : row.cycle === "weekly" ? t("cycleWeekly") : t("cycleOnce"),
+      icon: row.icon,
+      iconClass: iconClassFor(row.icon),
+      points: row.points,
       status: "todo",
-      assignedChildIds: t.assignedChildren,
+      assignedChildIds: row.assignedChildren,
       auditId: a?.id,
     };
     if (!a) todoTasks.push(item);
@@ -48,26 +50,26 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
   }
 
   const tabs = [
-    { key: "todo", label: "可做任务", icon: "⚡", count: todoTasks.length },
-    { key: "pending", label: "审核中", icon: "🔍", count: pendingTasks.length },
-    { key: "done", label: "已完成", icon: "🏆", count: doneTasks.length },
+    { key: "todo", label: t("tabTodo"), icon: "⚡", count: todoTasks.length },
+    { key: "pending", label: t("tabPending"), icon: "🔍", count: pendingTasks.length },
+    { key: "done", label: t("tabDone"), icon: "🏆", count: doneTasks.length },
   ];
 
   const emptyStates: Record<string, { icon: ReactNode; title: string; desc: string }> = {
     todo: {
       icon: <ClipboardList size={48} strokeWidth={1.5} />,
-      title: "暂时没有新任务",
-      desc: "等妈妈爸爸安排新任务后,就能继续赚星星啦",
+      title: t("emptyTodo.title"),
+      desc: t("emptyTodo.desc"),
     },
     pending: {
       icon: <Clock size={48} strokeWidth={1.5} />,
-      title: "没有审核中的任务",
-      desc: "完成任务后提交,等家长通过就能拿到星星了",
+      title: t("emptyPending.title"),
+      desc: t("emptyPending.desc"),
     },
     done: {
       icon: <Trophy size={48} strokeWidth={1.5} />,
-      title: "还没有完成过任务",
-      desc: "去「可做任务」选一个开始吧,每完成一项都有星星奖励",
+      title: t("emptyDone.title"),
+      desc: t("emptyDone.desc"),
     },
   };
 
@@ -83,7 +85,7 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
     <div className={styles.content}>
       <div className={styles.sectionTitle}>
         <span className={styles.sectionTitleEmoji}>📋</span>
-        任务大厅
+        {t("sectionTitle")}
       </div>
 
       <WishTabs tabs={tabs} active={tab} basePath={`/child/${shareToken}/tasks`} />

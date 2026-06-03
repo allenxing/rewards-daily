@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, useRef } from "react";
+import { useTranslations } from "next-intl";
 import {
   Shield,
   Database,
@@ -114,6 +115,9 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const restoreFileRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const hydrate = useUiStore((s) => s.hydrate);
+  const t = useTranslations("admin.settings");
+  const c = useTranslations("common");
+  const e = useTranslations("error");
 
   useEffect(() => {
     hydrate({ globalTheme: initial.globalTheme, soundOpen: initial.soundOpen, compactMode: initial.compactMode });
@@ -124,9 +128,9 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       const r = await exportRecordsAction();
       if (r.ok && r.data) {
         downloadJson(r.data.json, r.data.filename);
-        toast.success("流水已导出");
+        toast.success(t("toast.exported"));
       } else if (!r.ok) {
-        toast.error(r.error);
+        toast.error(e(r.error));
       }
     });
   };
@@ -136,9 +140,9 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       const r = await backupDataAction();
       if (r.ok && r.data) {
         downloadJson(r.data.json, r.data.filename);
-        toast.success("备份完成,已下载");
+        toast.success(t("toast.backupDone"));
       } else if (!r.ok) {
-        toast.error(r.error);
+        toast.error(e(r.error));
       }
     });
   };
@@ -151,10 +155,10 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       if (r.ok) {
         const counts = r.data?.counts ?? {};
         toast.success(
-          `已恢复 (孩子 ${counts.children ?? 0} · 任务 ${counts.tasks ?? 0})`
+          t("toast.restored", { children: counts.children ?? 0, tasks: counts.tasks ?? 0 })
         );
       } else if (!r.ok) {
-        toast.error(r.error);
+        toast.error(e(r.error));
       }
     });
   };
@@ -162,50 +166,50 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const handleClearAll = () => {
     startTransition(async () => {
       const r = await clearAllDataAction();
-      if (r.ok) toast.success("所有数据已清空");
-      else if (!r.ok) toast.error(r.error);
+      if (r.ok) toast.success(t("toast.clearDone"));
+      else if (!r.ok) toast.error(e(r.error));
     });
   };
 
   return (
     <div className={styles.pageBody}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>系统设置</h1>
+        <h1 className={styles.pageTitle}>{t("pageTitle")}</h1>
       </div>
 
-      <SettingsSection iconKey="security" title="安全设置" desc="管理登录密码和密保问题">
+      <SettingsSection iconKey="security" title={t("security.title")} desc={t("security.desc")}>
         <Row
-          label="登录密码"
-          desc="用于家长端登录的4位数字密码"
+          label={t("security.passwordLabel")}
+          desc={t("security.passwordDesc")}
           action={
             <button
               type="button"
               className={`${styles.btn} ${styles.btnOutline}`}
               onClick={() => setPasswordOpen(true)}
             >
-              修改密码
+              {t("security.changePassword")}
             </button>
           }
         />
         <Row
-          label="密保问题"
-          desc="用于找回密码的安全问题"
+          label={t("security.questionLabel")}
+          desc={t("security.questionDesc")}
           action={
             <button
               type="button"
               className={`${styles.btn} ${styles.btnOutline}`}
               onClick={() => setSecurityOpen(true)}
             >
-              {initial.securityQuestion ? "修改密保" : "设置密保"}
+              {initial.securityQuestion ? t("security.modifyQuestion") : t("security.setQuestion")}
             </button>
           }
         />
       </SettingsSection>
 
-      <SettingsSection iconKey="data" title="数据管理" desc="备份、恢复或清空所有数据">
+      <SettingsSection iconKey="data" title={t("data.title")} desc={t("data.desc")}>
         <Row
-          label="导出流水"
-          desc="导出最近的积分变动记录(最多 1000 条)"
+          label={t("data.exportLabel")}
+          desc={t("data.exportDesc")}
           action={
             <button
               type="button"
@@ -213,13 +217,13 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               onClick={handleExportRecords}
               disabled={pending}
             >
-              导出 JSON
+              {t("data.exportButton")}
             </button>
           }
         />
         <Row
-          label="数据备份"
-          desc="将所有数据导出为 JSON 文件,可用于跨设备迁移"
+          label={t("data.backupLabel")}
+          desc={t("data.backupDesc")}
           action={
             <button
               type="button"
@@ -227,13 +231,13 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               onClick={handleBackup}
               disabled={pending}
             >
-              立即备份
+              {t("data.backupButton")}
             </button>
           }
         />
         <Row
-          label="数据恢复"
-          desc="从备份文件恢复数据,当前数据将被覆盖"
+          label={t("data.restoreLabel")}
+          desc={t("data.restoreDesc")}
           action={
             <>
               <input
@@ -253,17 +257,17 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 onClick={() => restoreFileRef.current?.click()}
                 disabled={pending}
               >
-                选择文件
+                {t("data.selectFile")}
               </button>
             </>
           }
         />
       </SettingsSection>
 
-      <SettingsSection iconKey="theme" title="个性化设置" desc="自定义界面主题和交互体验">
+      <SettingsSection iconKey="theme" title={t("personalization.title")} desc={t("personalization.desc")}>
         <Row
-          label="主题色"
-          desc="选择家长端的主色调"
+          label={t("personalization.themeLabel")}
+          desc={t("personalization.themeDesc")}
           action={
             <ColorPicker
               defaultIndex={Math.max(0, THEME_KEYS.indexOf(globalTheme as typeof THEME_KEYS[number]))}
@@ -274,78 +278,78 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               onChange={async (k) => {
                 const r = await updateSettingAction("global_theme", k);
                 if (r.ok) setGlobalTheme(k);
-                else toast.error(r.error);
+                else toast.error(e(r.error));
               }}
             />
           }
         />
         <Row
-          label="操作音效"
-          desc="按钮点击和任务完成时的提示音"
+          label={t("personalization.soundLabel")}
+          desc={t("personalization.soundDesc")}
           action={
             <Toggle
               checked={soundOpen}
               onChange={async (b) => {
                 const r = await updateSettingAction("sound_open", b);
                 if (r.ok) setSoundOpen(b);
-                else toast.error(r.error);
+                else toast.error(e(r.error));
               }}
             />
           }
         />
         <Row
-          label="紧凑模式"
-          desc="减小间距,在一屏内展示更多内容"
+          label={t("personalization.compactLabel")}
+          desc={t("personalization.compactDesc")}
           action={
             <Toggle
               checked={compactMode}
               onChange={async (b) => {
                 const r = await updateSettingAction("compact_mode", b);
                 if (r.ok) setCompactMode(b);
-                else toast.error(r.error);
+                else toast.error(e(r.error));
               }}
             />
           }
         />
       </SettingsSection>
 
-      <SettingsSection iconKey="about" title="关于" desc="产品信息与帮助">
+      <SettingsSection iconKey="about" title={t("about.title")} desc={t("about.desc")}>
         <Row
-          label="版本号"
-          desc="当前版本 v1.0.0"
-          action={<span className={`${styles.badge} ${styles.badgeNeutral}`}>最新</span>}
+          label={t("about.versionLabel")}
+          desc={t("about.versionDesc")}
+          action={<span className={`${styles.badge} ${styles.badgeNeutral}`}>{t("about.versionBadge")}</span>}
         />
         <Row
-          label="意见反馈"
-          desc="遇到问题或有好的建议?"
+          label={t("about.feedbackLabel")}
+          desc={t("about.feedbackDesc")}
           action={
             <button type="button" className={`${styles.btn} ${styles.btnOutline}`}>
-              提交反馈
+              {t("about.feedbackButton")}
             </button>
           }
         />
         <Row
-          label="使用帮助"
-          desc="查看产品使用指南和常见问题"
+          label={t("about.helpLabel")}
+          desc={t("about.helpDesc")}
           action={
             <button type="button" className={`${styles.btn} ${styles.btnOutline}`}>
-              查看帮助
+              {t("about.helpButton")}
             </button>
           }
         />
       </SettingsSection>
 
-      <SettingsSection iconKey="danger" title="危险操作" desc="以下操作不可逆,请谨慎执行" danger>
+      <SettingsSection iconKey="danger" title={t("danger.title")} desc={t("danger.desc")} danger>
         <Row
-          label="清空所有数据"
-          desc="删除全部孩子、任务、积分和愿望数据,此操作无法恢复"
+          label={t("danger.clearLabel")}
+          desc={t("danger.clearDesc")}
           action={
             <button
               type="button"
               className={`${styles.btn} ${styles.btnDanger}`}
               onClick={() => setClearDataOpen(true)}
             >
-              清空数据
+              {t("danger.clearButton")}
             </button>
           }
         />
@@ -354,7 +358,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       <Modal
         open={passwordOpen}
         onClose={() => setPasswordOpen(false)}
-        title="修改登录密码"
+        title={t("changePasswordModal.title")}
         maxWidth={420}
         footer={
           <>
@@ -363,7 +367,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={() => setPasswordOpen(false)}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -376,51 +380,51 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 startTransition(async () => {
                   const r = await changePasswordAction(fd);
                   if (r.ok) {
-                    toast.success("密码修改成功");
+                    toast.success(t("changePasswordModal.success"));
                     setPasswordOpen(false);
                   } else {
-                    toast.error(r.error);
+                    toast.error(e(r.error));
                   }
                 });
               }}
             >
-              确认修改
+              {t("changePasswordModal.submit")}
             </button>
           </>
         }
       >
         <form id="password-form" onSubmit={(e) => e.preventDefault()}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>当前密码</label>
+            <label className={styles.formLabel}>{t("changePasswordModal.currentLabel")}</label>
             <input
               type="password"
               name="current"
               className={styles.formInput}
               maxLength={4}
               inputMode="numeric"
-              placeholder="输入当前4位密码"
+              placeholder={t("changePasswordModal.currentPlaceholder")}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>新密码</label>
+            <label className={styles.formLabel}>{t("changePasswordModal.newLabel")}</label>
             <input
               type="password"
               name="next"
               className={styles.formInput}
               maxLength={4}
               inputMode="numeric"
-              placeholder="输入新的4位密码"
+              placeholder={t("changePasswordModal.newPlaceholder")}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>确认新密码</label>
+            <label className={styles.formLabel}>{t("changePasswordModal.confirmLabel")}</label>
             <input
               type="password"
               name="confirm"
               className={styles.formInput}
               maxLength={4}
               inputMode="numeric"
-              placeholder="再次输入新密码"
+              placeholder={t("changePasswordModal.confirmPlaceholder")}
             />
           </div>
         </form>
@@ -429,7 +433,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       <Modal
         open={securityOpen}
         onClose={() => setSecurityOpen(false)}
-        title="设置密保问题"
+        title={t("securityQuestionModal.title")}
         maxWidth={420}
         footer={
           <>
@@ -438,7 +442,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={() => setSecurityOpen(false)}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -451,39 +455,39 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 startTransition(async () => {
                   const r = await setSecurityQuestionAction(fd);
                   if (r.ok) {
-                    toast.success("密保问题已设置");
+                    toast.success(t("securityQuestionModal.success"));
                     setSecurityOpen(false);
                   } else {
-                    toast.error(r.error);
+                    toast.error(e(r.error));
                   }
                 });
               }}
             >
-              保存密保
+              {t("securityQuestionModal.submit")}
             </button>
           </>
         }
       >
         <form id="security-form" onSubmit={(e) => e.preventDefault()}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>密保问题</label>
+            <label className={styles.formLabel}>{t("securityQuestionModal.questionLabel")}</label>
             <select name="question" className={styles.formInput} defaultValue="" required>
               <option value="" disabled>
-                请选择
+                {t("securityQuestionModal.selectPlaceholder")}
               </option>
-              <option>您母亲的姓名是?</option>
-              <option>您的第一所学校是?</option>
-              <option>您最喜欢的宠物名字是?</option>
-              <option>自定义问题</option>
+              <option>{t("securityQuestionModal.q1")}</option>
+              <option>{t("securityQuestionModal.q2")}</option>
+              <option>{t("securityQuestionModal.q3")}</option>
+              <option>{t("securityQuestionModal.q4")}</option>
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>密保答案</label>
+            <label className={styles.formLabel}>{t("securityQuestionModal.answerLabel")}</label>
             <input
               type="text"
               name="answer"
               className={styles.formInput}
-              placeholder="请输入答案"
+              placeholder={t("securityQuestionModal.answerPlaceholder")}
               required
             />
           </div>
@@ -493,7 +497,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       <Modal
         open={clearDataOpen}
         onClose={() => setClearDataOpen(false)}
-        title="清空所有数据"
+        title={t("clearDataModal.title")}
         maxWidth={420}
         footer={
           <>
@@ -502,7 +506,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={() => setClearDataOpen(false)}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -513,8 +517,8 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 if (!form) return;
                 const fd = new FormData(form);
                 const confirm = String(fd.get("confirm") ?? "");
-                if (confirm !== "确认清空") {
-                  toast.error('请输入「确认清空」');
+                if (confirm !== t("clearDataModal.confirmText")) {
+                  toast.error(t("clearDataModal.inputRequired"));
                   return;
                 }
                 startTransition(async () => {
@@ -523,22 +527,22 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 });
               }}
             >
-              确认清空
+              {t("clearDataModal.submit")}
             </button>
           </>
         }
       >
         <p className={styles.formHint}>
-          此操作将删除全部孩子、任务、积分和愿望数据,且无法恢复。请确认后操作。
+          {t("clearDataModal.desc")}
         </p>
         <form id="clear-form" onSubmit={(e) => e.preventDefault()}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>输入「确认清空」以继续</label>
+            <label className={styles.formLabel}>{t("clearDataModal.label")}</label>
             <input
               type="text"
               name="confirm"
               className={styles.formInput}
-              placeholder="确认清空"
+              placeholder={t("clearDataModal.placeholder")}
             />
           </div>
         </form>

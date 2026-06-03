@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ReviewList } from "./review-list";
 import type { ReviewItem } from "@/lib/ui-types";
 import type { DashboardStats } from "@/lib/queries/dashboard";
@@ -8,13 +9,14 @@ type Props = {
   reviews: ReviewItem[];
 };
 
-export function ReviewSection({ stats, reviews }: Props) {
+export async function ReviewSection({ stats, reviews }: Props) {
+  const t = await getTranslations("admin.review");
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <h3 className={styles.cardTitle}>待审核任务</h3>
+        <h3 className={styles.cardTitle}>{t("sectionTitle")}</h3>
         <span className={`${styles.badge} ${styles.badgeWarning}`}>
-          {stats.pendingReview} 项待处理
+          {stats.pendingReview} {t("pendingCount")}
         </span>
       </div>
       <ReviewList items={reviews} />

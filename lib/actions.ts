@@ -21,7 +21,7 @@ async function getOwnerId(): Promise<string | null> {
 
 export async function addTaskAction(formData: FormData): Promise<ActionResult<number>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const name = String(formData.get("name") ?? "").trim();
   const icon = String(formData.get("icon") ?? "⭐");
   const points = Number(formData.get("points") ?? 0);
@@ -30,7 +30,7 @@ export async function addTaskAction(formData: FormData): Promise<ActionResult<nu
     | "weekly"
     | "once";
   const assigned = formData.getAll("assignedChildren").map((v) => String(v));
-  if (!name || points <= 0) return { ok: false, error: "请填写任务名称和积分" };
+  if (!name || points <= 0) return { ok: false, error: "TASK_NAME_REQUIRED" };
 
   const supabase = await createClient();
   const { data: task, error } = await supabase
@@ -54,9 +54,9 @@ export async function addTaskAction(formData: FormData): Promise<ActionResult<nu
 
 export async function updateTaskAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const taskId = Number(formData.get("taskId") ?? 0);
-  if (!taskId) return { ok: false, error: "缺少任务 id" };
+  if (!taskId) return { ok: false, error: "MISSING_TASK_ID" };
   const name = String(formData.get("name") ?? "").trim();
   const icon = String(formData.get("icon") ?? "⭐");
   const points = Number(formData.get("points") ?? 0);
@@ -65,7 +65,7 @@ export async function updateTaskAction(formData: FormData): Promise<ActionResult
     | "weekly"
     | "once";
   const assigned = formData.getAll("assignedChildren").map((v) => String(v));
-  if (!name || points <= 0) return { ok: false, error: "请填写任务名称和积分" };
+  if (!name || points <= 0) return { ok: false, error: "TASK_NAME_REQUIRED" };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -91,10 +91,10 @@ export async function updateTaskAction(formData: FormData): Promise<ActionResult
 
 export async function closeTaskAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const taskId = Number(formData.get("taskId") ?? 0);
-  const reason = String(formData.get("reason") ?? "").trim() || "已关闭";
-  if (!taskId) return { ok: false, error: "缺少任务 id" };
+  const reason = String(formData.get("reason") ?? "").trim() || "ALREADY_CLOSED";
+  if (!taskId) return { ok: false, error: "MISSING_TASK_ID" };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -109,7 +109,7 @@ export async function closeTaskAction(formData: FormData): Promise<ActionResult>
 
 export async function restoreTaskAction(taskId: number): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { error } = await supabase
     .from("tasks")
@@ -131,10 +131,10 @@ export async function submitTaskAction(
     .select("id, owner_id")
     .eq("share_token", shareToken)
     .maybeSingle();
-  if (!child) return { ok: false, error: "无效的分享链接" };
+  if (!child) return { ok: false, error: "INVALID_SHARE_LINK" };
 
   const taskIdNum = Number(taskId);
-  if (!taskIdNum) return { ok: false, error: "缺少任务 id" };
+  if (!taskIdNum) return { ok: false, error: "MISSING_TASK_ID" };
 
   const { data: audit, error } = await supabase
     .from("task_audit")
@@ -170,7 +170,7 @@ export async function rejectTaskAction(
   reason: string
 ): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { error } = await supabase
     .from("task_audit")
@@ -188,13 +188,13 @@ export async function rejectTaskAction(
 
 export async function addWishAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const name = String(formData.get("name") ?? "").trim();
   const emoji = String(formData.get("image") ?? "🎁");
   const targetPoints = Number(formData.get("points") ?? 0);
   const owner = String(formData.get("owner") ?? "");
-  if (!name || targetPoints <= 0 || !owner) return { ok: false, error: "请填写完整信息" };
-  const isFamily = owner === "家庭";
+  if (!name || targetPoints <= 0 || !owner) return { ok: false, error: "MISSING_INFO" };
+  const isFamily = owner === "family";
 
   const supabase = await createClient();
   const { error } = await supabase.from("wishes").insert({
@@ -213,15 +213,15 @@ export async function addWishAction(formData: FormData): Promise<ActionResult> {
 
 export async function updateWishAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const wishId = Number(formData.get("wishId") ?? 0);
-  if (!wishId) return { ok: false, error: "缺少愿望 id" };
+  if (!wishId) return { ok: false, error: "MISSING_WISH_ID" };
   const name = String(formData.get("name") ?? "").trim();
   const emoji = String(formData.get("image") ?? "🎁");
   const targetPoints = Number(formData.get("points") ?? 0);
   const owner = String(formData.get("owner") ?? "");
-  if (!name || targetPoints <= 0 || !owner) return { ok: false, error: "请填写完整信息" };
-  const isFamily = owner === "家庭";
+  if (!name || targetPoints <= 0 || !owner) return { ok: false, error: "MISSING_INFO" };
+  const isFamily = owner === "family";
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -247,7 +247,7 @@ export async function lockWishAction(
   locked: boolean
 ): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { error } = await supabase
     .from("wishes")
@@ -262,7 +262,7 @@ export async function lockWishAction(
 
 export async function deleteWishAction(wishId: number): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { error } = await supabase
     .from("wishes")
@@ -293,11 +293,11 @@ export async function redeemWishAction(input: {
 
 export async function addChildAction(formData: FormData): Promise<ActionResult<number>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const name = String(formData.get("name") ?? "").trim();
   const themeKey = String(formData.get("themeKey") ?? "sky");
   const themeColor = String(formData.get("themeColor") ?? "#7DD3FC");
-  if (!name) return { ok: false, error: "请填写昵称" };
+  if (!name) return { ok: false, error: "CHILD_NAME_REQUIRED" };
 
   const slug = `${name}-${Math.random().toString(36).slice(2, 8)}`;
   const supabase = await createClient();
@@ -320,13 +320,13 @@ export async function addChildAction(formData: FormData): Promise<ActionResult<n
 
 export async function updateChildAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const childId = Number(formData.get("childId") ?? 0);
-  if (!childId) return { ok: false, error: "缺少孩子 id" };
+  if (!childId) return { ok: false, error: "MISSING_CHILD_ID" };
   const name = String(formData.get("name") ?? "").trim();
   const themeKey = String(formData.get("themeKey") ?? "sky");
   const themeColor = String(formData.get("themeColor") ?? "#7DD3FC");
-  if (!name) return { ok: false, error: "请填写昵称" };
+  if (!name) return { ok: false, error: "CHILD_NAME_REQUIRED" };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -348,7 +348,7 @@ export async function updateChildAction(formData: FormData): Promise<ActionResul
 
 export async function deleteChildAction(childId: number): Promise<ActionResult<{ counts: { tasks: number; audits: number; wishes: number; records: number } }>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
 
   const { data: child } = await supabase
@@ -357,7 +357,7 @@ export async function deleteChildAction(childId: number): Promise<ActionResult<{
     .eq("id", childId)
     .eq("owner_id", ownerId)
     .maybeSingle();
-  if (!child) return { ok: false, error: "孩子不存在" };
+  if (!child) return { ok: false, error: "CHILD_NOT_FOUND" };
 
   const [t, a, w, r] = await Promise.all([
     supabase.from("task_assignments").select("task_id", { count: "exact", head: true }).eq("child_id", childId),
@@ -398,11 +398,11 @@ export async function uploadAvatarAction(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const file = formData.get("file");
-  if (!(file instanceof File)) return { ok: false, error: "未选择文件" };
-  if (file.size === 0) return { ok: false, error: "文件为空" };
-  if (file.size > 5 * 1024 * 1024) return { ok: false, error: "文件超过 5MB" };
+  if (!(file instanceof File)) return { ok: false, error: "FILE_NOT_SELECTED" };
+  if (file.size === 0) return { ok: false, error: "FILE_EMPTY" };
+  if (file.size > 5 * 1024 * 1024) return { ok: false, error: "FILE_TOO_LARGE" };
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
   const path = `${ownerId}/${childId}/${Date.now()}.${ext}`;
@@ -429,10 +429,10 @@ export async function uploadAvatarAction(
 export async function adjustPointsAction(formData: FormData): Promise<ActionResult<{ newTotal: number }>> {
   const childId = Number(formData.get("childId") ?? 0);
   const delta = Number(formData.get("points") ?? 0);
-  const reason = String(formData.get("reason") ?? "").trim() || "手动调整";
+  const reason = String(formData.get("reason") ?? "").trim() || "manual_adjust";
   const type = String(formData.get("type") ?? "manual");
-  if (!childId || delta <= 0) return { ok: false, error: "请选择孩子并填写积分" };
-  if (type !== "manual" && type !== "deduct") return { ok: false, error: "无效操作类型" };
+  if (!childId || delta <= 0) return { ok: false, error: "POINTS_REQUIRED" };
+  if (type !== "manual" && type !== "deduct") return { ok: false, error: "INVALID_OPERATION_TYPE" };
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("adjust_points", {
@@ -452,12 +452,12 @@ export async function adjustPointsAction(formData: FormData): Promise<ActionResu
 
 export async function changePasswordAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const current = String(formData.get("current") ?? "");
   const next = String(formData.get("next") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
-  if (!/^\d{4}$/.test(next)) return { ok: false, error: "新密码需为 4 位数字" };
-  if (next !== confirm) return { ok: false, error: "两次输入不一致" };
+  if (!/^\d{4}$/.test(next)) return { ok: false, error: "INVALID_PASSWORD_FORMAT" };
+  if (next !== confirm) return { ok: false, error: "PASSWORD_MISMATCH" };
 
   const supabase = await createClient();
   const { data: row } = await supabase
@@ -465,8 +465,8 @@ export async function changePasswordAction(formData: FormData): Promise<ActionRe
     .select("admin_pwd")
     .eq("owner_id", ownerId)
     .maybeSingle();
-  if (!row) return { ok: false, error: "请先登录" };
-  if (row.admin_pwd !== current) return { ok: false, error: "当前密码不正确" };
+  if (!row) return { ok: false, error: "LOGIN_REQUIRED" };
+  if (row.admin_pwd !== current) return { ok: false, error: "WRONG_CURRENT_PASSWORD" };
 
   const { error } = await supabase
     .from("settings")
@@ -478,10 +478,10 @@ export async function changePasswordAction(formData: FormData): Promise<ActionRe
 
 export async function setSecurityQuestionAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const question = String(formData.get("question") ?? "").trim();
   const answer = String(formData.get("answer") ?? "").trim();
-  if (!question || !answer) return { ok: false, error: "请填写问题和答案" };
+  if (!question || !answer) return { ok: false, error: "QUESTION_ANSWER_REQUIRED" };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -501,7 +501,7 @@ export async function updateSettingAction(
   value: string | boolean
 ): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { error } = await supabase
     .from("settings")
@@ -513,7 +513,7 @@ export async function updateSettingAction(
 
 export async function exportRecordsAction(): Promise<ActionResult<{ json: string; filename: string }>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("points_records")
@@ -549,7 +549,7 @@ export async function exportRecordsAction(): Promise<ActionResult<{ json: string
 
 export async function backupDataAction(): Promise<ActionResult<{ json: string; filename: string }>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
 
   const [children, tasks, assignments, audits, wishes, records, settings] = await Promise.all([
@@ -584,18 +584,18 @@ export async function backupDataAction(): Promise<ActionResult<{ json: string; f
 
 export async function restoreDataAction(formData: FormData): Promise<ActionResult<{ counts: Record<string, number> }>> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const file = formData.get("file");
-  if (!(file instanceof File)) return { ok: false, error: "未选择文件" };
+  if (!(file instanceof File)) return { ok: false, error: "FILE_NOT_SELECTED" };
   const text = await file.text();
   let payload: Record<string, unknown>;
   try {
     payload = JSON.parse(text);
   } catch {
-    return { ok: false, error: "文件不是合法 JSON" };
+    return { ok: false, error: "INVALID_JSON" };
   }
   if (!payload || typeof payload !== "object" || !("version" in payload)) {
-    return { ok: false, error: "备份文件格式不正确" };
+    return { ok: false, error: "INVALID_BACKUP_FORMAT" };
   }
 
   const supabase = await createClient();
@@ -647,7 +647,7 @@ export async function restoreDataAction(formData: FormData): Promise<ActionResul
 
 export async function clearAllDataAction(): Promise<ActionResult> {
   const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "未登录" };
+  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
   const supabase = await createClient();
 
   await supabase.from("points_records").delete().eq("owner_id", ownerId);

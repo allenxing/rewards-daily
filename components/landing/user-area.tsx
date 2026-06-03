@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "./auth-modal";
 import styles from "@/app/landing.module.css";
@@ -17,6 +18,8 @@ type Detail = { tab?: "login" | "signup" };
 
 export function UserArea({ email }: Props) {
   const router = useRouter();
+  const authT = useTranslations("auth.tabs");
+  const sidebarT = useTranslations("admin.sidebar");
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"login" | "signup">("login");
 
@@ -45,8 +48,8 @@ export function UserArea({ email }: Props) {
           type="button"
           onClick={handleLogout}
           className={styles.iconBtn}
-          aria-label="退出登录"
-          title="退出登录"
+          aria-label={sidebarT("logout")}
+          title={sidebarT("logout")}
         >
           <LogOut size={16} strokeWidth={2.5} />
         </button>
@@ -66,7 +69,7 @@ export function UserArea({ email }: Props) {
           className={styles.loginBtn}
         >
           <LogIn size={16} strokeWidth={2.5} />
-          登录
+          {authT("login")}
         </button>
         <button
           type="button"
@@ -76,7 +79,7 @@ export function UserArea({ email }: Props) {
           }}
           className={styles.signupBtn}
         >
-          注册
+          {authT("signup")}
         </button>
       </div>
       <AuthModal
@@ -94,12 +97,13 @@ export function openAuthModal(tab: "login" | "signup" = "login"): void {
 }
 
 export function NavbarBrand() {
+  const t = useTranslations("landing.nav");
   return (
     <Link href="/" className={styles.brand}>
       <div className={styles.brandLogo} aria-hidden="true">
         ★
       </div>
-      <span className={styles.brandName}>成长星球</span>
+      <span className={styles.brandName}>{t("brand")}</span>
     </Link>
   );
 }

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { PartyPopper } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
 import { getAuditsForChild } from "@/lib/queries/task-audit";
@@ -14,6 +15,7 @@ type Props = {
 
 export default async function ChildHomePage({ params }: Props) {
   const { shareToken } = await params;
+  const t = await getTranslations("child.home");
 
   const [taskRows, audits, wishes] = await Promise.all([
     getTasksForChildByShareToken(shareToken),
@@ -24,16 +26,16 @@ export default async function ChildHomePage({ params }: Props) {
   const auditByTask = new Map<number, number>();
   for (const a of audits) auditByTask.set(a.taskId, a.id);
 
-  const todoTasks: ChildTask[] = taskRows.map((t) => ({
-    id: t.id,
-    name: t.name,
-    detail: t.cycle === "daily" ? "每天可做" : t.cycle === "weekly" ? "每周可做" : "一次性任务",
-    icon: t.icon,
-    iconClass: iconClassFor(t.icon),
-    points: t.points,
-    status: auditByTask.has(t.id) ? "pending" : "todo",
-    assignedChildIds: t.assignedChildren,
-    auditId: auditByTask.get(t.id),
+  const todoTasks: ChildTask[] = taskRows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    detail: row.cycle === "daily" ? t("taskCycleDaily") : row.cycle === "weekly" ? t("taskCycleWeekly") : t("taskCycleOnce"),
+    icon: row.icon,
+    iconClass: iconClassFor(row.icon),
+    points: row.points,
+    status: auditByTask.has(row.id) ? "pending" : "todo",
+    assignedChildIds: row.assignedChildren,
+    auditId: auditByTask.get(row.id),
   }));
 
   const handleSubmit = async (taskId: number) => {
@@ -45,14 +47,14 @@ export default async function ChildHomePage({ params }: Props) {
     <div className={styles.content}>
       <div className={styles.sectionTitle}>
         <span className={styles.sectionTitleEmoji}>📅</span>
-        今日任务
+        {t("sectionTasks")}
       </div>
 
       {todoTasks.length === 0 ? (
         <div className={styles.empty}>
           <PartyPopper size={48} strokeWidth={1.5} className={styles.emptyEmoji} />
-          <div className={styles.emptyTitle}>今天全部完成啦!</div>
-          <div>太棒了,快去梦想宝库看看有没有想兑换的吧</div>
+          <div className={styles.emptyTitle}>{t("empty.title")}</div>
+          <div>{t("empty.desc")}</div>
         </div>
       ) : (
         todoTasks.map((task) => (
@@ -67,7 +69,7 @@ export default async function ChildHomePage({ params }: Props) {
 
       <div className={`${styles.sectionTitle} ${styles.sectionGap}`}>
         <span className={styles.sectionTitleEmoji}>🎉</span>
-        我的梦想
+        {t("sectionWishes")}
       </div>
       <div className={styles.wishScroll}>
         {wishes.map((wish) => (

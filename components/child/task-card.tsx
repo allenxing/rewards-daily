@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import type { ChildTask } from "@/lib/ui-types";
 import { useToast } from "@/components/common/toast";
 import styles from "@/app/child/child.module.css";
@@ -14,6 +15,7 @@ type Props = {
 export function TaskCard({ task, shareToken, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const toast = useToast();
+  const t = useTranslations("child.taskCard");
   void shareToken;
 
   if (task.status === "done") {
@@ -27,7 +29,7 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
           <div className={styles.taskDetail}>{task.detail}</div>
         </div>
         <div className={`${styles.taskPoints} ${styles.done}`}>⭐ +{task.points}</div>
-        <div className={styles.taskDone}>✓ 已通过</div>
+        <div className={styles.taskDone}>{t("doneBadge")}</div>
       </div>
     );
   }
@@ -43,7 +45,7 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
           <div className={styles.taskDetail}>{task.detail}</div>
         </div>
         <div className={styles.taskPoints}>⭐ +{task.points}</div>
-        <div className={styles.taskPending}>🔍 等待审核</div>
+        <div className={styles.taskPending}>{t("pendingBadge")}</div>
       </div>
     );
   }
@@ -66,11 +68,11 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
           if (!onSubmit) return;
           startTransition(async () => {
             await onSubmit(task.id);
-            toast.success("已提交,等待家长审核!");
+            toast.success(t("submitted"));
           });
         }}
       >
-        {pending ? "提交中…" : "✓ 完成"}
+        {pending ? t("submitting") : t("complete")}
       </button>
     </div>
   );

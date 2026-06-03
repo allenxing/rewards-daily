@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Minus } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { useToast } from "@/components/common/toast";
@@ -18,16 +19,19 @@ export function FloatingActions({ kidsList }: Props) {
   const [mode, setMode] = useState<Mode>(null);
   const [pending, startTransition] = useTransition();
   const toast = useToast();
+  const t = useTranslations("admin.floatingActions");
+  const c = useTranslations("common");
+  const e = useTranslations("error");
 
   const close = () => setMode(null);
 
   const isAdd = mode === "add";
-  const title = isAdd ? "手动加分" : "手动扣分";
-  const confirmLabel = isAdd ? "确认加分" : "确认扣分";
+  const title = isAdd ? t("addTitle") : t("deductTitle");
+  const confirmLabel = isAdd ? t("confirmAdd") : t("confirmDeduct");
   const confirmClass = isAdd ? styles.btnPrimary : styles.btnDanger;
-  const pointsLabel = isAdd ? "加分数值" : "扣分数值";
-  const pointsPlaceholder = isAdd ? "如:5" : "如:5";
-  const reasonPlaceholder = isAdd ? "如:主动帮忙做家务" : "如:未完成约定任务";
+  const pointsLabel = isAdd ? t("addLabel") : t("deductLabel");
+  const pointsPlaceholder = t("pointsPlaceholder");
+  const reasonPlaceholder = isAdd ? t("reasonPlaceholderAdd") : t("reasonPlaceholderDeduct");
   const typeValue = isAdd ? "manual" : "deduct";
 
   return (
@@ -37,8 +41,8 @@ export function FloatingActions({ kidsList }: Props) {
           type="button"
           className={`${styles.fabBtn} ${styles.fabBtnSecondary}`}
           onClick={() => setMode("add")}
-          title="手动加分"
-          aria-label="手动加分"
+          title={t("fabAddTitle")}
+          aria-label={t("fabAddTitle")}
         >
           <Plus size={20} strokeWidth={2.5} />
         </button>
@@ -46,8 +50,8 @@ export function FloatingActions({ kidsList }: Props) {
           type="button"
           className={`${styles.fabBtn} ${styles.fabBtnSecondary}`}
           onClick={() => setMode("deduct")}
-          title="手动扣分"
-          aria-label="手动扣分"
+          title={t("fabDeductTitle")}
+          aria-label={t("fabDeductTitle")}
         >
           <Minus size={20} strokeWidth={2.5} />
         </button>
@@ -65,7 +69,7 @@ export function FloatingActions({ kidsList }: Props) {
               className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
               onClick={close}
             >
-              取消
+              {c("cancel")}
             </button>
             <button
               type="button"
@@ -79,25 +83,25 @@ export function FloatingActions({ kidsList }: Props) {
                   (form.elements.namedItem("points") as HTMLInputElement)?.value ?? 0
                 );
                 if (!childId) {
-                  toast.error("请选择孩子");
+                  toast.error(t("selectChild"));
                   return;
                 }
                 if (points <= 0) {
-                  toast.error("请填写积分(>0)");
+                  toast.error(t("enterPoints"));
                   return;
                 }
                 startTransition(async () => {
                   const r = await adjustPointsAction(new FormData(form));
                   if (r.ok) {
-                    toast.success(`${isAdd ? "已加分" : "已扣分"} ${points}`);
+                    toast.success(`${isAdd ? t("successAdd") : t("successDeduct")} ${points}`);
                     close();
                   } else {
-                    toast.error(r.error || (isAdd ? "加分失败,请重试" : "扣分失败,积分可能不足"));
+                    toast.error(e(r.error) || (isAdd ? t("errorAdd") : t("errorDeduct")));
                   }
                 });
               }}
             >
-              {pending ? "处理中…" : confirmLabel}
+              {pending ? t("processing") : confirmLabel}
             </button>
           </>
         }
@@ -105,14 +109,14 @@ export function FloatingActions({ kidsList }: Props) {
         <form id="adjust-points-form" onSubmit={(e) => e.preventDefault()}>
           <input type="hidden" name="type" value={typeValue} />
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>选择孩子</label>
+            <label className={styles.formLabel}>{t("childSelectLabel")}</label>
             <select name="childId" className={styles.formInput} defaultValue="" required>
               <option value="" disabled>
-                请选择
+                {t("childSelectPlaceholder")}
               </option>
               {kidsList.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name} · 当前 {c.totalPoints} 分
+                  {c.name} · {t("currentPoints")} {c.totalPoints}
                 </option>
               ))}
             </select>
@@ -129,7 +133,7 @@ export function FloatingActions({ kidsList }: Props) {
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>原因说明</label>
+            <label className={styles.formLabel}>{t("reasonLabel")}</label>
             <input
               type="text"
               name="reason"

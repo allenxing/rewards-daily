@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import styles from "@/app/child/child.module.css";
 
@@ -20,18 +21,19 @@ export function ChildBottomNav({
 }) {
   const pathname = usePathname();
   const base = shareToken ? `/child/${shareToken}` : `/child/${childId}`;
+  const t = useTranslations("child.nav");
 
   const items: NavItem[] = [
-    { href: base, label: "首页", icon: "🏠", match: (p) => p === base },
+    { href: base, label: t("home"), icon: "🏠", match: (p) => p === base },
     {
       href: `${base}/tasks`,
-      label: "任务",
+      label: t("tasks"),
       icon: "📋",
       match: (p) => p.startsWith(`${base}/tasks`),
     },
     {
       href: `${base}/wishes`,
-      label: "梦想",
+      label: t("wishes"),
       icon: "🎉",
       match: (p) => p.startsWith(`${base}/wishes`),
     },
