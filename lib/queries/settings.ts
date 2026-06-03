@@ -5,8 +5,6 @@ import type { Database } from "@/lib/database.types";
 export type Settings = {
   ownerId: string;
   adminPwd: string;
-  securityQuestion: string | null;
-  securityAnswer: string | null;
   globalTheme: string;
   soundOpen: boolean;
   compactMode: boolean;
@@ -21,8 +19,6 @@ function mapSettings(r: SettingsRow): Settings {
   return {
     ownerId: r.owner_id,
     adminPwd: r.admin_pwd,
-    securityQuestion: r.security_question,
-    securityAnswer: r.security_answer,
     globalTheme: r.global_theme,
     soundOpen: r.sound_open,
     compactMode: r.compact_mode,

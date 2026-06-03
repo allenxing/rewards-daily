@@ -20,7 +20,6 @@ import {
   clearAllDataAction,
   exportRecordsAction,
   restoreDataAction,
-  setSecurityQuestionAction,
   updateSettingAction,
 } from "@/lib/actions";
 import { useUiStore } from "@/lib/stores/ui";
@@ -110,7 +109,6 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const [compactMode, setCompactMode] = useState(initial.compactMode);
   const [childAccessEnabled, setChildAccessEnabled] = useState(initial.childAccessPwdEnabled);
   const [passwordOpen, setPasswordOpen] = useState(false);
-  const [securityOpen, setSecurityOpen] = useState(false);
   const [clearDataOpen, setClearDataOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const restoreFileRef = useRef<HTMLInputElement>(null);
@@ -191,20 +189,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               className={`${styles.btn} ${styles.btnOutline}`}
               onClick={() => setPasswordOpen(true)}
             >
-              {t("security.changePassword")}
-            </button>
-          }
-        />
-        <Row
-          label={t("security.questionLabel")}
-          desc={t("security.questionDesc")}
-          action={
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnOutline}`}
-              onClick={() => setSecurityOpen(true)}
-            >
-              {initial.securityQuestion ? t("security.modifyQuestion") : t("security.setQuestion")}
+              {t("security.setPassword")}
             </button>
           }
         />
@@ -376,7 +361,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
       <Modal
         open={passwordOpen}
         onClose={() => setPasswordOpen(false)}
-        title={t("changePasswordModal.title")}
+        title={t("passwordModal.title")}
         maxWidth={420}
         footer={
           <>
@@ -398,7 +383,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 startTransition(async () => {
                   const r = await changePasswordAction(fd);
                   if (r.ok) {
-                    toast.success(t("changePasswordModal.success"));
+                    toast.success(t("passwordModal.success"));
                     setPasswordOpen(false);
                   } else {
                     toast.error(e(r.error));
@@ -406,107 +391,21 @@ export function SettingsClient({ initial }: { initial: Settings }) {
                 });
               }}
             >
-              {t("changePasswordModal.submit")}
+              {c("save")}
             </button>
           </>
         }
       >
         <form id="password-form" onSubmit={(e) => e.preventDefault()}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>{t("changePasswordModal.currentLabel")}</label>
+            <label className={styles.formLabel}>{t("passwordModal.label")}</label>
             <input
               type="password"
-              name="current"
+              name="password"
               className={styles.formInput}
               maxLength={4}
               inputMode="numeric"
-              placeholder={t("changePasswordModal.currentPlaceholder")}
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>{t("changePasswordModal.newLabel")}</label>
-            <input
-              type="password"
-              name="next"
-              className={styles.formInput}
-              maxLength={4}
-              inputMode="numeric"
-              placeholder={t("changePasswordModal.newPlaceholder")}
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>{t("changePasswordModal.confirmLabel")}</label>
-            <input
-              type="password"
-              name="confirm"
-              className={styles.formInput}
-              maxLength={4}
-              inputMode="numeric"
-              placeholder={t("changePasswordModal.confirmPlaceholder")}
-            />
-          </div>
-        </form>
-      </Modal>
-
-      <Modal
-        open={securityOpen}
-        onClose={() => setSecurityOpen(false)}
-        title={t("securityQuestionModal.title")}
-        maxWidth={420}
-        footer={
-          <>
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
-              onClick={() => setSecurityOpen(false)}
-            >
-              {c("cancel")}
-            </button>
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
-              disabled={pending}
-              onClick={() => {
-                const form = document.getElementById("security-form") as HTMLFormElement | null;
-                if (!form) return;
-                const fd = new FormData(form);
-                startTransition(async () => {
-                  const r = await setSecurityQuestionAction(fd);
-                  if (r.ok) {
-                    toast.success(t("securityQuestionModal.success"));
-                    setSecurityOpen(false);
-                  } else {
-                    toast.error(e(r.error));
-                  }
-                });
-              }}
-            >
-              {t("securityQuestionModal.submit")}
-            </button>
-          </>
-        }
-      >
-        <form id="security-form" onSubmit={(e) => e.preventDefault()}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>{t("securityQuestionModal.questionLabel")}</label>
-            <select name="question" className={styles.formInput} defaultValue="" required>
-              <option value="" disabled>
-                {t("securityQuestionModal.selectPlaceholder")}
-              </option>
-              <option>{t("securityQuestionModal.q1")}</option>
-              <option>{t("securityQuestionModal.q2")}</option>
-              <option>{t("securityQuestionModal.q3")}</option>
-              <option>{t("securityQuestionModal.q4")}</option>
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>{t("securityQuestionModal.answerLabel")}</label>
-            <input
-              type="text"
-              name="answer"
-              className={styles.formInput}
-              placeholder={t("securityQuestionModal.answerPlaceholder")}
-              required
+              placeholder={t("passwordModal.placeholder")}
             />
           </div>
         </form>

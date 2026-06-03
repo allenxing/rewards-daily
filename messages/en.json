@@ -295,14 +295,10 @@
       "pageTitle": "Settings",
       "security": {
         "title": "Security",
-        "desc": "Manage login password and security questions",
-        "passwordLabel": "Login Password",
-        "passwordDesc": "4-digit password for parent admin access",
-        "changePassword": "Change Password",
-        "questionLabel": "Security Question",
-        "questionDesc": "Used to recover your password",
-        "modifyQuestion": "Edit Question",
-        "setQuestion": "Set Question",
+        "desc": "Manage child page access password",
+        "passwordLabel": "Access Password",
+        "passwordDesc": "Set a 4-digit password to protect child page access",
+        "setPassword": "Set Password",
         "childAccessLabel": "Child Page Password",
         "childAccessDesc": "When enabled, accessing child pages requires the 4-digit password"
       },
@@ -349,29 +345,11 @@
         "clearDesc": "Delete all children, tasks, points, and wishes. This cannot be undone.",
         "clearButton": "Clear Data"
       },
-      "changePasswordModal": {
-        "title": "Change Login Password",
-        "currentLabel": "Current Password",
-        "currentPlaceholder": "Enter current 4-digit password",
-        "newLabel": "New Password",
-        "newPlaceholder": "Enter new 4-digit password",
-        "confirmLabel": "Confirm New Password",
-        "confirmPlaceholder": "Re-enter new password",
-        "submit": "Confirm",
-        "success": "Password changed successfully"
-      },
-      "securityQuestionModal": {
-        "title": "Set Security Question",
-        "questionLabel": "Security Question",
-        "selectPlaceholder": "Select",
-        "q1": "What is your mother's name?",
-        "q2": "What was your first school?",
-        "q3": "What is your favorite pet's name?",
-        "q4": "Custom question",
-        "answerLabel": "Answer",
-        "answerPlaceholder": "Enter your answer",
-        "submit": "Save",
-        "success": "Security question saved"
+      "passwordModal": {
+        "title": "Set Access Password",
+        "label": "New Password",
+        "placeholder": "Enter a 4-digit password",
+        "success": "Password saved"
       },
       "clearDataModal": {
         "title": "Clear All Data",

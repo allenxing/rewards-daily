@@ -457,44 +457,20 @@ export async function adjustPointsAction(formData: FormData): Promise<ActionResu
 export async function changePasswordAction(formData: FormData): Promise<ActionResult> {
   const ownerId = await getOwnerId();
   if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
-  const current = String(formData.get("current") ?? "");
-  const next = String(formData.get("next") ?? "");
-  const confirm = String(formData.get("confirm") ?? "");
-  if (!/^\d{4}$/.test(next)) return { ok: false, error: "INVALID_PASSWORD_FORMAT" };
-  if (next !== confirm) return { ok: false, error: "PASSWORD_MISMATCH" };
+  const password = String(formData.get("password") ?? "");
+  if (!/^\d{4}$/.test(password)) return { ok: false, error: "INVALID_PASSWORD_FORMAT" };
 
   const supabase = await createClient();
   const { data: row } = await supabase
     .from("settings")
-    .select("admin_pwd")
+    .select("owner_id")
     .eq("owner_id", ownerId)
     .maybeSingle();
   if (!row) return { ok: false, error: "LOGIN_REQUIRED" };
-  if (row.admin_pwd !== current) return { ok: false, error: "WRONG_CURRENT_PASSWORD" };
 
   const { error } = await supabase
     .from("settings")
-    .update({ admin_pwd: next, updated_at: new Date().toISOString() })
-    .eq("owner_id", ownerId);
-  if (error) return fail(error);
-  return { ok: true };
-}
-
-export async function setSecurityQuestionAction(formData: FormData): Promise<ActionResult> {
-  const ownerId = await getOwnerId();
-  if (!ownerId) return { ok: false, error: "LOGIN_REQUIRED" };
-  const question = String(formData.get("question") ?? "").trim();
-  const answer = String(formData.get("answer") ?? "").trim();
-  if (!question || !answer) return { ok: false, error: "QUESTION_ANSWER_REQUIRED" };
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("settings")
-    .update({
-      security_question: question,
-      security_answer: answer,
-      updated_at: new Date().toISOString(),
-    })
+    .update({ admin_pwd: password, updated_at: new Date().toISOString() })
     .eq("owner_id", ownerId);
   if (error) return fail(error);
   return { ok: true };
