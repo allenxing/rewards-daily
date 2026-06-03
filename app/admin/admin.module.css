@@ -64,6 +64,25 @@
   z-index: 50;
 }
 
+.mobileDrawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.mobileDrawerPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  height: 100svh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebarLogo {
   padding: 20px 20px 16px;
   display: flex;
@@ -1620,20 +1639,11 @@
 
 @media (max-width: 1023px) {
   .sidebar {
-    transform: translateX(-100%);
-    transition: transform 200ms ease;
-  }
-
-  .sidebarOpen {
-    transform: translateX(0);
+    display: none;
   }
 
   .mobileMenuBtn {
     display: flex;
-  }
-
-  .mobileOverlay {
-    display: block;
   }
 
   .mobileCloseBtn {

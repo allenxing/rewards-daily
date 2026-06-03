@@ -1,13 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { Menu, X, LogOut, Star, LayoutDashboard, ListTodo, Sparkles, Users, Coins, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { FloatingActions } from "./floating-actions";
+import { createClient } from "@/lib/supabase/client";
 import type { Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
+
+const navItems = [
+  { href: "/admin", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/admin/tasks", labelKey: "tasks", icon: ListTodo },
+  { href: "/admin/wishes", labelKey: "wishes", icon: Sparkles },
+  { href: "/admin/children", labelKey: "children", icon: Users },
+  { href: "/admin/records", labelKey: "records", icon: Coins },
+  { href: "/admin/settings", labelKey: "settings", icon: Settings },
+] as const;
 
 export function AdminShell({
   kids,
@@ -20,46 +32,74 @@ export function AdminShell({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const scrollPos = useRef(0);
+  const router = useRouter();
+  const t = useTranslations("admin.sidebar");
 
   useEffect(() => {
     setSidebarOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (sidebarOpen) {
-      scrollPos.current = window.scrollY;
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollPos.current}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      window.scrollTo(0, scrollPos.current);
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-    };
-  }, [sidebarOpen]);
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <>
+      {/* Mobile drawer — single position:fixed element */}
       {sidebarOpen && (
-        <div
-          className={styles.mobileOverlay}
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className={styles.mobileDrawer} onClick={() => setSidebarOpen(false)}>
+          <div className={styles.mobileDrawerPanel} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className={styles.mobileCloseBtn}
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={20} strokeWidth={2} />
+            </button>
+
+            <div className={styles.sidebarLogo}>
+              <div className={styles.sidebarLogoIcon}>
+                <Star size={20} strokeWidth={2.5} fill="currentColor" />
+              </div>
+              <span className={styles.sidebarLogoText}>{t("brand")}</span>
+            </div>
+
+            <nav className={styles.sidebarNav}>
+              {navItems.map(({ href, labelKey, icon: Icon }) => {
+                const isActive = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+                  >
+                    <span className={styles.navLinkIcon}>
+                      <Icon size={18} strokeWidth={2} />
+                    </span>
+                    {t(labelKey)}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className={styles.sidebarFooter}>
+              <div className={styles.sidebarEmail}>{userEmail}</div>
+              <button type="button" onClick={handleLogout} className={styles.logoutBtn}>
+                <span className={styles.navLinkIcon}>
+                  <LogOut size={18} strokeWidth={2} />
+                </span>
+                {t("logout")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
+      {/* Desktop sidebar (hidden on mobile via CSS) */}
       <Sidebar
         userEmail={userEmail}
         open={sidebarOpen}
