@@ -1696,6 +1696,16 @@
     min-width: 0;
   }
 
+  .taskRow {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .reviewMeta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   .settingsRow {
     flex-direction: column;
     align-items: flex-start;
@@ -1724,8 +1734,20 @@
   }
 
   .reviewActions .btn,
-  .taskActionsCell > * {
+  .taskActionsCell .taskToggleBtn,
+  .taskActionsCell .taskRestoreBtn {
     flex: 1;
+  }
+
+  .wishFooter {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .recordRow {
