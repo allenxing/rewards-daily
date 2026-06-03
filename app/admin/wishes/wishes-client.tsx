@@ -5,7 +5,7 @@ import { Plus, Pencil, Lock, Star } from "lucide-react";
 import { Tabs } from "@/components/common/tabs";
 import { Modal } from "@/components/common/modal";
 import { useToast } from "@/components/common/toast";
-import { addWishAction, updateWishAction } from "@/lib/actions";
+import { addWishAction, deleteWishAction, lockWishAction, updateWishAction } from "@/lib/actions";
 import type { Wish, Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
@@ -112,10 +112,33 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
               >
                 <Pencil size={12} /> 编辑
               </button>
-              <button type="button" className={`${styles.btn} ${styles.btnOutline}`}>
-                <Lock size={12} /> 锁定
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.btnOutline}`}
+                disabled={pending}
+                onClick={() => {
+                  startTransition(async () => {
+                    const r = await lockWishAction(wish.id, !wish.locked);
+                    if (r.ok) toast.success(wish.locked ? "已解锁" : "已锁定");
+                    else toast.error(r.error);
+                  });
+                }}
+              >
+                <Lock size={12} /> {wish.locked ? "解锁" : "锁定"}
               </button>
-              <button type="button" className={`${styles.btnGhost} ${styles.btnGhostDanger}`}>
+              <button
+                type="button"
+                className={`${styles.btnGhost} ${styles.btnGhostDanger}`}
+                disabled={pending}
+                onClick={() => {
+                  if (!window.confirm(`确定删除愿望「${wish.name}」?`)) return;
+                  startTransition(async () => {
+                    const r = await deleteWishAction(wish.id);
+                    if (r.ok) toast.success("愿望已删除");
+                    else toast.error(r.error);
+                  });
+                }}
+              >
                 🗑
               </button>
             </div>
@@ -153,11 +176,13 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                   if (isEdit && editingWish) {
                     const fd = new FormData(form);
                     fd.set("wishId", String(editingWish.id));
-                    await updateWishAction(fd);
-                    toast.success("愿望已更新");
+                    const r = await updateWishAction(fd);
+                    if (r.ok) toast.success("愿望已更新");
+                    else toast.error(r.error);
                   } else {
-                    await addWishAction(new FormData(form));
-                    toast.success("愿望已添加");
+                    const r = await addWishAction(new FormData(form));
+                    if (r.ok) toast.success("愿望已添加");
+                    else toast.error(r.error);
                   }
                   closeForm();
                 });

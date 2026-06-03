@@ -5,7 +5,7 @@ import { Plus, Lock, Check, Star, Pencil } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { Tabs } from "@/components/common/tabs";
 import { useToast } from "@/components/common/toast";
-import { addTaskAction, closeTaskAction, updateTaskAction } from "@/lib/actions";
+import { addTaskAction, closeTaskAction, restoreTaskAction, updateTaskAction } from "@/lib/actions";
 import type { Task, Child } from "@/lib/ui-types";
 import { iconPresets } from "@/lib/ui-presets";
 import styles from "@/app/admin/admin.module.css";
@@ -142,7 +142,18 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                   关闭
                 </button>
               ) : (
-                <button type="button" className={styles.taskRestoreBtn}>
+                <button
+                  type="button"
+                  className={styles.taskRestoreBtn}
+                  disabled={pending}
+                  onClick={() => {
+                    startTransition(async () => {
+                      const r = await restoreTaskAction(task.id);
+                      if (r.ok) toast.success("已恢复");
+                      else toast.error(r.error);
+                    });
+                  }}
+                >
                   <Check size={12} />
                   恢复启用
                 </button>
@@ -182,11 +193,13 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                   if (isEdit && editingTask) {
                     const fd = new FormData(form);
                     fd.set("taskId", String(editingTask.id));
-                    await updateTaskAction(fd);
-                    toast.success("任务已更新");
+                    const r = await updateTaskAction(fd);
+                    if (r.ok) toast.success("任务已更新");
+                    else toast.error(r.error);
                   } else {
-                    await addTaskAction(new FormData(form));
-                    toast.success("任务已创建");
+                    const r = await addTaskAction(new FormData(form));
+                    if (r.ok) toast.success("任务已创建");
+                    else toast.error(r.error);
                   }
                   closeForm();
                 });
@@ -316,9 +329,10 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                 fd.set("taskId", String(closeTaskId));
                 fd.set("reason", reason);
                 startTransition(async () => {
-                  await closeTaskAction(fd);
+                  const r = await closeTaskAction(fd);
                   setCloseTaskId(null);
-                  toast.success("任务已关闭");
+                  if (r.ok) toast.success("任务已关闭");
+                  else toast.error(r.error);
                 });
               }}
             >

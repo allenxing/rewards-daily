@@ -80,7 +80,7 @@ async function ChildTasksPageInner({ params, searchParams }: Props) {
 
   const handleSubmit = async (taskId: number) => {
     "use server";
-    await submitTaskAction(String(taskId));
+    await submitTaskAction(shareToken, String(taskId));
   };
 
   return (

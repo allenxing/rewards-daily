@@ -55,7 +55,7 @@ async function ChildHomePageInner({ params }: Props) {
 
   const handleSubmit = async (taskId: number) => {
     "use server";
-    await submitTaskAction(String(taskId));
+    await submitTaskAction(shareToken, String(taskId));
   };
 
   return (

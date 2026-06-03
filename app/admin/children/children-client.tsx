@@ -5,7 +5,7 @@ import { Plus, User, Copy, Pencil, Check } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { ColorPicker } from "@/components/common/color-picker";
 import { useToast } from "@/components/common/toast";
-import { addChildAction, updateChildAction } from "@/lib/actions";
+import { addChildAction, deleteChildAction, updateChildAction, uploadAvatarAction } from "@/lib/actions";
 import { themePresets } from "@/lib/ui-presets";
 import type { Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
@@ -28,6 +28,7 @@ export function ChildrenClient({ initialChildren }: Props) {
   const [themeKey, setThemeKey] = useState("sky");
   const [pending, startTransition] = useTransition();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const toast = useToast();
 
   const handleCopy = (shareToken: string, id: number) => {
@@ -41,12 +42,14 @@ export function ChildrenClient({ initialChildren }: Props) {
   const openAdd = () => {
     setEditingChild(null);
     setThemeKey("sky");
+    setAvatarFile(null);
     setFormOpen(true);
   };
 
   const openEdit = (child: Child) => {
     setEditingChild(child);
     setThemeKey(child.themeKey);
+    setAvatarFile(null);
     setFormOpen(true);
   };
 
@@ -54,6 +57,7 @@ export function ChildrenClient({ initialChildren }: Props) {
     setFormOpen(false);
     setEditingChild(null);
     setThemeKey("sky");
+    setAvatarFile(null);
   };
 
   const isEdit = editingChild !== null;
@@ -119,7 +123,30 @@ export function ChildrenClient({ initialChildren }: Props) {
               >
                 <Pencil size={12} /> 编辑
               </button>
-              <button type="button" className={`${styles.btnGhost} ${styles.btnGhostDanger}`}>
+              <button
+                type="button"
+                className={`${styles.btnGhost} ${styles.btnGhostDanger}`}
+                disabled={pending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      `确定删除「${child.name}」?\n将同时删除该孩子的任务记录、积分流水和愿望。此操作不可恢复。`
+                    )
+                  )
+                    return;
+                  startTransition(async () => {
+                    const r = await deleteChildAction(child.id);
+                    if (r.ok) {
+                      const c = r.data?.counts;
+                      toast.success(
+                        `已删除 (任务 ${c?.tasks ?? 0} · 流水 ${c?.records ?? 0})`
+                      );
+                    } else {
+                      toast.error(r.error);
+                    }
+                  });
+                }}
+              >
                 🗑 删除
               </button>
             </div>
@@ -168,10 +195,34 @@ export function ChildrenClient({ initialChildren }: Props) {
                   if (isEdit && editingChild) {
                     const fd = new FormData(form);
                     fd.set("childId", String(editingChild.id));
-                    await updateChildAction(fd);
+                    const r = await updateChildAction(fd);
+                    if (!r.ok) {
+                      toast.error(r.error);
+                      return;
+                    }
+                    if (avatarFile) {
+                      const afd = new FormData();
+                      afd.set("file", avatarFile);
+                      const ar = await uploadAvatarAction(editingChild.id, afd);
+                      if (!ar.ok) {
+                        toast.error(`头像上传失败: ${ar.error}`);
+                        return;
+                      }
+                    }
                     toast.success("孩子已更新");
                   } else {
-                    await addChildAction(new FormData(form));
+                    const addFd = new FormData(form);
+                    const r = await addChildAction(addFd);
+                    if (!r.ok) {
+                      toast.error(r.error);
+                      return;
+                    }
+                    if (avatarFile && r.data) {
+                      const afd = new FormData();
+                      afd.set("file", avatarFile);
+                      const ar = await uploadAvatarAction(r.data, afd);
+                      if (!ar.ok) toast.error(`头像上传失败: ${ar.error}`);
+                    }
                     toast.success("孩子已添加");
                   }
                   closeForm();
@@ -200,11 +251,28 @@ export function ChildrenClient({ initialChildren }: Props) {
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>头像</label>
             <div className={styles.avatarUpload}>
-              <div className={styles.avatarUploadPreview}>
-                <User size={28} strokeWidth={1.5} />
+              <div
+                className={styles.avatarUploadPreview}
+                style={
+                  avatarFile
+                    ? { backgroundImage: `url(${URL.createObjectURL(avatarFile)})`, backgroundSize: "cover" }
+                    : editingChild?.avatarUrl
+                      ? { backgroundImage: `url(${editingChild.avatarUrl})`, backgroundSize: "cover" }
+                      : undefined
+                }
+              >
+                {!avatarFile && !editingChild?.avatarUrl && <User size={28} strokeWidth={1.5} />}
               </div>
               <div className={styles.avatarUploadText}>
-                点击上传头像
+                <label className={styles.avatarUploadLink}>
+                  点击上传头像
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+                  />
+                </label>
                 <br />
                 或使用默认头像
               </div>

@@ -87,12 +87,12 @@ export function FloatingActions({ kidsList }: Props) {
                   return;
                 }
                 startTransition(async () => {
-                  const ok = await adjustPointsAction(new FormData(form));
-                  if (ok) {
+                  const r = await adjustPointsAction(new FormData(form));
+                  if (r.ok) {
                     toast.success(`${isAdd ? "已加分" : "已扣分"} ${points}`);
                     close();
                   } else {
-                    toast.error(isAdd ? "加分失败,请重试" : "扣分失败,积分可能不足");
+                    toast.error(r.error || (isAdd ? "加分失败,请重试" : "扣分失败,积分可能不足"));
                   }
                 });
               }}
