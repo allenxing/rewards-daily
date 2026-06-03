@@ -84,7 +84,6 @@
     @apply border-border;
   }
   html {
-    background: #f9f7f5;
     min-height: 100vh;
     min-height: 100svh;
   }
