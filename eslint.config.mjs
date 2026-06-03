@@ -14,6 +14,14 @@ const eslintConfig = [
     ignores: [".next/**", "node_modules/**", "out/**", "build/**", "*.tsbuildinfo"],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;
