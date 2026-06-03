@@ -5,9 +5,6 @@ import type { Child } from "@/lib/ui-types";
 
 type ChildRow = Database["public"]["Tables"]["children"]["Row"];
 
-const DEFAULT_AVATAR_BG = "#E8D5C4";
-const DEFAULT_AVATAR_FG = "#5D4432";
-
 function mapChild(r: ChildRow): Child {
   return {
     id: r.id,
@@ -17,9 +14,7 @@ function mapChild(r: ChildRow): Child {
     themeColor: r.theme_color,
     totalPoints: r.total_points,
     level: r.level,
-    avatarUrl: r.avatar_url,
-    avatarBg: r.avatar_url ? "transparent" : r.theme_color || DEFAULT_AVATAR_BG,
-    avatarColor: DEFAULT_AVATAR_FG,
+    avatarStyle: (r.avatar_style === "smile-plus" ? "smile-plus" : "smile"),
     shareToken: r.share_token,
   };
 }

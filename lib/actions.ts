@@ -297,6 +297,7 @@ export async function addChildAction(formData: FormData): Promise<ActionResult<n
   const name = String(formData.get("name") ?? "").trim();
   const themeKey = String(formData.get("themeKey") ?? "sky");
   const themeColor = String(formData.get("themeColor") ?? "#7DD3FC");
+  const avatarStyle = String(formData.get("avatarStyle") ?? "smile");
   if (!name) return { ok: false, error: "CHILD_NAME_REQUIRED" };
 
   const slug = `${name}-${Math.random().toString(36).slice(2, 8)}`;
@@ -309,6 +310,7 @@ export async function addChildAction(formData: FormData): Promise<ActionResult<n
       slug,
       theme_key: themeKey,
       theme_color: themeColor,
+      avatar_style: avatarStyle,
     })
     .select("id")
     .single();
@@ -326,6 +328,7 @@ export async function updateChildAction(formData: FormData): Promise<ActionResul
   const name = String(formData.get("name") ?? "").trim();
   const themeKey = String(formData.get("themeKey") ?? "sky");
   const themeColor = String(formData.get("themeColor") ?? "#7DD3FC");
+  const avatarStyle = String(formData.get("avatarStyle") ?? "smile");
   if (!name) return { ok: false, error: "CHILD_NAME_REQUIRED" };
 
   const supabase = await createClient();
@@ -335,6 +338,7 @@ export async function updateChildAction(formData: FormData): Promise<ActionResul
       name,
       theme_key: themeKey,
       theme_color: themeColor,
+      avatar_style: avatarStyle,
       updated_at: new Date().toISOString(),
     })
     .eq("id", childId)

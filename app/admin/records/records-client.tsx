@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Download, Receipt } from "lucide-react";
+import { Download, Receipt, Smile, SmilePlus } from "lucide-react";
 import { useRecordFilters } from "@/lib/hooks/use-record-filters";
 import type { PointsRecord, Child, RecordSummary } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
@@ -148,9 +148,9 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
               <div className={styles.recordChild}>
                 <div
                   className={styles.avatar}
-                  style={{ background: record.childAvatarBg, color: record.childAvatarColor }}
+                  style={{ background: record.themeColor }}
                 >
-                  {record.childName.charAt(0)}
+                  {record.avatarStyle === "smile-plus" ? <SmilePlus size={14} /> : <Smile size={14} />}
                 </div>
                 <span className={styles.recordChildName}>{record.childName}</span>
               </div>

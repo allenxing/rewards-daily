@@ -22,9 +22,8 @@ export function ChildShell({ child, shareToken, children }: Props) {
         shareToken={shareToken}
         name={child.name}
         totalPoints={child.totalPoints}
-        avatarBg={child.avatarBg}
-        avatarColor={child.avatarColor}
-        avatarUrl={child.avatarUrl}
+        themeColor={child.themeColor}
+        avatarStyle={child.avatarStyle}
       />
       <main>{children}</main>
       <ChildBottomNav childId={child.id} shareToken={shareToken ?? child.shareToken} />

@@ -7,15 +7,6 @@ type _AuditRow = Database["public"]["Tables"]["task_audit"]["Row"];
 type _TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type _ChildRow = Database["public"]["Tables"]["children"]["Row"];
 
-const AVATAR_BG = ["#E8D5C4", "#D5E8D4", "#EDE9FE", "#FEF3C7", "#FEE2E2"];
-const AVATAR_FG = ["#5D4432", "#2D7D46", "#5D2D7A", "#7C5A00", "#7A2020"];
-
-function hashColor(seed: string, palette: string[]): string {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return palette[h % palette.length];
-}
-
 function formatRelative(iso: string): string {
   const t = new Date(iso);
   const now = new Date();
@@ -43,6 +34,8 @@ export type AuditWithJoins = {
   taskName: string;
   taskPoints: number;
   childName: string;
+  childThemeColor: string;
+  childAvatarStyle: "smile" | "smile-plus";
 };
 
 export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
@@ -53,7 +46,7 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
   if (!user) return [];
   const { data, error } = await supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name)")
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
     .eq("owner_id", user.id)
     .eq("audit_status", "pending")
     .order("submit_time", { ascending: false })
@@ -62,8 +55,9 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
   return (data ?? []).map((r) => {
     const join = r as unknown as {
       tasks: { name: string; points: number }[];
-      children: { name: string }[];
+      children: { name: string; theme_color: string; avatar_style: string }[];
     };
+    const child = join.children?.[0];
     return {
       id: r.id,
       taskId: r.task_id,
@@ -74,7 +68,9 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
       refuseReason: r.refuse_reason,
       taskName: join.tasks?.[0]?.name ?? "",
       taskPoints: join.tasks?.[0]?.points ?? 0,
-      childName: join.children?.[0]?.name ?? "",
+      childName: child?.name ?? "",
+      childThemeColor: child?.theme_color ?? "#E8D5C4",
+      childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",
     };
   });
 }
@@ -92,7 +88,7 @@ export async function getAuditsForChild(
   if (!child) return [];
   let q = supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name)")
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
     .eq("child_id", child.id)
     .order("submit_time", { ascending: false });
   if (filter === "pending") q = q.eq("audit_status", "pending");
@@ -102,8 +98,9 @@ export async function getAuditsForChild(
   return (data ?? []).map((r) => {
     const join = r as unknown as {
       tasks: { name: string; points: number }[];
-      children: { name: string }[];
+      children: { name: string; theme_color: string; avatar_style: string }[];
     };
+    const child = join.children?.[0];
     return {
       id: r.id,
       taskId: r.task_id,
@@ -114,7 +111,9 @@ export async function getAuditsForChild(
       refuseReason: r.refuse_reason,
       taskName: join.tasks?.[0]?.name ?? "",
       taskPoints: join.tasks?.[0]?.points ?? 0,
-      childName: join.children?.[0]?.name ?? "",
+      childName: child?.name ?? "",
+      childThemeColor: child?.theme_color ?? "#E8D5C4",
+      childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",
     };
   });
 }
@@ -126,7 +125,7 @@ export function toReviewItem(a: AuditWithJoins): ReviewItem {
     childName: a.childName,
     submitTime: formatRelative(a.submitTime),
     points: a.taskPoints,
-    avatarBg: hashColor(a.childName, AVATAR_BG),
-    avatarFg: hashColor(a.childName, AVATAR_FG),
+    themeColor: a.childThemeColor,
+    avatarStyle: a.childAvatarStyle,
   };
 }

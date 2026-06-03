@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Check, X } from "lucide-react";
+import { Check, X, Smile, SmilePlus } from "lucide-react";
 import type { ReviewItem as ReviewItemData } from "@/lib/ui-types";
 import { approveTaskAction, rejectTaskAction } from "@/lib/actions";
 import { useToast } from "@/components/common/toast";
@@ -17,10 +17,10 @@ export function ReviewItem({ item }: { item: ReviewItemData }) {
     <div className={styles.reviewItem}>
       <div
         className={styles.avatar}
-        style={{ background: item.avatarBg, color: item.avatarFg }}
+        style={{ background: item.themeColor }}
         aria-hidden
       >
-        {item.childName.charAt(0)}
+        {item.avatarStyle === "smile-plus" ? <SmilePlus size={16} /> : <Smile size={16} />}
       </div>
       <div className={styles.reviewInfo}>
         <div className={styles.reviewTask}>{item.taskName}</div>

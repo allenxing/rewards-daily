@@ -2,22 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, User, Copy, Pencil, Check } from "lucide-react";
+import { Plus, Smile, SmilePlus, Copy, Pencil, Check, User } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { ColorPicker } from "@/components/common/color-picker";
 import { useToast } from "@/components/common/toast";
-import { addChildAction, deleteChildAction, updateChildAction, uploadAvatarAction } from "@/lib/actions";
+import { addChildAction, deleteChildAction, updateChildAction } from "@/lib/actions";
 import { themePresets } from "@/lib/ui-presets";
 import type { Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
-
-const themeClassMap: Record<string, string> = {
-  sky: styles.themeSky,
-  coral: styles.themeCoral,
-  mint: styles.themeMint,
-  lavender: styles.themeLavender,
-  sun: styles.themeSun,
-};
 
 type Props = {
   initialChildren: Child[];
@@ -27,9 +19,9 @@ export function ChildrenClient({ initialChildren }: Props) {
   const [formOpen, setFormOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [themeKey, setThemeKey] = useState("sky");
+  const [avatarStyle, setAvatarStyle] = useState<"smile" | "smile-plus">("smile");
   const [pending, startTransition] = useTransition();
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const toast = useToast();
   const t = useTranslations("admin.children");
   const c = useTranslations("common");
@@ -46,14 +38,14 @@ export function ChildrenClient({ initialChildren }: Props) {
   const openAdd = () => {
     setEditingChild(null);
     setThemeKey("sky");
-    setAvatarFile(null);
+    setAvatarStyle("smile");
     setFormOpen(true);
   };
 
   const openEdit = (child: Child) => {
     setEditingChild(child);
     setThemeKey(child.themeKey);
-    setAvatarFile(null);
+    setAvatarStyle(child.avatarStyle);
     setFormOpen(true);
   };
 
@@ -61,7 +53,7 @@ export function ChildrenClient({ initialChildren }: Props) {
     setFormOpen(false);
     setEditingChild(null);
     setThemeKey("sky");
-    setAvatarFile(null);
+    setAvatarStyle("smile");
   };
 
   const isEdit = editingChild !== null;
@@ -94,8 +86,8 @@ export function ChildrenClient({ initialChildren }: Props) {
       <div className={styles.childrenGrid}>
         {initialChildren.map((child) => (
           <div key={child.id} className={styles.childCard}>
-            <div className={`${styles.childAvatarLg} ${themeClassMap[child.themeKey] ?? ""}`}>
-              <User size={32} strokeWidth={1.5} />
+            <div className={styles.childAvatarLg} style={{ background: child.themeColor }}>
+              {child.avatarStyle === "smile-plus" ? <SmilePlus size={28} /> : <Smile size={28} />}
             </div>
             <div className={styles.childCardName}>{child.name}</div>
             <div className={styles.childCardPoints}>{child.totalPoints}</div>
@@ -202,15 +194,6 @@ export function ChildrenClient({ initialChildren }: Props) {
                       toast.error(e(r.error));
                       return;
                     }
-                    if (avatarFile) {
-                      const afd = new FormData();
-                      afd.set("file", avatarFile);
-                      const ar = await uploadAvatarAction(editingChild.id, afd);
-                      if (!ar.ok) {
-                        toast.error(t("toast.avatarUploadFailed", { error: ar.error }));
-                        return;
-                      }
-                    }
                     toast.success(t("toast.updated"));
                   } else {
                     const addFd = new FormData(form);
@@ -218,12 +201,6 @@ export function ChildrenClient({ initialChildren }: Props) {
                     if (!r.ok) {
                       toast.error(e(r.error));
                       return;
-                    }
-                    if (avatarFile && r.data) {
-                      const afd = new FormData();
-                      afd.set("file", avatarFile);
-                      const ar = await uploadAvatarAction(r.data, afd);
-                      if (!ar.ok) toast.error(t("toast.avatarUploadFailed", { error: ar.error }));
                     }
                     toast.success(t("toast.added"));
                   }
@@ -250,33 +227,23 @@ export function ChildrenClient({ initialChildren }: Props) {
           ) : null}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>{t("avatarLabel")}</label>
-            <div className={styles.avatarUpload}>
-              <div
-                className={styles.avatarUploadPreview}
-                style={
-                  avatarFile
-                    ? { backgroundImage: `url(${URL.createObjectURL(avatarFile)})`, backgroundSize: "cover" }
-                    : editingChild?.avatarUrl
-                      ? { backgroundImage: `url(${editingChild.avatarUrl})`, backgroundSize: "cover" }
-                      : undefined
-                }
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                type="button"
+                className={`${styles.iconOption} ${avatarStyle === "smile" ? styles.iconOptionSelected : ""}`}
+                onClick={() => setAvatarStyle("smile")}
               >
-                {!avatarFile && !editingChild?.avatarUrl && <User size={28} strokeWidth={1.5} />}
-              </div>
-              <div className={styles.avatarUploadText}>
-                <label className={styles.avatarUploadLink}>
-                  {t("uploadAvatar")}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
-                  />
-                </label>
-                <br />
-                {t("orUseDefault")}
-              </div>
+                <Smile size={28} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.iconOption} ${avatarStyle === "smile-plus" ? styles.iconOptionSelected : ""}`}
+                onClick={() => setAvatarStyle("smile-plus")}
+              >
+                <SmilePlus size={28} />
+              </button>
             </div>
+            <input type="hidden" name="avatarStyle" value={avatarStyle} />
           </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>{t("nameLabel")}</label>

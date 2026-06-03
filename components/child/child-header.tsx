@@ -1,3 +1,4 @@
+import { Smile, SmilePlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import styles from "@/app/child/child.module.css";
@@ -7,9 +8,8 @@ type Props = {
   shareToken?: string;
   name: string;
   totalPoints: number;
-  avatarBg: string;
-  avatarColor: string;
-  avatarUrl: string | null;
+  themeColor: string;
+  avatarStyle: "smile" | "smile-plus";
 };
 
 export async function ChildHeader({
@@ -17,25 +17,18 @@ export async function ChildHeader({
   shareToken,
   name,
   totalPoints,
-  avatarBg,
-  avatarColor,
-  avatarUrl,
+  themeColor,
+  avatarStyle,
 }: Props) {
   const t = await getTranslations("child.header");
   return (
     <header className={styles.header}>
       <div
         className={styles.avatar}
-        style={{
-          background: avatarUrl ? "transparent" : avatarBg,
-          color: avatarColor,
-          backgroundImage: avatarUrl ? `url(${avatarUrl})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        style={{ background: themeColor }}
         aria-label={t("avatarLabel")}
       >
-        {!avatarUrl ? "✨" : ""}
+        {avatarStyle === "smile-plus" ? <SmilePlus size={20} /> : <Smile size={20} />}
       </div>
       <div className={styles.greeting}>
         <div className={styles.name}>{t("greeting", { name })}</div>

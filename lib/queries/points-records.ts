@@ -29,15 +29,6 @@ function formatTime(iso: string): string {
   return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
 }
 
-const AVATAR_BG = ["#E8D5C4", "#D5E8D4", "#EDE9FE", "#FEF3C7", "#FEE2E2"];
-const AVATAR_FG = ["#5D4432", "#2D7D46", "#5D2D7A", "#7C5A00", "#7A2020"];
-
-function hashColor(seed: string, palette: string[]): string {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return palette[h % palette.length];
-}
-
 const TYPE_META: Record<string, string> = {
   earn: "任务完成 · 自动审核",
   manual: "手动加分 · 家长操作",
@@ -62,7 +53,7 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
   if (!user) return [];
   let q = supabase
     .from("points_records")
-    .select("id, child_id, record_type, points, remark, create_time, children!inner(name)")
+    .select("id, child_id, record_type, points, remark, create_time, children!inner(name, theme_color, avatar_style)")
     .eq("owner_id", user.id)
     .order("create_time", { ascending: false })
     .limit(200);
@@ -73,8 +64,11 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).map((r) => {
-    const join = r as unknown as { children: { name: string }[] };
-    const childName = join.children?.[0]?.name ?? "";
+    const join = r as unknown as { children: { name: string; theme_color: string; avatar_style: string }[] };
+    const child = join.children?.[0];
+    const childName = child?.name ?? "";
+    const childTheme = child?.theme_color ?? "#E8D5C4";
+    const childStyle = child?.avatar_style === "smile-plus" ? "smile-plus" : "smile";
     const dbType = r.record_type;
     const uiType: PointsRecord["type"] =
       dbType === "task" ? "earn" : (dbType as PointsRecord["type"]) ?? "earn";
@@ -82,8 +76,8 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
       id: r.id,
       childId: r.child_id,
       childName,
-      childAvatarBg: hashColor(childName, AVATAR_BG),
-      childAvatarColor: hashColor(childName, AVATAR_FG),
+      themeColor: childTheme,
+      avatarStyle: childStyle,
       title: r.remark && r.remark.trim() ? r.remark : TYPE_TITLE[uiType] ?? "积分变动",
       meta: TYPE_META[uiType] ?? "",
       type: uiType,

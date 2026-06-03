@@ -10,9 +10,7 @@ export type Child = {
   themeColor: string;
   totalPoints: number;
   level: number;
-  avatarUrl: string | null;
-  avatarBg: string;
-  avatarColor: string;
+  avatarStyle: "smile" | "smile-plus";
   shareToken: string;
 };
 
@@ -36,8 +34,8 @@ export type ReviewItem = {
   childName: string;
   submitTime: string;
   points: number;
-  avatarBg: string;
-  avatarFg: string;
+  themeColor: string;
+  avatarStyle: "smile" | "smile-plus";
 };
 
 export type Wish = {
@@ -57,8 +55,8 @@ export type PointsRecord = {
   id: number;
   childId: number;
   childName: string;
-  childAvatarBg: string;
-  childAvatarColor: string;
+  themeColor: string;
+  avatarStyle: "smile" | "smile-plus";
   title: string;
   meta: string;
   type: "earn" | "deduct" | "manual" | "wish";
