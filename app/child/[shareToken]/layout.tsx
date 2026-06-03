@@ -56,7 +56,7 @@ function ChildThemeBackground({ themeKey }: { themeKey: string }) {
   return (
     <style
       dangerouslySetInnerHTML={{
-        __html: `html { background: ${color}; }`,
+        __html: `html { background: ${color}; overscroll-behavior: none; }`,
       }}
     />
   );
