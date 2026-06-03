@@ -75,52 +75,49 @@ export function ChildGate({ childId, children }: Props) {
     return <div className="min-h-screen" />;
   }
 
-  if (enabled && childAccessGranted()) {
-    return <>{children}</>;
-  }
-
-  if (!enabled) {
-    return <>{children}</>;
-  }
+  const showOverlay = enabled && !childAccessGranted();
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.card}>
-        <div className={styles.iconWrap}>
-          <Lock size={28} />
+    <>
+      {children}
+      <div className={`${styles.overlay} ${!showOverlay ? styles.overlayHidden : ''}`}>
+        <div className={styles.card}>
+          <div className={styles.iconWrap}>
+            <Lock size={28} />
+          </div>
+          <h2 className={styles.title}>家长验证</h2>
+          <p className={styles.sub}>请输入4位数字密码</p>
+
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value.replace(/\D/g, "").slice(0, 4));
+              setError(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && password.length === 4) handleVerify();
+            }}
+            className={`${styles.input} ${error ? styles.inputError : ""}`}
+            autoFocus
+          />
+
+          {error && (
+            <p className={styles.error}>密码错误</p>
+          )}
+
+          <button
+            type="button"
+            disabled={password.length !== 4 || pending}
+            className={styles.btn}
+            onClick={handleVerify}
+          >
+            {pending ? "验证中…" : "验证"}
+          </button>
         </div>
-        <h2 className={styles.title}>家长验证</h2>
-        <p className={styles.sub}>请输入4位数字密码</p>
-
-        <input
-          type="password"
-          inputMode="numeric"
-          maxLength={4}
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value.replace(/\D/g, "").slice(0, 4));
-            setError(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && password.length === 4) handleVerify();
-          }}
-          className={`${styles.input} ${error ? styles.inputError : ""}`}
-          autoFocus
-        />
-
-        {error && (
-          <p className={styles.error}>密码错误</p>
-        )}
-
-        <button
-          type="button"
-          disabled={password.length !== 4 || pending}
-          className={styles.btn}
-          onClick={handleVerify}
-        >
-          {pending ? "验证中…" : "验证"}
-        </button>
       </div>
-    </div>
+    </>
   );
 }
