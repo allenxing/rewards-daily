@@ -1736,15 +1736,32 @@
     align-items: flex-start;
   }
 
-  .reviewActions,
   .taskActionsCell {
-    width: 100%;
+    width: auto;
+    align-self: flex-end;
   }
 
-  .reviewActions .btn,
   .taskActionsCell .taskToggleBtn,
   .taskActionsCell .taskRestoreBtn {
-    flex: 1;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+  }
+
+  .iconBtn {
+    width: auto;
+    height: auto;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    border: 1px solid rgba(93, 68, 50, 0.15);
+    background: rgba(93, 68, 50, 0.08);
+    color: #5d4432;
+    gap: 4px;
+  }
+
+  .iconBtn:hover {
+    background: #5d4432;
+    color: #ffffff;
+    border-color: #5d4432;
   }
 
   .wishFooter {
