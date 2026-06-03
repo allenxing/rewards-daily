@@ -1685,6 +1685,11 @@
     min-width: 0;
   }
 
+  .filterBar .btn {
+    width: auto;
+    align-self: flex-start;
+  }
+
   .summaryBar {
     gap: 8px;
   }
