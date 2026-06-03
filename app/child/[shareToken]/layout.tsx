@@ -54,10 +54,16 @@ function ChildThemeBackground({ themeKey }: { themeKey: string }) {
   };
   const color = bgMap[themeKey] ?? "#6BCB77";
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: `html { background: ${color}; overscroll-behavior: none; } body { background: ${color} !important; }`,
-      }}
-    />
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `html { background: ${color}; overscroll-behavior: none; } body { background: ${color} !important; }`,
+        }}
+      />
+      <div
+        style={{ position: "fixed", top: 0, right: 0, bottom: 0, left: 0, zIndex: -1, background: color, pointerEvents: "none" }}
+        aria-hidden="true"
+      />
+    </>
   );
 }
