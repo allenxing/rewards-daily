@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   { href: "/admin/settings", labelKey: "settings", icon: Settings },
 ];
 
-export function Sidebar({ userEmail }: { userEmail: string }) {
+export function Sidebar({ userEmail, closeButton, open }: { userEmail: string; closeButton?: React.ReactNode; open?: boolean }) {
   const t = useTranslations("admin.sidebar");
   const pathname = usePathname();
   const router = useRouter();
@@ -45,7 +45,8 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
   };
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
+      {closeButton}
       <div className={styles.sidebarLogo}>
         <div className={styles.sidebarLogoIcon}>
           <Star size={20} strokeWidth={2.5} fill="currentColor" />
