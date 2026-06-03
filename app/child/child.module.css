@@ -47,6 +47,7 @@
   font-family: var(--font-nunito), "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
   color: #2D3436;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   padding-bottom: 80px;
   background: linear-gradient(

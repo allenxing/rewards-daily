@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Poppins, Nunito } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -19,6 +19,12 @@ const nunito = Nunito({
   subsets: ["latin"],
   weight: ["600", "700", "800", "900"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "成长星球 — 好习惯养成计划",
