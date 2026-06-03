@@ -3,7 +3,7 @@
 > **状态**: Draft,待 user review  
 > **日期**: 2026-06-03  
 > **作者**: opencode (co-designed with allen)  
-> **范围**: 把 9 个页面(landing + 6 admin + 3 child)从 `lib/mock-data.ts` 静态数据 + 内存 mutation 全部切换到 Supabase Postgres + Storage;新增 14 个待补 server action;引入多租户隔离(`owner_id` + `auth.uid()`);新增 4 个 Zustand store;3 个 RPC 函数保证原子事务。
+> **范围**: 把 9 个页面(landing + 6 admin + 3 child)从 `lib/mock-data.ts` 静态数据 + 内存 mutation 全部切换到 Supabase Postgres + Storage;新增 14 个待补 server action;引入多租户隔离(`owner_id` + `auth.uid()`);新增 3 个 Zustand store + 1 URL hook;3 个 RPC 函数保证原子事务。
 
 ---
 
@@ -16,7 +16,7 @@
 3. **多租户隔离**:每个 Supabase Auth 账号 = 1 个家庭,数据严格隔离。
 4. **公开分享**:孩子端 `/child/[shareToken]` 用不可枚举 UUID token,RLS 允许 anon 按 token 读。
 5. **原子事务**:审核 / 兑换 / 加减分走 Postgres RPC 函数,事务内完成多表变更。
-6. **客户端状态**:4 个 Zustand store 管 UI 偏好 / Toast 队列 / 乐观积分 / 过滤器(URL 替代)。
+6. **客户端状态**:3 个 Zustand store(UI 偏好 / Toast 队列 / 乐观积分)+ 1 URL hook(过滤器)管跨组件状态。
 7. **头像上传**:Supabase Storage `avatar` bucket(已建),authenticated 上传 + 公开读。
 
 ### 1.2 已定决策
@@ -24,7 +24,7 @@
 | 决策 | 选择 | 理由 |
 |---|---|---|
 | 鉴权 | `anon + RLS`,不用 service_role | 单 Supabase Auth 账号 = 1 家庭;RLS 策略由 `owner_id = auth.uid()` 强制 |
-| 状态管理 | 4 个 Zustand store | 跨组件 / 跨页;读路径仍走 RSC |
+| 状态管理 | 3 个 Zustand store(UI / Toast / Optimistic)+ 1 URL hook(filters) | 跨组件 / 跨页;读路径仍走 RSC |
 | 原子事务 | 3 个 RPC 函数(`approve_task` / `redeem_wish` / `adjust_points`) | server action 调一次,事务由 Postgres 保障 |
 | Realtime | 不上 | 1 个 admin 看页;`revalidatePath` + 手动刷新足够 |
 | URL vs store | 过滤器用 URL search params | 刷新可保留 / 可分享 / 可书签 |
@@ -96,7 +96,7 @@
 2. **Client 组件**只管交互态(表单 / 弹窗 / tab / 编辑中),不直接调 Supabase。
 3. **Server actions 统一入口**:`lib/actions.ts` `"use server"` 顶部,所有 mutation 走它。
 4. **Server action 第一行**:`const supabase = await createClient()` + `const { data: { user } } = await supabase.auth.getUser()`;无 user → return `{ ok: false, error: "未登录" }`。
-5. **Zustand 4 store**,只在 client 边界,Server Component 不能读。
+5. **Zustand 3 store + 1 URL hook**,只在 client 边界,Server Component 不能读 store。
 6. **错误**:`ActionResult = { ok: true; data? } | { ok: false; error: string }`,client `useTransition` + `toast.error(translate(error))`。
 7. **缓存失效**:每个写 action 结尾 `revalidatePath` 它影响到的所有路由。
 8. **类型**:`lib/database.types.ts` 由 `supabase_generate_typescript_types` 生成,queries / actions 全部用此类型,**禁用 `any`**。
@@ -350,7 +350,7 @@ export function translateSupabaseError(msg: string): string {
 
 ---
 
-## 4. Zustand 4 Store
+## 4. Zustand 3 Store + 1 URL Hook
 
 ### 4.1 `useUiStore`
 
@@ -617,7 +617,7 @@ npx supabase gen types typescript --linked > lib/database.types.ts
 | 3 | 写路径:12 个非原子 action | 1 改 lib/actions.ts + 7 改 client | 每个 CRUD 跑通;Supabase 后台验写入 |
 | 4 | 原子 3 个 action via RPC | 1 改 + 3 调用点 | 积分不足返错;事务一致 |
 | 5 | 头像上传 | 1 新 + 2 改 | storage 看文件 + 卡片显示 |
-| 6 | Zustand 4 store + URL 过滤 | 4 新 + 4 改 | 刷新 settings 保留;兑换乐观;records URL 同步 |
+| 6 | Zustand 3 store + URL hook | 3 store + 1 hook + 4 改 | 刷新 settings 保留;兑换乐观;records URL 同步 |
 | 7 | 导出/备份/恢复/清理 | 4 改 lib/actions.ts + 1 改 settings | 导出 JSON 正确;备份→清空→恢复数据回 |
 | 8 | 清理:删 mock-data + 改文档 | 1 删 + 3 文档 | `grep -r mock-data` 0;全 phase 验证流程通过 |
 
