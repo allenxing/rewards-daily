@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import {
   Shield,
   Database,
@@ -22,6 +22,7 @@ import {
   setSecurityQuestionAction,
   updateSettingAction,
 } from "@/lib/actions";
+import { useUiStore } from "@/lib/stores/ui";
 import type { Settings } from "@/lib/queries/settings";
 import styles from "@/app/admin/admin.module.css";
 
@@ -112,6 +113,11 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const [pending, startTransition] = useTransition();
   const restoreFileRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const hydrate = useUiStore((s) => s.hydrate);
+
+  useEffect(() => {
+    hydrate({ globalTheme: initial.globalTheme, soundOpen: initial.soundOpen, compactMode: initial.compactMode });
+  }, [hydrate, initial]);
 
   const handleExportRecords = () => {
     startTransition(async () => {

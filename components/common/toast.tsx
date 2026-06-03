@@ -1,17 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { useToastQueue } from "@/lib/stores/toast-queue";
+import type { ToastVariant } from "@/lib/stores/toast-queue";
 import styles from "./toast.module.css";
-
-type ToastVariant = "success" | "error" | "info";
-
-type Toast = {
-  id: number;
-  message: string;
-  variant: ToastVariant;
-};
 
 type ToastContextValue = {
   show: (message: string, variant?: ToastVariant) => void;
@@ -28,20 +22,28 @@ export function useToast(): ToastContextValue {
   return ctx;
 }
 
-export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+const AUTO_DISMISS_MS = 3000;
 
-  const dismiss = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const queue = useToastQueue((s) => s.queue);
+  const push = useToastQueue((s) => s.push);
+  const dismiss = useToastQueue((s) => s.dismiss);
+
+  useEffect(() => {
+    if (queue.length === 0) return;
+    const oldest = queue[0];
+    if (!oldest) return;
+    const age = Date.now() - oldest.createdAt;
+    const remaining = Math.max(0, AUTO_DISMISS_MS - age);
+    const timer = setTimeout(() => dismiss(oldest.id), remaining);
+    return () => clearTimeout(timer);
+  }, [queue, dismiss]);
 
   const show = useCallback(
     (message: string, variant: ToastVariant = "info") => {
-      const id = Date.now() + Math.random();
-      setToasts((prev) => [...prev.slice(-2), { id, message, variant }]);
-      setTimeout(() => dismiss(id), 3000);
+      push({ message, variant });
     },
-    [dismiss]
+    [push]
   );
 
   const value: ToastContextValue = {
@@ -55,7 +57,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div className={styles.container} role="region" aria-label="通知">
-        {toasts.map((t) => (
+        {queue.map((t) => (
           <div
             key={t.id}
             className={`${styles.toast} ${styles[t.variant]}`}

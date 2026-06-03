@@ -7,8 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -90,22 +88,19 @@ export type Database = {
           related_id?: number | null
           remark?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "points_records_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "points_records_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_child_summary"
-            referencedColumns: ["child_id"]
-          },
-        ]
+        Relationships: [{
+          foreignKeyName: "points_records_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "children"
+          referencedColumns: ["id"]
+        }, {
+          foreignKeyName: "points_records_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "v_child_summary"
+          referencedColumns: ["child_id"]
+        }]
       }
       settings: {
         Row: {
@@ -162,29 +157,25 @@ export type Database = {
           owner_id?: string
           task_id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_assignments_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_assignments_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_child_summary"
-            referencedColumns: ["child_id"]
-          },
-          {
-            foreignKeyName: "task_assignments_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: [{
+          foreignKeyName: "task_assignments_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "children"
+          referencedColumns: ["id"]
+        }, {
+          foreignKeyName: "task_assignments_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "v_child_summary"
+          referencedColumns: ["child_id"]
+        }, {
+          foreignKeyName: "task_assignments_task_id_fkey"
+          columns: ["task_id"]
+          isOneToOne: false
+          referencedRelation: "tasks"
+          referencedColumns: ["id"]
+        }]
       }
       task_audit: {
         Row: {
@@ -217,29 +208,25 @@ export type Database = {
           submit_time?: string
           task_id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_audit_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_audit_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_child_summary"
-            referencedColumns: ["child_id"]
-          },
-          {
-            foreignKeyName: "task_audit_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: [{
+          foreignKeyName: "task_audit_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "children"
+          referencedColumns: ["id"]
+        }, {
+          foreignKeyName: "task_audit_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "v_child_summary"
+          referencedColumns: ["child_id"]
+        }, {
+          foreignKeyName: "task_audit_task_id_fkey"
+          columns: ["task_id"]
+          isOneToOne: false
+          referencedRelation: "tasks"
+          referencedColumns: ["id"]
+        }]
       }
       tasks: {
         Row: {
@@ -332,22 +319,19 @@ export type Database = {
           target_points?: number
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "wishes_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wishes_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_child_summary"
-            referencedColumns: ["child_id"]
-          },
-        ]
+        Relationships: [{
+          foreignKeyName: "wishes_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "children"
+          referencedColumns: ["id"]
+        }, {
+          foreignKeyName: "wishes_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "v_child_summary"
+          referencedColumns: ["child_id"]
+        }]
       }
     }
     Views: {
@@ -364,30 +348,8 @@ export type Database = {
           theme_key: string | null
           total_points: number | null
         }
-        Insert: {
-          active_task_count?: never
-          child_id?: number | null
-          completed_today_count?: never
-          level?: number | null
-          name?: string | null
-          pending_audit_count?: number | null
-          slug?: string | null
-          theme_color?: string | null
-          theme_key?: string | null
-          total_points?: number | null
-        }
-        Update: {
-          active_task_count?: never
-          child_id?: number | null
-          completed_today_count?: never
-          level?: number | null
-          name?: string | null
-          pending_audit_count?: never
-          slug?: string | null
-          theme_color?: string | null
-          theme_key?: string | null
-          total_points?: number | null
-        }
+        Insert: never
+        Update: never
         Relationships: []
       }
       v_dashboard_stats: {
@@ -397,6 +359,8 @@ export type Database = {
           pending_wishes: number | null
           total_points: number | null
         }
+        Insert: never
+        Update: never
         Relationships: []
       }
       v_wish_progress: {
@@ -411,169 +375,41 @@ export type Database = {
           total_points: number | null
           wish_id: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "wishes_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wishes_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "v_child_summary"
-            referencedColumns: ["child_id"]
-          },
-        ]
+        Insert: never
+        Update: never
+        Relationships: [{
+          foreignKeyName: "wishes_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "children"
+          referencedColumns: ["id"]
+        }, {
+          foreignKeyName: "wishes_child_id_fkey"
+          columns: ["child_id"]
+          isOneToOne: false
+          referencedRelation: "v_child_summary"
+          referencedColumns: ["child_id"]
+        }]
       }
     }
     Functions: {
       adjust_points: {
-        Args: {
-          p_child_id: number
-          p_delta: number
-          p_reason: string
-          p_type: string
-        }
+        Args: { p_child_id: number; p_delta: number; p_reason: string; p_type: string }
         Returns: Json
       }
       approve_task: { Args: { p_audit_id: number }; Returns: Json }
-      redeem_wish: { Args: { p_share_token: string }; Returns: Json }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
-
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+      redeem_wish: {
+        Args: { p_share_token: string; p_wish_id: number }
+        Returns: Json
       }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
     }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
 
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions] extends {
-        CompositeTypeName: infer C
-      }
-      ? C
-      : never
-    : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+type DefaultSchema = Database["public"]
+export type Tables<T extends keyof DefaultSchema["Tables"]> = DefaultSchema["Tables"][T]["Row"]
+export type TablesInsert<T extends keyof DefaultSchema["Tables"]> = DefaultSchema["Tables"][T]["Insert"]
+export type TablesUpdate<T extends keyof DefaultSchema["Tables"]> = DefaultSchema["Tables"][T]["Update"]
+export type Enums<T extends keyof DefaultSchema["Enums"]> = DefaultSchema["Enums"][T]
