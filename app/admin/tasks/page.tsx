@@ -1,11 +1,8 @@
-import { Suspense } from "react";
-import { tasks, children } from "@/lib/mock-data";
 import { TasksClient } from "./tasks-client";
+import { getTasksForAdmin } from "@/lib/queries/tasks";
+import { getChildren } from "@/lib/queries/children";
 
-export default function AdminTasksPage() {
-  return (
-    <Suspense fallback={null}>
-      <TasksClient tasks={tasks} kidsList={children} />
-    </Suspense>
-  );
+export default async function AdminTasksPage() {
+  const [tasks, kids] = await Promise.all([getTasksForAdmin(), getChildren()]);
+  return <TasksClient tasks={tasks} kidsList={kids} />;
 }

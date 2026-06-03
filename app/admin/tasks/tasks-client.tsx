@@ -6,8 +6,8 @@ import { Modal } from "@/components/common/modal";
 import { Tabs } from "@/components/common/tabs";
 import { useToast } from "@/components/common/toast";
 import { addTaskAction, closeTaskAction, updateTaskAction } from "@/lib/actions";
-import type { Task, Child } from "@/lib/mock-data";
-import { iconPresets } from "@/lib/mock-data";
+import type { Task, Child } from "@/lib/ui-types";
+import { iconPresets } from "@/lib/ui-presets";
 import styles from "@/app/admin/admin.module.css";
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 export function TasksClient({ tasks, kidsList: kids }: Props) {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [addOpen, setAddOpen] = useState(false);
-  const [closeTaskId, setCloseTaskId] = useState<string | null>(null);
+  const [closeTaskId, setCloseTaskId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "closed">("active");
   const [pending, startTransition] = useTransition();
   const [iconPick, setIconPick] = useState("⭐");
@@ -105,7 +105,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                       : "一次性"}
                 </span>
                 <span>·</span>
-                <span>{task.assignedChildren.join("、")}</span>
+                <span>{task.assignedChildNames.join("、") || "未指派"}</span>
                 {task.status === "closed" && task.closedReason ? (
                   <>
                     <span>·</span>
@@ -181,7 +181,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                 startTransition(async () => {
                   if (isEdit && editingTask) {
                     const fd = new FormData(form);
-                    fd.set("taskId", editingTask.id);
+                    fd.set("taskId", String(editingTask.id));
                     await updateTaskAction(fd);
                     toast.success("任务已更新");
                   } else {
@@ -209,7 +209,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
           onSubmit={(e) => e.preventDefault()}
         >
           {isEdit && editingTask ? (
-            <input type="hidden" name="taskId" value={editingTask.id} />
+            <input type="hidden" name="taskId" value={String(editingTask.id)} />
           ) : null}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>任务名称</label>
@@ -274,10 +274,10 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                   <input
                     type="checkbox"
                     name="assignedChildren"
-                    value={kid.name}
+                    value={String(kid.id)}
                     defaultChecked={
                       isEdit
-                        ? editingTask!.assignedChildren.includes(kid.name)
+                        ? editingTask!.assignedChildren.includes(kid.id)
                         : true
                     }
                   />
@@ -313,7 +313,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                   (document.getElementById("close-reason-select") as HTMLSelectElement | null)
                     ?.value ?? "暂时不需要";
                 const fd = new FormData();
-                fd.set("taskId", closeTaskId);
+                fd.set("taskId", String(closeTaskId));
                 fd.set("reason", reason);
                 startTransition(async () => {
                   await closeTaskAction(fd);

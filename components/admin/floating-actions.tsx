@@ -5,7 +5,7 @@ import { Plus, Minus } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { useToast } from "@/components/common/toast";
 import { adjustPointsAction } from "@/lib/actions";
-import type { Child } from "@/lib/mock-data";
+import type { Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
 type Props = {

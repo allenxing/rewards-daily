@@ -12,7 +12,7 @@ import { Toggle } from "@/components/common/toggle";
 import { Modal } from "@/components/common/modal";
 import { ColorPicker } from "@/components/common/color-picker";
 import { useToast } from "@/components/common/toast";
-import { adminColorPresets } from "@/lib/mock-data";
+import { adminColorPresets } from "@/lib/ui-presets";
 import styles from "@/app/admin/admin.module.css";
 
 type SectionIcon = "security" | "data" | "theme" | "about" | "danger";

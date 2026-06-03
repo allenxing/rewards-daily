@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { ChildWish } from "@/lib/mock-data";
+import type { ChildWish } from "@/lib/ui-types";
 import { redeemWishAction } from "@/lib/actions";
 import { useToast } from "@/components/common/toast";
 import { Confetti } from "./confetti";
@@ -9,11 +9,11 @@ import styles from "@/app/child/child.module.css";
 
 type Props = {
   wish: ChildWish;
-  childId: string;
+  shareToken: string;
   variant?: "scroll" | "grid";
 };
 
-export function WishCard({ wish, childId, variant = "scroll" }: Props) {
+export function WishCard({ wish, shareToken, variant = "scroll" }: Props) {
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [confettiCount, setConfettiCount] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -24,13 +24,13 @@ export function WishCard({ wish, childId, variant = "scroll" }: Props) {
 
   const handleConfirm = () => {
     startTransition(async () => {
-      const ok = await redeemWishAction(wish.id, childId);
-      if (ok) {
+      const r = await redeemWishAction({ wishId: wish.id, shareToken });
+      if (r.ok) {
         setRedeemOpen(false);
         setConfettiCount((c) => c + 1);
         toast.success(`已兑换「${wish.name}」!`);
       } else {
-        toast.error("兑换失败,请重试");
+        toast.error(r.error || "兑换失败,请重试");
       }
     });
   };

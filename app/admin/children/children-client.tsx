@@ -6,8 +6,8 @@ import { Modal } from "@/components/common/modal";
 import { ColorPicker } from "@/components/common/color-picker";
 import { useToast } from "@/components/common/toast";
 import { addChildAction, updateChildAction } from "@/lib/actions";
-import { themePresets } from "@/lib/mock-data";
-import type { Child } from "@/lib/mock-data";
+import { themePresets } from "@/lib/ui-presets";
+import type { Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
 const themeClassMap: Record<string, string> = {
@@ -30,10 +30,10 @@ export function ChildrenClient({ initialChildren }: Props) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const toast = useToast();
 
-  const handleCopy = (slug: string, id: string) => {
-    const url = `${window.location.origin}/child/${slug}`;
+  const handleCopy = (shareToken: string, id: number) => {
+    const url = `${window.location.origin}/child/${shareToken}`;
     navigator.clipboard?.writeText(url);
-    setCopiedId(id);
+    setCopiedId(String(id));
     setTimeout(() => setCopiedId(null), 1500);
     toast.success("链接已复制");
   };
@@ -92,10 +92,10 @@ export function ChildrenClient({ initialChildren }: Props) {
             <div className={styles.childCardName}>{child.name}</div>
             <div className={styles.childCardPoints}>{child.totalPoints}</div>
             <div className={styles.childCardLabel}>累计积分 · Lv.{child.level}</div>
-            <div className={styles.childCardLink}>/child/{child.slug}</div>
+            <div className={styles.childCardLink}>/child/{child.shareToken.slice(0, 8)}…</div>
             <div className={styles.childCardActions}>
               <a
-                href={`/child/${child.id}`}
+                href={`/child/${child.shareToken}`}
                 target="_blank"
                 rel="noreferrer"
                 className={styles.childActionEnter}
@@ -105,10 +105,10 @@ export function ChildrenClient({ initialChildren }: Props) {
               <button
                 type="button"
                 className={styles.childActionCopy}
-                onClick={() => handleCopy(child.slug, child.id)}
+                onClick={() => handleCopy(child.shareToken, child.id)}
               >
-                {copiedId === child.id ? <Check size={12} /> : <Copy size={12} />}
-                {copiedId === child.id ? "已复制" : "复制地址"}
+                {copiedId === String(child.id) ? <Check size={12} /> : <Copy size={12} />}
+                {copiedId === String(child.id) ? "已复制" : "复制地址"}
               </button>
             </div>
             <div className={`${styles.childCardActions} ${styles.childCardActionsSecondary}`}>
@@ -167,7 +167,7 @@ export function ChildrenClient({ initialChildren }: Props) {
                 startTransition(async () => {
                   if (isEdit && editingChild) {
                     const fd = new FormData(form);
-                    fd.set("childId", editingChild.id);
+                    fd.set("childId", String(editingChild.id));
                     await updateChildAction(fd);
                     toast.success("孩子已更新");
                   } else {
@@ -195,7 +195,7 @@ export function ChildrenClient({ initialChildren }: Props) {
           onSubmit={(e) => e.preventDefault()}
         >
           {isEdit && editingChild ? (
-            <input type="hidden" name="childId" value={editingChild.id} />
+            <input type="hidden" name="childId" value={String(editingChild.id)} />
           ) : null}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>头像</label>
@@ -236,17 +236,17 @@ export function ChildrenClient({ initialChildren }: Props) {
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>专属路由</label>
+            <label className={styles.formLabel}>专属分享链接</label>
             <div className={styles.formInputRow}>
               <span className={styles.formInputPrefix}>/child/</span>
               <input
                 type="text"
                 className={styles.formInput}
-                placeholder="自动生成"
-                defaultValue={editingChild?.slug ?? ""}
+                readOnly
+                value={editingChild?.shareToken ?? "(新建后自动生成)"}
               />
             </div>
-            <div className={styles.formHint}>留空将根据昵称自动生成</div>
+            <div className={styles.formHint}>新链接在孩子创建后自动生成,可点击「复制地址」获取</div>
           </div>
         </form>
       </Modal>

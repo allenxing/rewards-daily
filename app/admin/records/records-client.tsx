@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Download, BarChart3 } from "lucide-react";
-import { records, recordSummary, children } from "@/lib/mock-data";
-import type { Record as PointsRecord, Child } from "@/lib/mock-data";
+import { useRecordFilters } from "@/lib/hooks/use-record-filters";
+import type { PointsRecord, Child, RecordSummary } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
 type Props = {
   initialRecords: PointsRecord[];
   kidsList: Child[];
+  summary: RecordSummary;
 };
 
 const typeLabel: Record<string, string> = {
@@ -18,25 +19,30 @@ const typeLabel: Record<string, string> = {
   wish: "wish",
 };
 
-export function RecordsClient({ initialRecords, kidsList }: Props) {
-  const [childFilter, setChildFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
+  const { filters, setFilter } = useRecordFilters();
 
   const filtered = useMemo(() => {
     return initialRecords.filter((r) => {
-      if (childFilter !== "all" && r.childId !== childFilter) return false;
-      if (typeFilter !== "all" && r.type !== typeFilter) return false;
+      if (filters.childId !== undefined && r.childId !== filters.childId) return false;
+      if (filters.type && r.type !== filters.type) return false;
       return true;
     });
-  }, [initialRecords, childFilter, typeFilter]);
+  }, [initialRecords, filters.childId, filters.type]);
 
   const reset = () => {
-    setChildFilter("all");
-    setTypeFilter("all");
-    setDateFrom("");
-    setDateTo("");
+    setFilter({ childId: undefined, type: undefined, dateFrom: undefined, dateTo: undefined });
+  };
+
+  const handleExport = () => {
+    const data = JSON.stringify(filtered, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `records-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -44,7 +50,11 @@ export function RecordsClient({ initialRecords, kidsList }: Props) {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>积分流水记录</h1>
         <div className={styles.pageActions}>
-          <button type="button" className={`${styles.btn} ${styles.btnOutline}`}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnOutline}`}
+            onClick={handleExport}
+          >
             <Download size={14} strokeWidth={2} />
             导出数据
           </button>
@@ -56,27 +66,29 @@ export function RecordsClient({ initialRecords, kidsList }: Props) {
           <span className={`${styles.summaryDot} ${styles.summaryDotGreen}`} />
           <span>本月获得</span>
           <span className={`${styles.summaryMono} ${styles.summaryEarn}`}>
-            +{recordSummary.monthEarn}
+            +{summary.monthEarn}
           </span>
         </div>
         <div className={styles.summaryChip}>
           <span className={`${styles.summaryDot} ${styles.summaryDotRed}`} />
           <span>本月扣除</span>
           <span className={`${styles.summaryMono} ${styles.summaryDeduct}`}>
-            -{recordSummary.monthDeduct}
+            -{summary.monthDeduct}
           </span>
         </div>
         <div className={styles.summaryChip}>
           <span>净增</span>
-          <span className={styles.summaryMono}>+{recordSummary.netAdd}</span>
+          <span className={`${styles.summaryMono}`}>+{summary.netAdd}</span>
         </div>
       </div>
 
       <div className={styles.filterBar}>
         <select
           className={styles.filterBarSelect}
-          value={childFilter}
-          onChange={(e) => setChildFilter(e.target.value)}
+          value={filters.childId ?? "all"}
+          onChange={(e) =>
+            setFilter({ childId: e.target.value === "all" ? undefined : Number(e.target.value) })
+          }
         >
           <option value="all">全部孩子</option>
           {kidsList.map((c) => (
@@ -87,8 +99,10 @@ export function RecordsClient({ initialRecords, kidsList }: Props) {
         </select>
         <select
           className={styles.filterBarSelect}
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
+          value={filters.type ?? "all"}
+          onChange={(e) =>
+            setFilter({ type: e.target.value === "all" ? undefined : (e.target.value as RecordFiltersType) })
+          }
         >
           <option value="all">全部类型</option>
           <option value="earn">获得积分</option>
@@ -99,14 +113,14 @@ export function RecordsClient({ initialRecords, kidsList }: Props) {
         <input
           type="date"
           className={`${styles.filterBarInput} ${styles.filterBarDate}`}
-          value={dateFrom}
-          onChange={(e) => setDateFrom(e.target.value)}
+          value={filters.dateFrom ?? ""}
+          onChange={(e) => setFilter({ dateFrom: e.target.value || undefined })}
         />
         <input
           type="date"
           className={`${styles.filterBarInput} ${styles.filterBarDate}`}
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
+          value={filters.dateTo ?? ""}
+          onChange={(e) => setFilter({ dateTo: e.target.value || undefined })}
         />
         <button
           type="button"
@@ -159,5 +173,4 @@ export function RecordsClient({ initialRecords, kidsList }: Props) {
   );
 }
 
-void children;
-void records;
+type RecordFiltersType = "earn" | "deduct" | "manual" | "wish";

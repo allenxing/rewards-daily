@@ -1,17 +1,18 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import {
-  getChildById,
-  getChildWishesForChild,
-  getChildRedeemHistory,
-} from "@/lib/mock-data";
+import { getChildByShareToken } from "@/lib/queries/children";
+import { getWishesForChild, getRedeemHistoryForChild } from "@/lib/queries/wishes";
 import { ChildShell } from "@/components/child/child-shell";
 import { WishCard } from "@/components/child/wish-card";
 import { WishTabs } from "@/components/child/wish-tabs";
 import styles from "@/app/child/child.module.css";
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 type Props = {
-  params: Promise<{ childId: string }>;
+  params: Promise<{ shareToken: string }>;
   searchParams: Promise<{ tab?: string }>;
 };
 
@@ -24,13 +25,15 @@ export default function ChildWishesPage({ params, searchParams }: Props) {
 }
 
 async function ChildWishesPageInner({ params, searchParams }: Props) {
-  const { childId } = await params;
+  const { shareToken } = await params;
   const { tab = "active" } = await searchParams;
-  const child = getChildById(childId);
+  const child = await getChildByShareToken(shareToken);
   if (!child) notFound();
 
-  const wishes = getChildWishesForChild(childId);
-  const history = getChildRedeemHistory(childId);
+  const [wishes, history] = await Promise.all([
+    getWishesForChild(shareToken),
+    getRedeemHistoryForChild(shareToken),
+  ]);
 
   const tabs = [
     { key: "active", label: "我的心愿", icon: "✨" },
@@ -46,7 +49,7 @@ async function ChildWishesPageInner({ params, searchParams }: Props) {
         </div>
         <p className={styles.sectionSubtitle}>攒够星星就能实现梦想!</p>
 
-        <WishTabs tabs={tabs} active={tab} basePath={`/child/${childId}/wishes`} />
+        <WishTabs tabs={tabs} active={tab} basePath={`/child/${shareToken}/wishes`} />
 
         {tab === "history" ? (
           history.length > 0 ? (
@@ -77,11 +80,16 @@ async function ChildWishesPageInner({ params, searchParams }: Props) {
               </p>
             </div>
           )
-        ) : (
+        ) : wishes.length > 0 ? (
           <div className={styles.wishScrollRow}>
             {wishes.map((wish) => (
-              <WishCard key={wish.id} wish={wish} childId={childId} variant="grid" />
+              <WishCard key={wish.id} wish={wish} shareToken={shareToken} variant="grid" />
             ))}
+          </div>
+        ) : (
+          <div className={styles.empty}>
+            <div className={styles.emptyEmoji}>🎁</div>
+            <div>还没有愿望,让家长添加几个吧</div>
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 import { ChildrenClient } from "./children-client";
-import { children } from "@/lib/mock-data";
+import { getChildren } from "@/lib/queries/children";
 
-export default function ChildrenPage() {
+export default async function ChildrenPage() {
+  const children = await getChildren();
   return <ChildrenClient initialChildren={children} />;
 }

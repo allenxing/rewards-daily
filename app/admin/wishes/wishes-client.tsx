@@ -6,7 +6,7 @@ import { Tabs } from "@/components/common/tabs";
 import { Modal } from "@/components/common/modal";
 import { useToast } from "@/components/common/toast";
 import { addWishAction, updateWishAction } from "@/lib/actions";
-import type { Wish, Child } from "@/lib/mock-data";
+import type { Wish, Child } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
 type Props = {
@@ -56,8 +56,8 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
   const ownerDefault = editingWish
     ? editingWish.isFamily
       ? "家庭"
-      : editingWish.owner
-    : (kidsList[0]?.name ?? "小明");
+      : String(kidsList.find((c) => c.name === editingWish.owner)?.id ?? kidsList[0]?.id ?? "")
+    : String(kidsList[0]?.id ?? "");
 
   return (
     <div className={styles.pageBody}>
@@ -152,7 +152,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
                 startTransition(async () => {
                   if (isEdit && editingWish) {
                     const fd = new FormData(form);
-                    fd.set("wishId", editingWish.id);
+                    fd.set("wishId", String(editingWish.id));
                     await updateWishAction(fd);
                     toast.success("愿望已更新");
                   } else {
@@ -180,7 +180,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
           onSubmit={(e) => e.preventDefault()}
         >
           {isEdit && editingWish ? (
-            <input type="hidden" name="wishId" value={editingWish.id} />
+            <input type="hidden" name="wishId" value={String(editingWish.id)} />
           ) : null}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>愿望配图</label>
@@ -218,7 +218,7 @@ export function WishesClient({ initialWishes, kidsList }: Props) {
             >
               <optgroup label="个人愿望">
                 {kidsList.map((c) => (
-                  <option key={c.id} value={c.name}>
+                  <option key={c.id} value={String(c.id)}>
                     {c.name}
                   </option>
                 ))}

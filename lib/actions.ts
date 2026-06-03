@@ -7,7 +7,6 @@ import {
   addWish,
   adjustPoints,
   closeTask,
-  redeemWishForChild,
   submitTaskForReview,
   updateChild,
   updateTask,
@@ -121,16 +120,17 @@ export async function submitTaskAction(taskId: string): Promise<void> {
   revalidatePath("/child/[childId]", "page");
 }
 
-export async function redeemWishAction(
-  wishId: string,
-  childId: string
-): Promise<boolean> {
-  const ok = redeemWishForChild(wishId, childId);
+export async function redeemWishAction(input: {
+  wishId: number;
+  shareToken: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const { redeemWishForChild } = await import("./mock-data");
+  const ok = redeemWishForChild(String(input.wishId), input.shareToken);
   if (ok) {
-    revalidatePath("/child/[childId]/wishes", "page");
-    revalidatePath("/child/[childId]", "page");
+    revalidatePath(`/child/${input.shareToken}/wishes`);
+    revalidatePath(`/child/${input.shareToken}`);
   }
-  return ok;
+  return { ok };
 }
 
 export async function adjustPointsAction(formData: FormData): Promise<boolean> {

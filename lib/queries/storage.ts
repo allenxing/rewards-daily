@@ -1,8 +1,9 @@
-// Stub: real implementation in Phase 2 task 2.8 + Phase 5
-export async function uploadAvatar(_childId: number, _file: File): Promise<string> {
-  throw new Error("not implemented: uploadAvatar (Phase 5)");
-}
+import "server-only";
+import { createClient } from "@/lib/supabase/server";
 
-export async function getAvatarUrl(_path: string): Promise<string> {
-  throw new Error("not implemented: getAvatarUrl (Phase 2)");
+export async function getAvatarUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const supabase = await createClient();
+  const { data } = supabase.storage.from("avatar").getPublicUrl(path);
+  return data.publicUrl;
 }

@@ -11,17 +11,18 @@ type NavItem = {
   match: (pathname: string) => boolean;
 };
 
-export function ChildBottomNav({ childId }: { childId: string }) {
+export function ChildBottomNav({
+  childId,
+  shareToken,
+}: {
+  childId: number;
+  shareToken?: string;
+}) {
   const pathname = usePathname();
-  const base = `/child/${childId}`;
+  const base = shareToken ? `/child/${shareToken}` : `/child/${childId}`;
 
   const items: NavItem[] = [
-    {
-      href: base,
-      label: "首页",
-      icon: "🏠",
-      match: (p) => p === base,
-    },
+    { href: base, label: "首页", icon: "🏠", match: (p) => p === base },
     {
       href: `${base}/tasks`,
       label: "任务",

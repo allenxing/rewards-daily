@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import type { ReviewItem as ReviewItemData } from "@/lib/mock-data";
+import type { ReviewItem as ReviewItemData } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
 
 export function ReviewItem({ item }: { item: ReviewItemData }) {

@@ -1,7 +1,9 @@
 import { WishesClient } from "./wishes-client";
-import { wishes } from "@/lib/mock-data";
-import { children } from "@/lib/mock-data";
+import { getWishesForAdmin, toAdminWish } from "@/lib/queries/wishes";
+import { getChildren } from "@/lib/queries/children";
 
-export default function WishesPage() {
-  return <WishesClient initialWishes={wishes} kidsList={children} />;
+export default async function WishesPage() {
+  const [wishes, kids] = await Promise.all([getWishesForAdmin(), getChildren()]);
+  const initialWishes = wishes.map(toAdminWish);
+  return <WishesClient initialWishes={initialWishes} kidsList={kids} />;
 }

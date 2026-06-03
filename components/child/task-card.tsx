@@ -1,18 +1,20 @@
 "use client";
 
 import { useTransition } from "react";
-import type { ChildTask } from "@/lib/mock-data";
+import type { ChildTask } from "@/lib/ui-types";
 import { useToast } from "@/components/common/toast";
 import styles from "@/app/child/child.module.css";
 
 type Props = {
   task: ChildTask;
-  onSubmit?: (taskId: string) => void;
+  shareToken: string;
+  onSubmit?: (taskId: number) => void;
 };
 
-export function TaskCard({ task, onSubmit }: Props) {
+export function TaskCard({ task, shareToken, onSubmit }: Props) {
   const [pending, startTransition] = useTransition();
   const toast = useToast();
+  void shareToken;
 
   if (task.status === "done") {
     return (
