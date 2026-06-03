@@ -7,7 +7,7 @@ export default function ChildLoading() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "60vh",
+        minHeight: "calc(100dvh - 140px)",
         color: "rgba(255,255,255,0.7)",
       }}
     >

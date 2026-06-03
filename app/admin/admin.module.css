@@ -1770,9 +1770,7 @@
   }
 
   .pageHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
   }
 
   .recordRow {
