@@ -15,7 +15,12 @@ export function IntlProvider({ children }: { children: React.ReactNode }) {
   const messages = locale === "en" ? enMessages : zhMessages;
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      timeZone="Asia/Shanghai"
+      now={new Date()}
+    >
       {children}
     </NextIntlClientProvider>
   );
