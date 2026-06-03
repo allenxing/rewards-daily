@@ -83,6 +83,11 @@
   * {
     @apply border-border;
   }
+  html {
+    background: #f9f7f5;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-poppins), "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -90,6 +95,5 @@
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     min-height: 100dvh;
-    padding-bottom: env(safe-area-inset-bottom);
   }
 }
