@@ -23,10 +23,12 @@ export async function FeaturesGrid() {
           const Icon = f.icon;
           return (
             <div key={f.title} className={styles.featureCard}>
-              <div className={styles.featureIcon}>
-                <Icon size={24} strokeWidth={1.8} />
+              <div className={styles.featureCardHeader}>
+                <div className={styles.featureIcon}>
+                  <Icon size={24} strokeWidth={1.8} />
+                </div>
+                <h3 className={styles.featureCardTitle}>{f.title}</h3>
               </div>
-              <h3 className={styles.featureCardTitle}>{f.title}</h3>
               <p className={styles.featureCardDesc}>{f.desc}</p>
             </div>
           );
