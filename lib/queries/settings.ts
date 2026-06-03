@@ -30,17 +30,31 @@ function mapSettings(r: SettingsRow): Settings {
   };
 }
 
-export async function getSettings(): Promise<Settings | null> {
+export async function getSettings(): Promise<Settings> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) throw new Error("LOGIN_REQUIRED");
   const { data, error } = await supabase
     .from("settings")
     .select("*")
     .eq("owner_id", user.id)
     .maybeSingle();
   if (error) throw error;
-  return data ? mapSettings(data) : null;
+  if (data) return mapSettings(data);
+
+  const { data: created, error: insertError } = await supabase
+    .from("settings")
+    .insert({
+      owner_id: user.id,
+      admin_pwd: "0000",
+      global_theme: "sky",
+      sound_open: true,
+      compact_mode: false,
+    })
+    .select("*")
+    .single();
+  if (insertError) throw insertError;
+  return mapSettings(created);
 }
