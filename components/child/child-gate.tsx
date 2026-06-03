@@ -27,11 +27,13 @@ export function ChildGate({ childId, children }: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [granted, setGranted] = useState(false);
 
   useEffect(() => {
     if (childAccessGranted()) {
       setChecking(false);
       setEnabled(true);
+      setGranted(true);
       return;
     }
     const supabase = createClient();
@@ -64,7 +66,7 @@ export function ChildGate({ childId, children }: Props) {
 
       if (ok) {
         markGranted();
-        setEnabled(true);
+        setGranted(true);
       } else {
         setError(true);
       }
@@ -75,12 +77,16 @@ export function ChildGate({ childId, children }: Props) {
     return <div className="min-h-screen" />;
   }
 
-  const showOverlay = enabled && !childAccessGranted();
+  const showOverlay = enabled && !(childAccessGranted() || granted);
+
+  if (!showOverlay) {
+    return <>{children}</>;
+  }
 
   return (
     <>
       {children}
-      <div className={`${styles.overlay} ${!showOverlay ? styles.overlayHidden : ''}`}>
+      <div className={styles.overlay}>
         <div className={styles.card}>
           <div className={styles.iconWrap}>
             <Lock size={28} />
