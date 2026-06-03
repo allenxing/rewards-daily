@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import styles from "./child-gate.module.css";
 
 type Props = {
   childId: number;
@@ -83,16 +84,13 @@ export function ChildGate({ childId, children }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      style={{ fontFamily: "'Nunito', sans-serif" }}
-    >
-      <div className="bg-white rounded-2xl p-8 w-full max-w-sm mx-4 shadow-2xl text-center">
-        <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Lock size={28} className="text-amber-600" />
+    <div className={styles.overlay}>
+      <div className={styles.card}>
+        <div className={styles.iconWrap}>
+          <Lock size={28} />
         </div>
-        <h2 className="text-xl font-extrabold text-gray-800 mb-1">家长验证</h2>
-        <p className="text-sm text-gray-500 mb-6">请输入4位数字密码</p>
+        <h2 className={styles.title}>家长验证</h2>
+        <p className={styles.sub}>请输入4位数字密码</p>
 
         <input
           type="password"
@@ -106,23 +104,18 @@ export function ChildGate({ childId, children }: Props) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && password.length === 4) handleVerify();
           }}
-          className="w-full text-center text-2xl tracking-[0.5em] px-4 py-3 border-2 rounded-xl outline-none mb-4"
-          style={{
-            borderColor: error ? "#ef4444" : "#e5e7eb",
-            fontFamily: "'Nunito', monospace",
-          }}
+          className={`${styles.input} ${error ? styles.inputError : ""}`}
           autoFocus
         />
 
         {error && (
-          <p className="text-red-500 text-sm mb-4">密码错误</p>
+          <p className={styles.error}>密码错误</p>
         )}
 
         <button
           type="button"
           disabled={password.length !== 4 || pending}
-          className="w-full py-3 rounded-xl font-bold text-white text-base transition-all disabled:opacity-40"
-          style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)" }}
+          className={styles.btn}
           onClick={handleVerify}
         >
           {pending ? "验证中…" : "验证"}
