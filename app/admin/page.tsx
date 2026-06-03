@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/admin/page-header";
 import { StatsGrid } from "@/components/admin/stats-grid";
 import { ReviewSection } from "@/components/admin/review-section";
 import { getDashboardStats, getChildSummaries } from "@/lib/queries/dashboard";
@@ -16,7 +15,9 @@ export default async function AdminDashboardPage() {
   const reviews = audits.map(toReviewItem);
   return (
     <>
-      <PageHeader title={t("pageTitle")} />
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>{t("pageTitle")}</h1>
+      </div>
       <div className={styles.pageBody}>
         <StatsGrid stats={stats} />
         <ReviewSection stats={stats} reviews={reviews} />

@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   { href: "/admin/settings", labelKey: "settings", icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ userEmail }: { userEmail: string }) {
   const t = useTranslations("admin.sidebar");
   const pathname = usePathname();
   const router = useRouter();
@@ -72,6 +72,7 @@ export function Sidebar() {
       </nav>
 
       <div className={styles.sidebarFooter}>
+        <div className={styles.sidebarEmail}>{userEmail}</div>
         <button
           type="button"
           onClick={handleLogout}

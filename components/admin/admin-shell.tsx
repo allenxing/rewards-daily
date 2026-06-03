@@ -6,14 +6,16 @@ import styles from "@/app/admin/admin.module.css";
 
 export function AdminShell({
   kids,
+  userEmail,
   children: pageContent,
 }: {
   kids: Child[];
+  userEmail: string;
   children: ReactNode;
 }) {
   return (
     <div className={styles.shell}>
-      <Sidebar />
+      <Sidebar userEmail={userEmail} />
       <main className={styles.main}>{pageContent}</main>
       <FloatingActions kidsList={kids} />
     </div>

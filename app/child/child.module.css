@@ -490,6 +490,11 @@
 
 /* === Empty state === */
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
   text-align: center;
   padding: 48px 24px;
   color: #636E72;

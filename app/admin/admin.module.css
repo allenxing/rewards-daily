@@ -99,6 +99,15 @@
   border-top: 1px solid #e5ddd5;
 }
 
+.sidebarEmail {
+  padding: 0 14px 8px;
+  font-size: 0.75rem;
+  color: #a09080;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .logoutBtn {
   display: flex;
   align-items: center;
@@ -1250,7 +1259,11 @@
 
 /* === Empty state === */
 .emptyState {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
   padding: 48px 24px;
   color: #8b7b6b;
 }

@@ -1,6 +1,5 @@
 import { Smile, SmilePlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import styles from "@/app/child/child.module.css";
 
 type Props = {
@@ -34,14 +33,10 @@ export async function ChildHeader({
         <div className={styles.name}>{t("greeting", { name })}</div>
         <div className={styles.sub}>{t("subGreeting")}</div>
       </div>
-      <Link
-        href="/admin/children"
-        className={styles.starCounter}
-        aria-label={t("parentEntry")}
-      >
+      <div className={styles.starCounter}>
         <span className={styles.starIcon}>⭐</span>
         <span>{totalPoints}</span>
-      </Link>
+      </div>
       <input type="hidden" data-child-id={childId} data-share-token={shareToken ?? ""} />
     </header>
   );
