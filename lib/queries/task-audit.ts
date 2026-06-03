@@ -46,7 +46,7 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
   if (!user) return [];
   const { data, error } = await supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(*)")
     .eq("owner_id", user.id)
     .eq("audit_status", "pending")
     .order("submit_time", { ascending: false })
@@ -54,10 +54,11 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
   if (error) throw error;
   return (data ?? []).map((r) => {
     const join = r as unknown as {
-      tasks: { name: string; points: number }[];
-      children: { name: string; theme_color: string; avatar_style: string }[];
+      tasks: { name: string; points: number } | { name: string; points: number }[];
+      children: { name: string; theme_color: string; avatar_style: string } | { name: string; theme_color: string; avatar_style: string }[];
     };
-    const child = join.children?.[0];
+    const child = Array.isArray(join.children) ? join.children[0] : join.children;
+    const task = Array.isArray(join.tasks) ? join.tasks[0] : join.tasks;
     return {
       id: r.id,
       taskId: r.task_id,
@@ -66,8 +67,8 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
       submitTime: r.submit_time,
       auditTime: r.audit_time,
       refuseReason: r.refuse_reason,
-      taskName: join.tasks?.[0]?.name ?? "",
-      taskPoints: join.tasks?.[0]?.points ?? 0,
+      taskName: task?.name ?? "",
+      taskPoints: task?.points ?? 0,
       childName: child?.name ?? "",
       childThemeColor: child?.theme_color ?? "#E8D5C4",
       childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",
@@ -88,7 +89,7 @@ export async function getAuditsForChild(
   if (!child) return [];
   let q = supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(*)")
     .eq("child_id", child.id)
     .order("submit_time", { ascending: false });
   if (filter === "pending") q = q.eq("audit_status", "pending");
@@ -97,10 +98,11 @@ export async function getAuditsForChild(
   if (error) throw error;
   return (data ?? []).map((r) => {
     const join = r as unknown as {
-      tasks: { name: string; points: number }[];
-      children: { name: string; theme_color: string; avatar_style: string }[];
+      tasks: { name: string; points: number } | { name: string; points: number }[];
+      children: { name: string; theme_color: string; avatar_style: string } | { name: string; theme_color: string; avatar_style: string }[];
     };
-    const child = join.children?.[0];
+    const child = Array.isArray(join.children) ? join.children[0] : join.children;
+    const task = Array.isArray(join.tasks) ? join.tasks[0] : join.tasks;
     return {
       id: r.id,
       taskId: r.task_id,
@@ -109,8 +111,8 @@ export async function getAuditsForChild(
       submitTime: r.submit_time,
       auditTime: r.audit_time,
       refuseReason: r.refuse_reason,
-      taskName: join.tasks?.[0]?.name ?? "",
-      taskPoints: join.tasks?.[0]?.points ?? 0,
+      taskName: task?.name ?? "",
+      taskPoints: task?.points ?? 0,
       childName: child?.name ?? "",
       childThemeColor: child?.theme_color ?? "#E8D5C4",
       childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",

@@ -53,7 +53,7 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
   if (!user) return [];
   let q = supabase
     .from("points_records")
-    .select("id, child_id, record_type, points, remark, create_time, children!inner(name, theme_color, avatar_style)")
+    .select("id, child_id, record_type, points, remark, create_time, children!inner(*)")
     .eq("owner_id", user.id)
     .order("create_time", { ascending: false })
     .limit(200);
@@ -64,8 +64,8 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).map((r) => {
-    const join = r as unknown as { children: { name: string; theme_color: string; avatar_style: string }[] };
-    const child = join.children?.[0];
+    const join = r as unknown as { children: { name: string; theme_color: string; avatar_style: string } | { name: string; theme_color: string; avatar_style: string }[] };
+    const child = Array.isArray(join.children) ? join.children[0] : join.children;
     const childName = child?.name ?? "";
     const childTheme = child?.theme_color ?? "#E8D5C4";
     const childStyle = child?.avatar_style === "smile-plus" ? "smile-plus" : "smile";
