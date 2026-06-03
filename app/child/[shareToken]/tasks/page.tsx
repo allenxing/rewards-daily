@@ -1,37 +1,21 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { getChildByShareToken } from "@/lib/queries/children";
+import type { ReactNode } from "react";
+import { ClipboardList, Clock, Trophy } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
 import { getAuditsForChild } from "@/lib/queries/task-audit";
-import { ChildShell } from "@/components/child/child-shell";
 import { TaskCard } from "@/components/child/task-card";
 import { WishTabs } from "@/components/child/wish-tabs";
 import { submitTaskAction } from "@/lib/actions";
 import type { ChildTask } from "@/lib/ui-types";
 import styles from "@/app/child/child.module.css";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
-
 type Props = {
   params: Promise<{ shareToken: string }>;
   searchParams: Promise<{ tab?: string }>;
 };
 
-export default function ChildTasksPage({ params, searchParams }: Props) {
-  return (
-    <Suspense fallback={null}>
-      <ChildTasksPageInner params={params} searchParams={searchParams} />
-    </Suspense>
-  );
-}
-
-async function ChildTasksPageInner({ params, searchParams }: Props) {
+export default async function ChildTasksPage({ params, searchParams }: Props) {
   const { shareToken } = await params;
   const { tab = "todo" } = await searchParams;
-  const child = await getChildByShareToken(shareToken);
-  if (!child) notFound();
 
   const [taskRows, allAudits] = await Promise.all([
     getTasksForChildByShareToken(shareToken),
@@ -69,13 +53,25 @@ async function ChildTasksPageInner({ params, searchParams }: Props) {
     { key: "done", label: "已完成", icon: "🏆", count: doneTasks.length },
   ];
 
-  const emptyMessages: Record<string, { emoji: string; title: string; desc: string }> = {
-    todo: { emoji: "✨", title: "今天任务全部完成啦!", desc: "你真是太棒了,快去看看有没有新任务吧" },
-    pending: { emoji: "🔍", title: "没有等待审核的任务", desc: "完成任务后提交,等妈妈爸爸通过就能拿到星星啦" },
-    done: { emoji: "📋", title: "还没有完成过任务", desc: "去可做任务里开始第一个任务吧" },
+  const emptyStates: Record<string, { icon: ReactNode; title: string; desc: string }> = {
+    todo: {
+      icon: <ClipboardList size={48} strokeWidth={1.5} />,
+      title: "暂时没有新任务",
+      desc: "等妈妈爸爸安排新任务后,就能继续赚星星啦",
+    },
+    pending: {
+      icon: <Clock size={48} strokeWidth={1.5} />,
+      title: "没有审核中的任务",
+      desc: "完成任务后提交,等家长通过就能拿到星星了",
+    },
+    done: {
+      icon: <Trophy size={48} strokeWidth={1.5} />,
+      title: "还没有完成过任务",
+      desc: "去「可做任务」选一个开始吧,每完成一项都有星星奖励",
+    },
   };
 
-  const currentEmpty = emptyMessages[tab] ?? emptyMessages.todo;
+  const currentEmpty = emptyStates[tab] ?? emptyStates.todo;
   const currentList = tab === "pending" ? pendingTasks : tab === "done" ? doneTasks : todoTasks;
 
   const handleSubmit = async (taskId: number) => {
@@ -84,33 +80,31 @@ async function ChildTasksPageInner({ params, searchParams }: Props) {
   };
 
   return (
-    <ChildShell child={child}>
-      <div className={styles.content}>
-        <div className={styles.sectionTitle}>
-          <span className={styles.sectionTitleEmoji}>📋</span>
-          任务大厅
-        </div>
-
-        <WishTabs tabs={tabs} active={tab} basePath={`/child/${shareToken}/tasks`} />
-
-        {currentList.length > 0 ? (
-          currentList.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              shareToken={shareToken}
-              onSubmit={handleSubmit}
-            />
-          ))
-        ) : (
-          <div className={styles.empty}>
-            <div className={styles.emptyEmoji}>{currentEmpty.emoji}</div>
-            <div className={styles.emptyTitle}>{currentEmpty.title}</div>
-            <div>{currentEmpty.desc}</div>
-          </div>
-        )}
+    <div className={styles.content}>
+      <div className={styles.sectionTitle}>
+        <span className={styles.sectionTitleEmoji}>📋</span>
+        任务大厅
       </div>
-    </ChildShell>
+
+      <WishTabs tabs={tabs} active={tab} basePath={`/child/${shareToken}/tasks`} />
+
+      {currentList.length > 0 ? (
+        currentList.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            shareToken={shareToken}
+            onSubmit={handleSubmit}
+          />
+        ))
+      ) : (
+        <div className={styles.empty}>
+          <div className={styles.emptyEmoji}>{currentEmpty.icon}</div>
+          <div className={styles.emptyTitle}>{currentEmpty.title}</div>
+          <div>{currentEmpty.desc}</div>
+        </div>
+      )}
+    </div>
   );
 }
 

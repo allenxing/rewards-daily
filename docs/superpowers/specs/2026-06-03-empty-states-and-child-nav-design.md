@@ -34,8 +34,23 @@ All use lucide-react icons. Visual style: centered icon (48px, muted color) + bo
 
 Navigating between `/child/[shareToken]`, `/child/[shareToken]/tasks`, `/child/[shareToken]/wishes` remounts `ChildShell` entirely (header + bottom nav + starry background re-render).
 
-### Solution: `app/child/[shareToken]/layout.tsx`
+### Solution: `app/child/[shareToken]/layout.tsx` (对标 admin 模式)
 
+```
+app/child/[shareToken]/layout.tsx     ← NEW
+  <Suspense fallback={null}>
+    <ChildLayoutInner {children}>
+      getChildByShareToken(shareToken)
+      if !child → notFound()
+      <ChildShell child={child}>
+        {children}                    ← page-specific content
+      </ChildShell>
+    </ChildLayoutInner>
+  </Suspense>
+
+app/child/[shareToken]/page.tsx       ← 只保留中间内容,无 ChildShell
+app/child/[shareToken]/tasks/page.tsx ← 只保留中间内容,无 ChildShell
+app/child/[shareToken]/wishes/page.tsx← 只保留中间内容,无 ChildShell
 ```
 app/child/[shareToken]/layout.tsx        ← NEW
   getChildByShareToken(shareToken)
@@ -51,12 +66,13 @@ app/child/[shareToken]/wishes/page.tsx   ← simplified
 
 ### Key points
 
-- Layout fetches child data once, passes as `child` prop to `ChildShell`
-- Each page **does NOT** call `getChildByShareToken` — it already has `shareToken` from `params` and can pass it to data-fetching functions (`getTasksForChildByShareToken`, `getAuditsForChild`, `getWishesForChild`) that only need the share token string. If a page needs the `child` object (e.g., `child.id`), the layout can pass it via a shared namespace or the page can accept it from layout — simplest: pages use `shareToken` directly for queries and don't need the child object at all (existing queries already accept shareToken).
-- `notFound()` centralized in layout — any page under `/child/[shareToken]` 404s automatically if shareToken invalid
-- `metadata.robots` (noindex) moves to layout so it's shared by all child pages
-- `ChildShell` accepts `child` prop as before, layout passes it through
-- Server actions revalidate paths → layout re-fetches child data on next request (acceptable — not real-time critical)
+- 完全对标 `app/admin/layout.tsx` 模式: `<Suspense>` + async inner + fetch → wrap shell
+- Layout 统一调用 `getChildByShareToken(shareToken)`, `notFound()` 集中处理
+- 三个 page 移除: `ChildShell` 渲染、`getChildByShareToken` 调用、`notFound()` 检查、各自的 `<Suspense>` 包装
+- `metadata.robots` (noindex) 移到 layout 统一声明
+- `ChildShell` 接口不变,仍接收 `child` prop
+- 每个 page 仍然独立 fetch 自身数据 (tasks/audits/wishes),只需 `shareToken` 参数,不需要 child 对象
+- Server action revalidate 后 layout 下次请求重新 fetch child (可接受)
 
 ### Not in scope
 

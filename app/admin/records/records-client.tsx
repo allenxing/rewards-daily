@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Download, BarChart3 } from "lucide-react";
+import { Download, Receipt } from "lucide-react";
 import { useRecordFilters } from "@/lib/hooks/use-record-filters";
 import type { PointsRecord, Child, RecordSummary } from "@/lib/ui-types";
 import styles from "@/app/admin/admin.module.css";
@@ -134,9 +134,9 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
       {filtered.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyStateIcon}>
-            <BarChart3 size={48} strokeWidth={1.5} />
+            <Receipt size={48} strokeWidth={1.5} />
           </div>
-          <div className={styles.emptyStateText}>暂无匹配的流水记录</div>
+          <div className={styles.emptyStateText}>暂无流水记录</div>
         </div>
       ) : (
         filtered.map((record) => {

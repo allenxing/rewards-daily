@@ -1,36 +1,19 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { getChildByShareToken } from "@/lib/queries/children";
+import { PartyPopper } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
 import { getAuditsForChild } from "@/lib/queries/task-audit";
 import { getWishesForChild } from "@/lib/queries/wishes";
-import { ChildShell } from "@/components/child/child-shell";
 import { TaskCard } from "@/components/child/task-card";
 import { WishCard } from "@/components/child/wish-card";
 import { submitTaskAction } from "@/lib/actions";
 import type { ChildTask } from "@/lib/ui-types";
 import styles from "@/app/child/child.module.css";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
-
 type Props = {
   params: Promise<{ shareToken: string }>;
 };
 
-export default function ChildHomePage({ params }: Props) {
-  return (
-    <Suspense fallback={null}>
-      <ChildHomePageInner params={params} />
-    </Suspense>
-  );
-}
-
-async function ChildHomePageInner({ params }: Props) {
+export default async function ChildHomePage({ params }: Props) {
   const { shareToken } = await params;
-  const child = await getChildByShareToken(shareToken);
-  if (!child) notFound();
 
   const [taskRows, audits, wishes] = await Promise.all([
     getTasksForChildByShareToken(shareToken),
@@ -59,41 +42,39 @@ async function ChildHomePageInner({ params }: Props) {
   };
 
   return (
-    <ChildShell child={child}>
-      <div className={styles.content}>
-        <div className={styles.sectionTitle}>
-          <span className={styles.sectionTitleEmoji}>📅</span>
-          今日任务
-        </div>
-
-        {todoTasks.length === 0 ? (
-          <div className={styles.empty}>
-            <div className={styles.emptyEmoji}>✨</div>
-            <div className={styles.emptyTitle}>今天任务全部完成啦!</div>
-            <div>你真是太棒了,快去看看有没有新任务吧</div>
-          </div>
-        ) : (
-          todoTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              shareToken={shareToken}
-              onSubmit={handleSubmit}
-            />
-          ))
-        )}
-
-        <div className={`${styles.sectionTitle} ${styles.sectionGap}`}>
-          <span className={styles.sectionTitleEmoji}>🎉</span>
-          我的梦想
-        </div>
-        <div className={styles.wishScroll}>
-          {wishes.map((wish) => (
-            <WishCard key={wish.id} wish={wish} shareToken={shareToken} variant="scroll" />
-          ))}
-        </div>
+    <div className={styles.content}>
+      <div className={styles.sectionTitle}>
+        <span className={styles.sectionTitleEmoji}>📅</span>
+        今日任务
       </div>
-    </ChildShell>
+
+      {todoTasks.length === 0 ? (
+        <div className={styles.empty}>
+          <PartyPopper size={48} strokeWidth={1.5} className={styles.emptyEmoji} />
+          <div className={styles.emptyTitle}>今天全部完成啦!</div>
+          <div>太棒了,快去梦想宝库看看有没有想兑换的吧</div>
+        </div>
+      ) : (
+        todoTasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            shareToken={shareToken}
+            onSubmit={handleSubmit}
+          />
+        ))
+      )}
+
+      <div className={`${styles.sectionTitle} ${styles.sectionGap}`}>
+        <span className={styles.sectionTitleEmoji}>🎉</span>
+        我的梦想
+      </div>
+      <div className={styles.wishScroll}>
+        {wishes.map((wish) => (
+          <WishCard key={wish.id} wish={wish} shareToken={shareToken} variant="scroll" />
+        ))}
+      </div>
+    </div>
   );
 }
 

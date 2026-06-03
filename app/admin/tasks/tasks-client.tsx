@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Lock, Check, Star, Pencil } from "lucide-react";
+import { Plus, Lock, Check, Star, Pencil, FilePlus } from "lucide-react";
 import { Modal } from "@/components/common/modal";
 import { Tabs } from "@/components/common/tabs";
 import { useToast } from "@/components/common/toast";
@@ -79,8 +79,10 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
 
       {visibleTasks.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyStateIcon}>📋</div>
-          <div className={styles.emptyStateText}>暂无任务</div>
+          <div className={styles.emptyStateIcon}>
+            <FilePlus size={48} strokeWidth={1.5} />
+          </div>
+          <div className={styles.emptyStateText}>还没有创建任务</div>
         </div>
       ) : (
         visibleTasks.map((task) => (
