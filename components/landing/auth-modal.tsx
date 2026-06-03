@@ -28,6 +28,10 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (open) setTab(initialTab);
+  }, [open, initialTab]);
+
+  useEffect(() => {
     if (!open) {
       setTab(initialTab);
       setEmail("");
@@ -59,6 +63,9 @@ export function AuthModal({ open, onClose, initialTab = "login" }: Props) {
     setTab(next);
     setError(null);
     setInfo(null);
+    setEmail("");
+    setPassword("");
+    setConfirm("");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
