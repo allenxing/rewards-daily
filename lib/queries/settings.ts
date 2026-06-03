@@ -50,7 +50,7 @@ export async function getSettings(): Promise<Settings> {
     .from("settings")
     .insert({
       owner_id: user.id,
-      admin_pwd: "0000",
+      admin_pwd: "",
       global_theme: "sky",
       sound_open: true,
       compact_mode: false,
