@@ -52,7 +52,7 @@ export function AdminShell({
         }
       />
 
-      <main className={`${styles.main} ${sidebarOpen ? styles.mainBlur : ""}`}>
+      <main className={styles.main}>
         {pageContent}
       </main>
       <FloatingActions kidsList={kids} />
