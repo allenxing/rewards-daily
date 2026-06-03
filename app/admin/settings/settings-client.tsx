@@ -108,6 +108,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const [globalTheme, setGlobalTheme] = useState(initial.globalTheme);
   const [soundOpen, setSoundOpen] = useState(initial.soundOpen);
   const [compactMode, setCompactMode] = useState(initial.compactMode);
+  const [childAccessEnabled, setChildAccessEnabled] = useState(initial.childAccessPwdEnabled);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [securityOpen, setSecurityOpen] = useState(false);
   const [clearDataOpen, setClearDataOpen] = useState(false);
@@ -122,6 +123,9 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   useEffect(() => {
     hydrate({ globalTheme: initial.globalTheme, soundOpen: initial.soundOpen, compactMode: initial.compactMode });
   }, [hydrate, initial]);
+  useEffect(() => {
+    setChildAccessEnabled(initial.childAccessPwdEnabled);
+  }, [initial.childAccessPwdEnabled]);
 
   const handleExportRecords = () => {
     startTransition(async () => {
@@ -202,6 +206,20 @@ export function SettingsClient({ initial }: { initial: Settings }) {
             >
               {initial.securityQuestion ? t("security.modifyQuestion") : t("security.setQuestion")}
             </button>
+          }
+        />
+        <Row
+          label={t("security.childAccessLabel")}
+          desc={t("security.childAccessDesc")}
+          action={
+            <Toggle
+              checked={childAccessEnabled}
+              onChange={async (b) => {
+                const r = await updateSettingAction("child_access_pwd_enabled", b);
+                if (r.ok) setChildAccessEnabled(b);
+                else toast.error(e(r.error));
+              }}
+            />
           }
         />
       </SettingsSection>

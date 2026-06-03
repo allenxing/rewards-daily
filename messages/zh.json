@@ -302,7 +302,9 @@
         "questionLabel": "密保问题",
         "questionDesc": "用于找回密码的安全问题",
         "modifyQuestion": "修改密保",
-        "setQuestion": "设置密保"
+        "setQuestion": "设置密保",
+        "childAccessLabel": "孩子页面密码保护",
+        "childAccessDesc": "开启后访问孩子页面需要输入4位数字密码"
       },
       "data": {
         "title": "数据管理",

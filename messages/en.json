@@ -302,7 +302,9 @@
         "questionLabel": "Security Question",
         "questionDesc": "Used to recover your password",
         "modifyQuestion": "Edit Question",
-        "setQuestion": "Set Question"
+        "setQuestion": "Set Question",
+        "childAccessLabel": "Child Page Password",
+        "childAccessDesc": "When enabled, accessing child pages requires the 4-digit password"
       },
       "data": {
         "title": "Data Management",

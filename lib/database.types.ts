@@ -107,6 +107,7 @@ export type Database = {
       settings: {
         Row: {
           admin_pwd: string
+          child_access_pwd_enabled: boolean
           compact_mode: boolean
           created_at: string
           global_theme: string
@@ -118,6 +119,7 @@ export type Database = {
         }
         Insert: {
           admin_pwd: string
+          child_access_pwd_enabled?: boolean
           compact_mode?: boolean
           created_at?: string
           global_theme?: string
@@ -129,6 +131,7 @@ export type Database = {
         }
         Update: {
           admin_pwd?: string
+          child_access_pwd_enabled?: boolean
           compact_mode?: boolean
           created_at?: string
           global_theme?: string

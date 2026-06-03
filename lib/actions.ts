@@ -501,7 +501,7 @@ export async function setSecurityQuestionAction(formData: FormData): Promise<Act
 }
 
 export async function updateSettingAction(
-  key: "global_theme" | "sound_open" | "compact_mode",
+  key: "global_theme" | "sound_open" | "compact_mode" | "child_access_pwd_enabled",
   value: string | boolean
 ): Promise<ActionResult> {
   const ownerId = await getOwnerId();

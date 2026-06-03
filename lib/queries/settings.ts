@@ -10,6 +10,7 @@ export type Settings = {
   globalTheme: string;
   soundOpen: boolean;
   compactMode: boolean;
+  childAccessPwdEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -25,6 +26,7 @@ function mapSettings(r: SettingsRow): Settings {
     globalTheme: r.global_theme,
     soundOpen: r.sound_open,
     compactMode: r.compact_mode,
+    childAccessPwdEnabled: r.child_access_pwd_enabled,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
