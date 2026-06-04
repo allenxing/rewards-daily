@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 
 export type Settings = {
@@ -28,16 +30,14 @@ function mapSettings(r: SettingsRow): Settings {
   };
 }
 
-export async function getSettings(): Promise<Settings> {
+export const getSettings = cache(async (): Promise<Settings> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("LOGIN_REQUIRED");
+  const ownerId = await getOwnerId();
+  if (!ownerId) throw new Error("LOGIN_REQUIRED");
   const { data, error } = await supabase
     .from("settings")
     .select("*")
-    .eq("owner_id", user.id)
+    .eq("owner_id", ownerId)
     .maybeSingle();
   if (error) throw error;
   if (data) return mapSettings(data);
@@ -45,7 +45,7 @@ export async function getSettings(): Promise<Settings> {
   const { data: created, error: insertError } = await supabase
     .from("settings")
     .insert({
-      owner_id: user.id,
+      owner_id: ownerId,
       admin_pwd: "",
       global_theme: "sky",
       sound_open: true,
@@ -55,4 +55,4 @@ export async function getSettings(): Promise<Settings> {
     .single();
   if (insertError) throw insertError;
   return mapSettings(created);
-}
+});

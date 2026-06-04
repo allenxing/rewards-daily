@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 
 export type DashboardStats = {
@@ -25,12 +27,10 @@ export type ChildSummary = {
 type VChildSummary = Database["public"]["Views"]["v_child_summary"]["Row"];
 type VDashboardStats = Database["public"]["Views"]["v_dashboard_stats"]["Row"];
 
-export async function getDashboardStats(): Promise<DashboardStats> {
+export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ownerId = await getOwnerId();
+  if (!ownerId) {
     return { pendingReview: 0, totalPoints: 0, completedToday: 0, pendingWishes: 0 };
   }
   const { data, error } = await supabase
@@ -45,9 +45,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     completedToday: d?.completed_today ?? 0,
     pendingWishes: d?.pending_wishes ?? 0,
   };
-}
+});
 
-export async function getChildSummaries(): Promise<ChildSummary[]> {
+export const getChildSummaries = cache(async (): Promise<ChildSummary[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("v_child_summary")
@@ -69,4 +69,4 @@ export async function getChildSummaries(): Promise<ChildSummary[]> {
       completedTodayCount: v.completed_today_count ?? 0,
     };
   });
-}
+});

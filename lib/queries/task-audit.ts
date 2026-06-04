@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 import type { ReviewItem } from "@/lib/ui-types";
 
@@ -38,16 +40,14 @@ export type AuditWithJoins = {
   childAvatarStyle: "smile" | "smile-plus";
 };
 
-export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
+export const getPendingAudits = cache(async (limit = 20): Promise<AuditWithJoins[]> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const ownerId = await getOwnerId();
+  if (!ownerId) return [];
   const { data, error } = await supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(*)")
-    .eq("owner_id", user.id)
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
+    .eq("owner_id", ownerId)
     .eq("audit_status", "pending")
     .order("submit_time", { ascending: false })
     .limit(limit);
@@ -74,12 +74,12 @@ export async function getPendingAudits(limit = 20): Promise<AuditWithJoins[]> {
       childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",
     };
   });
-}
+});
 
-export async function getAuditsForChild(
+export const getAuditsForChild = cache(async (
   shareToken: string,
   filter?: "pending" | "done" | "all"
-): Promise<AuditWithJoins[]> {
+): Promise<AuditWithJoins[]> => {
   const supabase = await createClient();
   const { data: child } = await supabase
     .from("children")
@@ -89,7 +89,7 @@ export async function getAuditsForChild(
   if (!child) return [];
   let q = supabase
     .from("task_audit")
-    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(*)")
+    .select("id, task_id, child_id, audit_status, submit_time, audit_time, refuse_reason, tasks!inner(name, points), children!inner(name, theme_color, avatar_style)")
     .eq("child_id", child.id)
     .order("submit_time", { ascending: false });
   if (filter === "pending") q = q.eq("audit_status", "pending");
@@ -118,7 +118,7 @@ export async function getAuditsForChild(
       childAvatarStyle: child?.avatar_style === "smile-plus" ? "smile-plus" : "smile",
     };
   });
-}
+});
 
 export function toReviewItem(a: AuditWithJoins): ReviewItem {
   return {

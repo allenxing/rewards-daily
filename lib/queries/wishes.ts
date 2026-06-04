@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 import type { Wish, ChildWish, RedeemHistory } from "@/lib/ui-types";
 
@@ -40,16 +42,14 @@ export type WishWithProgress = {
   updatedAt: string;
 };
 
-export async function getWishesForAdmin(): Promise<WishWithProgress[]> {
+export const getWishesForAdmin = cache(async (): Promise<WishWithProgress[]> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const ownerId = await getOwnerId();
+  if (!ownerId) return [];
   const { data, error } = await supabase
     .from("wishes")
     .select("id, name, image_url, emoji, target_points, child_id, is_family, is_lock, is_finish, created_at, updated_at, children!left(name, total_points)")
-    .eq("owner_id", user.id)
+    .eq("owner_id", ownerId)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((r) => {
@@ -74,11 +74,11 @@ export async function getWishesForAdmin(): Promise<WishWithProgress[]> {
       updatedAt: r.updated_at,
     };
   });
-}
+});
 
-export async function getWishesForChild(
+export const getWishesForChild = cache(async (
   shareToken: string
-): Promise<ChildWish[]> {
+): Promise<ChildWish[]> => {
   const supabase = await createClient();
   const { data: child } = await supabase
     .from("children")
@@ -102,11 +102,11 @@ export async function getWishesForChild(
     color: colors[i % colors.length] ?? "coral",
     ownerId: child.id,
   }));
-}
+});
 
-export async function getRedeemHistoryForChild(
+export const getRedeemHistoryForChild = cache(async (
   shareToken: string
-): Promise<RedeemHistory[]> {
+): Promise<RedeemHistory[]> => {
   const supabase = await createClient();
   const { data: child } = await supabase
     .from("children")
@@ -130,7 +130,7 @@ export async function getRedeemHistoryForChild(
     iconBg: "rgba(255,217,61,0.15)",
     childId: child.id,
   }));
-}
+});
 
 export function toAdminWish(w: WishWithProgress): Wish {
   return {

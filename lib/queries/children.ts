@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 import type { Child } from "@/lib/ui-types";
 
@@ -19,39 +21,37 @@ function mapChild(r: ChildRow): Child {
   };
 }
 
-export async function getChildren(): Promise<Child[]> {
+export const getChildren = cache(async (): Promise<Child[]> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const ownerId = await getOwnerId();
+  if (!ownerId) return [];
   const { data, error } = await supabase
     .from("children")
-    .select("*")
-    .eq("owner_id", user.id)
+    .select("id, name, slug, theme_key, theme_color, total_points, level, avatar_style, share_token")
+    .eq("owner_id", ownerId)
     .order("created_at", { ascending: true });
   if (error) throw error;
-  return (data ?? []).map(mapChild);
-}
+  return (data ?? []).map((r) => mapChild(r as ChildRow));
+});
 
-export async function getChildById(id: number): Promise<Child | null> {
+export const getChildById = cache(async (id: number): Promise<Child | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("children")
-    .select("*")
+    .select("id, name, slug, theme_key, theme_color, total_points, level, avatar_style, share_token")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data ? mapChild(data) : null;
-}
+  return data ? mapChild(data as ChildRow) : null;
+});
 
-export async function getChildByShareToken(token: string): Promise<Child | null> {
+export const getChildByShareToken = cache(async (token: string): Promise<Child | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("children")
-    .select("*")
+    .select("id, name, slug, theme_key, theme_color, total_points, level, avatar_style, share_token")
     .eq("share_token", token)
     .maybeSingle();
   if (error) throw error;
-  return data ? mapChild(data) : null;
-}
+  return data ? mapChild(data as ChildRow) : null;
+});

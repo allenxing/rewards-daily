@@ -1,5 +1,7 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 import type { PointsRecord, RecordSummary } from "@/lib/ui-types";
 
@@ -45,16 +47,14 @@ const TYPE_TITLE: Record<string, string> = {
   task: "任务奖励",
 };
 
-export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]> {
+export const getRecords = cache(async (filters: RecordFilters): Promise<PointsRecord[]> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const ownerId = await getOwnerId();
+  if (!ownerId) return [];
   let q = supabase
     .from("points_records")
-    .select("id, child_id, record_type, points, remark, create_time, children!inner(*)")
-    .eq("owner_id", user.id)
+    .select("id, child_id, record_type, points, remark, create_time, children!inner(name, theme_color, avatar_style)")
+    .eq("owner_id", ownerId)
     .order("create_time", { ascending: false })
     .limit(200);
   if (filters.childId !== undefined) q = q.eq("child_id", filters.childId);
@@ -85,11 +85,11 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
       time: formatTime(r.create_time),
     };
   });
-}
+});
 
-export async function getRecordsForChild(
+export const getRecordsForChild = cache(async (
   shareToken: string
-): Promise<{ id: number; points: number; remark: string; recordType: string }[]> {
+): Promise<{ id: number; points: number; remark: string; recordType: string }[]> => {
   const supabase = await createClient();
   const { data: child } = await supabase
     .from("children")
@@ -110,21 +110,19 @@ export async function getRecordsForChild(
     remark: r.remark ?? "",
     recordType: r.record_type,
   }));
-}
+});
 
-export async function getRecordSummary(): Promise<RecordSummary> {
+export const getRecordSummary = cache(async (): Promise<RecordSummary> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { monthEarn: 0, monthDeduct: 0, netAdd: 0 };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { monthEarn: 0, monthDeduct: 0, netAdd: 0 };
   const start = new Date();
   start.setDate(1);
   start.setHours(0, 0, 0, 0);
   const { data, error } = await supabase
     .from("points_records")
     .select("points, record_type")
-    .eq("owner_id", user.id)
+    .eq("owner_id", ownerId)
     .gte("create_time", start.toISOString());
   if (error) throw error;
   let monthEarn = 0;
@@ -134,4 +132,4 @@ export async function getRecordSummary(): Promise<RecordSummary> {
     else monthDeduct += -r.points;
   }
   return { monthEarn, monthDeduct, netAdd: monthEarn - monthDeduct };
-}
+});

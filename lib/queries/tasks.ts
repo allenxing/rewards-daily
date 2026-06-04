@@ -1,11 +1,12 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getOwnerId } from "./helpers";
 import type { Database } from "@/lib/database.types";
 import type { Task } from "@/lib/ui-types";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type AssignmentRow = Database["public"]["Tables"]["task_assignments"]["Row"];
-type ChildRow = Database["public"]["Tables"]["children"]["Row"];
 
 const ICON_BG_PALETTE = [
   "#DBEAFE",
@@ -37,10 +38,10 @@ function hashColor(seed: string, palette: string[]): string {
 function mapTask(
   r: TaskRow,
   assignments: number[],
-  childrenById: Map<number, ChildRow>
+  childNames: Map<number, string>
 ): Task {
   const names = assignments
-    .map((cid) => childrenById.get(cid)?.name)
+    .map((cid) => childNames.get(cid))
     .filter((n): n is string => Boolean(n));
   return {
     id: r.id,
@@ -57,15 +58,15 @@ function mapTask(
   };
 }
 
-async function loadChildrenByOwner(
+async function loadChildNames(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ownerId: string
-): Promise<Map<number, ChildRow>> {
+): Promise<Map<number, string>> {
   const { data } = await supabase
     .from("children")
-    .select("*")
+    .select("id, name")
     .eq("owner_id", ownerId);
-  return new Map((data ?? []).map((c) => [c.id, c]));
+  return new Map((data ?? []).map((c) => [c.id, c.name]));
 }
 
 async function loadAssignmentsFor(
@@ -85,30 +86,28 @@ async function loadAssignmentsFor(
   return m;
 }
 
-export async function getTasksForAdmin(): Promise<Task[]> {
+export const getTasksForAdmin = cache(async (): Promise<Task[]> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const ownerId = await getOwnerId();
+  if (!ownerId) return [];
   const { data: tasks, error } = await supabase
     .from("tasks")
-    .select("*")
-    .eq("owner_id", user.id)
+    .select("id, name, icon, points, cycle, status, closed_reason")
+    .eq("owner_id", ownerId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  const [assignments, childrenMap] = await Promise.all([
-    loadAssignmentsFor(supabase, user.id),
-    loadChildrenByOwner(supabase, user.id),
+  const [assignments, childNames] = await Promise.all([
+    loadAssignmentsFor(supabase, ownerId),
+    loadChildNames(supabase, ownerId),
   ]);
   return (tasks ?? []).map((r) =>
-    mapTask(r, assignments.get(r.id) ?? [], childrenMap)
+    mapTask(r as TaskRow, assignments.get(r.id) ?? [], childNames)
   );
-}
+});
 
-export async function getTasksForChildByShareToken(
+export const getTasksForChildByShareToken = cache(async (
   shareToken: string
-): Promise<Task[]> {
+): Promise<Task[]> => {
   const supabase = await createClient();
   const { data: child } = await supabase
     .from("children")
@@ -122,15 +121,17 @@ export async function getTasksForChildByShareToken(
     .eq("child_id", child.id);
   const taskIds = (assignments ?? []).map((a) => a.task_id);
   if (taskIds.length === 0) return [];
-  const { data: tasks, error } = await supabase
-    .from("tasks")
-    .select("*")
-    .in("id", taskIds)
-    .eq("status", true)
-    .order("created_at", { ascending: false });
+  const [{ data: tasks, error }, childNames] = await Promise.all([
+    supabase
+      .from("tasks")
+      .select("id, name, icon, points, cycle, status, closed_reason")
+      .in("id", taskIds)
+      .eq("status", true)
+      .order("created_at", { ascending: false }),
+    loadChildNames(supabase, child.owner_id),
+  ]);
   if (error) throw error;
-  const childrenMap = await loadChildrenByOwner(supabase, child.owner_id);
   return (tasks ?? []).map((r) =>
-    mapTask(r, assignments?.map((a) => a.task_id) ?? [], childrenMap)
+    mapTask(r as TaskRow, assignments?.map((a) => a.task_id) ?? [], childNames)
   );
-}
+});
