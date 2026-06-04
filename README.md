@@ -1,109 +1,154 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Rewards Daily (成长星球)
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+**Rewards Daily** — 一款家庭习惯激励 Web 应用，采用家长管理端 + 孩子使用端双模式架构，通过「任务 → 积分 → 愿望奖励」闭环体系，帮助家长培养孩子良好习惯。
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## 技术栈
 
-## Features
+- **框架**: [Next.js 16](https://nextjs.org) (App Router, RSC, cacheComponents)
+- **样式**: [Tailwind CSS 3](https://tailwindcss.com) + `tailwindcss-animate`
+- **组件库**: [shadcn/ui](https://ui.shadcn.com) (new-york 风格, neutral 基色)
+- **图标**: [lucide-react](https://lucide.dev)
+- **数据库**: [Supabase](https://supabase.com) PostgreSQL (云端 + RLS 权限)
+- **认证**: Supabase Auth (邮箱密码)
+- **国际化**: [next-intl](https://next-intl.dev) (中/英双语, cookie 切换)
+- **状态管理**: [zustand](https://github.com/pmndrs/zustand)
+- **主题**: [next-themes](https://github.com/pacocoursey/next-themes) (暗色模式)
+- **部署**: Vercel + Supabase 云端数据服务
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## 功能概览
 
-## Demo
+### 家长管理端 (`/admin/*`)
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+| 页面 | 路由 | 功能 |
+|------|------|------|
+| 控制台首页 | `/admin` | 统计数据、待审核任务、FAB 快捷操作 |
+| 任务管理 | `/admin/tasks` | 任务 CRUD、周期/指派、关闭/恢复 |
+| 愿望管理 | `/admin/wishes` | 愿望 CRUD、个人/家庭归属、锁定 |
+| 孩子管理 | `/admin/children` | 孩子卡片管理、专属链接、跳转孩子模式 |
+| 积分流水 | `/admin/records` | 筛选/统计/导出积分流水 |
+| 系统设置 | `/admin/settings` | 密码、数据备份恢复、个性化、音效 |
 
-## Deploy to Vercel
+### 孩子用户端 (`/child/[shareToken]/*`)
 
-Vercel deployment will guide you through creating a Supabase account and project.
+| 页面 | 路由 | 功能 |
+|------|------|------|
+| 我的首页 | `/child/[shareToken]` | 个人信息、今日任务、愿望进度 |
+| 任务大厅 | `/child/[shareToken]/tasks` | 可做/审核中/已完成，一键提交 |
+| 梦想宝库 | `/child/[shareToken]/wishes` | 心愿列表、攒星兑换、兑换记录 |
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### 公开页面
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+| 页面 | 路由 | 说明 |
+|------|------|------|
+| 官网首页 | `/` | Landing Page 纯展示页 |
+| 登录 | `/auth/login` | 管理员邮箱密码登录 |
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## 快速开始
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+### 前置要求
 
-## Clone and run locally
+- Node.js >= 18
+- 一个 [Supabase](https://supabase.com) 项目（获取 URL 和密钥）
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### 本地开发
 
-2. Create a Next.js app using the Supabase Starter template npx command
+```bash
+# 1. 安装依赖
+npm install
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+# 2. 复制环境变量文件并填写 Supabase 配置
+cp .env.example .env.local
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+# 3. 启动开发服务器
+npm run dev
+```
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+环境变量说明（`.env.local`）：
 
-3. Use `cd` to change into the app's directory
+```
+NEXT_PUBLIC_SUPABASE_URL=你的Supabase项目地址
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=你的Supabase发布密钥
+```
 
-   ```bash
-   cd with-supabase-app
-   ```
+> `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 兼容 Supabase 新的 publishable key 格式和旧的 anon key 格式。
 
-4. Rename `.env.example` to `.env.local` and update the following:
+访问 [http://localhost:3000](http://localhost:3000) 即可查看。
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+### 数据库
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+数据库表通过 Supabase 管理后台或迁移脚本创建。核心表：
+`settings`, `children`, `tasks`, `task_assignments`, `task_audit`, `wishes`, `points_records`。
 
-5. You can now run the Next.js local development server:
+DB Functions (RPC)：`approve_task`, `redeem_wish`, `adjust_points`, `verify_child_password`, `check_child_access_enabled`。
 
-   ```bash
-   npm run dev
-   ```
+### 命令
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+| 命令 | 说明 |
+|------|------|
+| `npm run dev` | 启动开发服务器 (`:3000`) |
+| `npm run build` | 生产构建 |
+| `npm run start` | 生产启动 |
+| `npm run lint` | ESLint 检查 |
+| `npx tsc --noEmit` | TypeScript 类型检查 |
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## 部署
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+### Vercel 部署
 
-## Feedback and issues
+1. 将代码推送至 GitHub 仓库
+2. 在 [Vercel](https://vercel.com) 导入仓库
+3. 关联 Supabase 项目（或手动添加环境变量）
+4. 部署即可
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+### Supabase
 
-## More Supabase examples
+- 数据库、存储、RLS 策略均在 Supabase 项目内配置
+- 前端通过 `lib/supabase/{client,server,proxy}.ts` 三个客户端对接
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+## 项目结构
+
+```
+├── app/                    # Next.js App Router 页面
+│   ├── page.tsx           # Landing Page
+│   ├── layout.tsx         # 根布局 (IntlProvider, ThemeProvider, ToastProvider)
+│   ├── admin/             # 家长管理端 (6 个页面)
+│   ├── child/             # 孩子用户端 (3 个页面)
+│   ├── auth/              # 认证页面
+│   └── globals.css        # 全局样式
+├── components/            # React 组件
+│   ├── ui/               # shadcn/ui 组件
+│   ├── admin/            # 家长端组件 (sidebar, review 等)
+│   ├── child/            # 孩子端组件 (header, nav, cards 等)
+│   ├── common/           # 通用组件 (modal, toast, tabs, color-picker 等)
+│   └── landing/          # Landing Page 组件
+├── lib/
+│   ├── supabase/         # Supabase 客户端 (client/server/proxy)
+│   └── i18n.ts           # next-intl 国际化配置
+├── messages/             # i18n 翻译文件 (zh.json, en.json)
+├── docs/                 # 产品文档
+│   ├── prd.md            # PRD (产品需求文档)
+│   └── ...
+├── design/               # 静态视觉原型 (HTML, 非 React)
+├── proxy.ts              # Next.js 16 middleware (session 刷新)
+└── next.config.ts        # Next.js 配置
+```
+
+## 国际化
+
+中/英双语，通过 cookie (`NEXT_LOCALE`) 切换。
+
+- 服务端组件：`getTranslations("ns")`
+- 客户端组件：`useTranslations("ns")`
+- 时区固定：`Asia/Shanghai`
+
+## 权限模型
+
+- **未登录**: 仅公开页面 (`/`, `/child/*`)
+- **家长登录**: 全部 `/admin/*`，全量 CRUD
+- **孩子访问**: 仅 `/child/[shareToken]`，只读 + 提交任务审核
+
+RLS 行级安全策略确保数据隔离，SECURITY DEFINER RPC 函数绕过 RLS 实现校验逻辑。
+
+## License
+
+MIT
