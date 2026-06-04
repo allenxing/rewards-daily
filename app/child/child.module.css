@@ -289,7 +289,6 @@
 /* === Wish tabs (sub-tab nav) === */
 .subTabs {
   display: flex;
-  justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
   overflow-x: auto;
