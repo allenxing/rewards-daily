@@ -716,7 +716,7 @@
 
 .filterBarSelect,
 .filterBarInput {
-  @apply w-[180px] shrink-0 px-3.5 py-2.5 text-sm border border-cafe-border rounded-lg bg-white text-cafe-text outline-none box-border transition-colors duration-150;
+  @apply w-[180px] shrink-0 min-w-0 px-3.5 py-2.5 text-sm border border-cafe-border rounded-lg bg-white text-cafe-text outline-none box-border transition-colors duration-150;
   font-family: inherit;
 }
 
@@ -726,7 +726,7 @@
 }
 
 .filterBarDate {
-  @apply w-[180px];
+  @apply w-[180px] min-w-0;
 }
 
 .recordRow {
