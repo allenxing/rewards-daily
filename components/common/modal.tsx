@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import styles from "@/app/admin/admin.module.css";
 
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export function Modal({ open, onClose, title, children, footer, maxWidth = 480 }: Props) {
+  const t = useTranslations("common");
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -49,7 +52,7 @@ export function Modal({ open, onClose, title, children, footer, maxWidth = 480 }
           <button
             type="button"
             className={styles.modalClose}
-            aria-label="关闭"
+            aria-label={t("close")}
             onClick={onClose}
           >
             <X size={18} strokeWidth={2.5} />

@@ -18,6 +18,8 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
   const t = useTranslations("child.taskCard");
   void shareToken;
 
+  const pointsDisplay = task.points < 0 ? `-${Math.abs(task.points)}` : `+${task.points}`;
+
   if (task.status === "done") {
     return (
       <div className={`${styles.taskCard} ${styles.done}`}>
@@ -28,7 +30,7 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
           <div className={styles.taskName}>{task.name}</div>
           <div className={styles.taskDetail}>{task.detail}</div>
         </div>
-        <div className={`${styles.taskPoints} ${styles.done}`}>⭐ +{task.points}</div>
+        <div className={`${styles.taskPoints} ${styles.done}`}>⭐ {pointsDisplay}</div>
         <div className={styles.taskDone}>{t("doneBadge")}</div>
       </div>
     );
@@ -44,7 +46,7 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
           <div className={styles.taskName}>{task.name}</div>
           <div className={styles.taskDetail}>{task.detail}</div>
         </div>
-        <div className={styles.taskPoints}>⭐ +{task.points}</div>
+        <div className={styles.taskPoints}>⭐ {pointsDisplay}</div>
         <div className={styles.taskPending}>{t("pendingBadge")}</div>
       </div>
     );
@@ -59,7 +61,7 @@ export function TaskCard({ task, shareToken, onSubmit }: Props) {
         <div className={styles.taskName}>{task.name}</div>
         <div className={styles.taskDetail}>{task.detail}</div>
       </div>
-      <div className={styles.taskPoints}>⭐ +{task.points}</div>
+      <div className={styles.taskPoints}>⭐ {pointsDisplay}</div>
       <button
         type="button"
         className={styles.taskSubmit}

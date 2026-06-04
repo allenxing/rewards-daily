@@ -23,8 +23,8 @@ export default async function ChildHomePage({ params }: Props) {
     getWishesForChild(shareToken),
   ]);
 
-  const auditByTask = new Map<number, number>();
-  for (const a of audits) auditByTask.set(a.taskId, a.id);
+  const pendingTaskIds = new Set<number>();
+  for (const a of audits) pendingTaskIds.add(a.taskId);
 
   const todoTasks: ChildTask[] = taskRows.map((row) => ({
     id: row.id,
@@ -33,9 +33,9 @@ export default async function ChildHomePage({ params }: Props) {
     icon: row.icon,
     iconClass: iconClassFor(row.icon),
     points: row.points,
-    status: auditByTask.has(row.id) ? "pending" : "todo",
+    status: pendingTaskIds.has(row.id) ? "pending" : "todo",
     assignedChildIds: row.assignedChildren,
-    auditId: auditByTask.get(row.id),
+    auditId: undefined,
   }));
 
   const handleSubmit = async (taskId: number) => {

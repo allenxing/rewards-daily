@@ -1,8 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Languages } from "lucide-react";
 
 export function LocaleToggle() {
+  const t = useTranslations("localeToggle");
+
   const switchToEn = () => {
     document.cookie = "NEXT_LOCALE=en;path=/;max-age=31536000";
     window.location.reload();
@@ -21,7 +24,7 @@ export function LocaleToggle() {
         onClick={switchToZh}
         className="text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
       >
-        中
+        {t("zh")}
       </button>
       <span className="text-neutral-300 text-xs">/</span>
       <button
@@ -29,7 +32,7 @@ export function LocaleToggle() {
         onClick={switchToEn}
         className="text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
       >
-        EN
+        {t("en")}
       </button>
     </div>
   );

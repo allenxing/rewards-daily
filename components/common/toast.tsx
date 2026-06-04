@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 import { useToastQueue } from "@/lib/stores/toast-queue";
 import type { ToastVariant } from "@/lib/stores/toast-queue";
@@ -25,6 +26,7 @@ export function useToast(): ToastContextValue {
 const AUTO_DISMISS_MS = 3000;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const tc = useTranslations("common");
   const queue = useToastQueue((s) => s.queue);
   const push = useToastQueue((s) => s.push);
   const dismiss = useToastQueue((s) => s.dismiss);
@@ -56,7 +58,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className={styles.container} role="region" aria-label="通知">
+      <div className={styles.container} role="region" aria-label={tc("toastRegion")}>
         {queue.map((t) => (
           <div
             key={t.id}
@@ -76,7 +78,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               type="button"
               className={styles.close}
-              aria-label="关闭通知"
+              aria-label={tc("toastClose")}
               onClick={() => dismiss(t.id)}
             >
               <X size={14} />

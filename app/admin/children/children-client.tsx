@@ -26,6 +26,7 @@ export function ChildrenClient({ initialChildren }: Props) {
   const t = useTranslations("admin.children");
   const c = useTranslations("common");
   const e = useTranslations("error");
+  const themeT = useTranslations("themePresets");
 
   const handleCopy = (shareToken: string, id: number) => {
     const url = `${window.location.origin}/child/${shareToken}`;
@@ -60,11 +61,11 @@ export function ChildrenClient({ initialChildren }: Props) {
   const formKey = editingChild ? `edit-${editingChild.id}` : "add";
   const activePreset = themePresets.find((p) => p.key === themeKey) ?? themePresets[0];
 
-  const colorOptions = themePresets.map((t) => ({
-    key: t.key,
-    color: t.color,
-    gradient: t.gradient,
-    label: t.label,
+  const colorOptions = themePresets.map((preset) => ({
+    key: preset.key,
+    color: preset.color,
+    gradient: preset.gradient,
+    label: themeT(preset.key),
   }));
 
   return (

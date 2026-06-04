@@ -9,12 +9,12 @@ export const themePresets = [
 export type ThemeKey = (typeof themePresets)[number]["key"];
 
 export const adminColorPresets = [
-  { color: "#5D4432", label: "咖啡棕" },
-  { color: "#2563EB", label: "海蓝" },
-  { color: "#059669", label: "森林绿" },
-  { color: "#7C3AED", label: "紫藤" },
-  { color: "#DC2626", label: "中国红" },
-  { color: "#D97706", label: "琥珀" },
+  { key: "coffee", color: "#5D4432", label: "咖啡棕" },
+  { key: "ocean", color: "#2563EB", label: "海蓝" },
+  { key: "forest", color: "#059669", label: "森林绿" },
+  { key: "wisteria", color: "#7C3AED", label: "紫藤" },
+  { key: "chineseRed", color: "#DC2626", label: "中国红" },
+  { key: "amber", color: "#D97706", label: "琥珀" },
 ] as const;
 
 export const iconPresets = [

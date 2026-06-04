@@ -117,6 +117,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
   const t = useTranslations("admin.settings");
   const c = useTranslations("common");
   const e = useTranslations("error");
+  const colorT = useTranslations("adminColorPresets");
 
   useEffect(() => {
     hydrate({ globalTheme: initial.globalTheme, soundOpen: initial.soundOpen, compactMode: initial.compactMode });
@@ -276,7 +277,7 @@ export function SettingsClient({ initial }: { initial: Settings }) {
               defaultIndex={Math.max(0, THEME_KEYS.indexOf(globalTheme as typeof THEME_KEYS[number]))}
               options={adminColorPresets.map((c) => ({
                 color: c.color,
-                label: c.label,
+                label: colorT(c.key),
               }))}
               onChange={async (k) => {
                 const r = await updateSettingAction("global_theme", k);

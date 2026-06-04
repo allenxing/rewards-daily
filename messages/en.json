@@ -10,7 +10,9 @@
     "copy": "Copy",
     "copied": "Copied",
     "saving": "Saving…",
-    "saveEdit": "Save Changes"
+    "saveEdit": "Save Changes",
+    "toastRegion": "Notifications",
+    "toastClose": "Close notification"
   },
   "metadata": {
     "title": "Rewards Daily — Build Great Habits",
@@ -400,6 +402,8 @@
       "cycleDaily": "Daily",
       "cycleWeekly": "Weekly",
       "cycleOnce": "One-time",
+      "manualAdd": "Bonus from parent",
+      "manualDeduct": "Deduction from parent",
       "emptyTodo": {
         "title": "No new tasks yet",
         "desc": "Wait for mom or dad to give you new tasks, then you can earn more stars!"
@@ -447,9 +451,16 @@
       "modalConfirming": "Redeeming…"
     },
     "notFound": {
-      "title": "Child Not Found",
-      "desc": "Check the link or go back to select a child.",
+      "title": "Child not found",
+      "desc": "Please check the link or go back to the home page",
       "backHome": "🏠 Back to Home"
+    },
+    "childGate": {
+      "title": "Parent Verification",
+      "sub": "Enter the 4-digit password",
+      "error": "Incorrect password",
+      "verify": "Verify",
+      "verifying": "Verifying…"
     }
   },
   "error": {
@@ -512,5 +523,9 @@
     "wisteria": "Wisteria",
     "chineseRed": "Chinese Red",
     "amber": "Amber"
+  },
+  "localeToggle": {
+    "zh": "中",
+    "en": "EN"
   }
 }

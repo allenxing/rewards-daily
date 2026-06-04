@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { ClipboardList, Clock, Trophy } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
 import { getAuditsForChild } from "@/lib/queries/task-audit";
+import { getRecordsForChild } from "@/lib/queries/points-records";
 import { TaskCard } from "@/components/child/task-card";
 import { WishTabs } from "@/components/child/wish-tabs";
 import { submitTaskAction } from "@/lib/actions";
@@ -19,13 +20,18 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
   const { tab = "todo" } = await searchParams;
   const t = await getTranslations("child.tasks");
 
-  const [taskRows, allAudits] = await Promise.all([
+  const [taskRows, allAudits, records] = await Promise.all([
     getTasksForChildByShareToken(shareToken),
     getAuditsForChild(shareToken, "all"),
+    getRecordsForChild(shareToken),
   ]);
 
   const auditByTask = new Map<number, { id: number; status: string }>();
-  for (const a of allAudits) auditByTask.set(a.taskId, { id: a.id, status: a.auditStatus });
+  for (const a of allAudits) {
+    if (!auditByTask.has(a.taskId)) {
+      auditByTask.set(a.taskId, { id: a.id, status: a.auditStatus });
+    }
+  }
 
   const todoTasks: ChildTask[] = [];
   const pendingTasks: ChildTask[] = [];
@@ -33,6 +39,7 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
 
   for (const row of taskRows) {
     const a = auditByTask.get(row.id);
+    const status: ChildTask["status"] = !a ? "todo" : a.status === "pending" ? "pending" : "done";
     const item: ChildTask = {
       id: row.id,
       name: row.name,
@@ -40,13 +47,27 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
       icon: row.icon,
       iconClass: iconClassFor(row.icon),
       points: row.points,
-      status: "todo",
+      status,
       assignedChildIds: row.assignedChildren,
       auditId: a?.id,
     };
-    if (!a) todoTasks.push(item);
-    else if (a.status === "pending") pendingTasks.push({ ...item, status: "pending" });
-    else if (a.status === "agree") doneTasks.push({ ...item, status: "done" });
+    if (status === "pending") pendingTasks.push(item);
+    else if (status === "done") doneTasks.push(item);
+    else todoTasks.push(item);
+  }
+
+  for (const r of records) {
+    const isAdd = r.recordType === "manual";
+    doneTasks.push({
+      id: -(r.id + 1000),
+      name: r.remark || (isAdd ? t("manualAdd") : t("manualDeduct")),
+      detail: isAdd ? t("manualAdd") : t("manualDeduct"),
+      icon: isAdd ? "⭐" : "💔",
+      iconClass: "pink",
+      points: r.points,
+      status: "done",
+      assignedChildIds: [],
+    });
   }
 
   const tabs = [

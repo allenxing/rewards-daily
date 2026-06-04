@@ -10,7 +10,9 @@
     "copy": "复制",
     "copied": "已复制",
     "saving": "保存中…",
-    "saveEdit": "保存修改"
+    "saveEdit": "保存修改",
+    "toastRegion": "通知",
+    "toastClose": "关闭通知"
   },
   "metadata": {
     "title": "成长星球 — 好习惯养成计划",
@@ -400,6 +402,8 @@
       "cycleDaily": "每天可做",
       "cycleWeekly": "每周可做",
       "cycleOnce": "一次性任务",
+      "manualAdd": "家长加分",
+      "manualDeduct": "家长扣分",
       "emptyTodo": {
         "title": "暂时没有新任务",
         "desc": "等妈妈爸爸安排新任务后,就能继续赚星星啦"
@@ -450,6 +454,13 @@
       "title": "找不到这个孩子",
       "desc": "请检查链接是否正确,或回到首页选择孩子",
       "backHome": "🏠 回到首页"
+    },
+    "childGate": {
+      "title": "家长验证",
+      "sub": "请输入4位数字密码",
+      "error": "密码错误",
+      "verify": "验证",
+      "verifying": "验证中…"
     }
   },
   "error": {
@@ -512,5 +523,9 @@
     "wisteria": "紫藤",
     "chineseRed": "中国红",
     "amber": "琥珀"
+  },
+  "localeToggle": {
+    "zh": "中",
+    "en": "EN"
   }
 }

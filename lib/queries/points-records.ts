@@ -87,6 +87,31 @@ export async function getRecords(filters: RecordFilters): Promise<PointsRecord[]
   });
 }
 
+export async function getRecordsForChild(
+  shareToken: string
+): Promise<{ id: number; points: number; remark: string; recordType: string }[]> {
+  const supabase = await createClient();
+  const { data: child } = await supabase
+    .from("children")
+    .select("id")
+    .eq("share_token", shareToken)
+    .maybeSingle();
+  if (!child) return [];
+  const { data } = await supabase
+    .from("points_records")
+    .select("id, points, remark, record_type")
+    .eq("child_id", child.id)
+    .in("record_type", ["manual", "deduct"])
+    .order("create_time", { ascending: false })
+    .limit(50);
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    points: Math.abs(r.points),
+    remark: r.remark ?? "",
+    recordType: r.record_type,
+  }));
+}
+
 export async function getRecordSummary(): Promise<RecordSummary> {
   const supabase = await createClient();
   const {

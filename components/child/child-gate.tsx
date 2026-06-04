@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./child-gate.module.css";
@@ -22,6 +23,7 @@ function markGranted() {
 }
 
 export function ChildGate({ childId, children }: Props) {
+  const t = useTranslations("child.childGate");
   const [checking, setChecking] = useState(true);
   const [enabled, setEnabled] = useState(false);
   const [password, setPassword] = useState("");
@@ -91,8 +93,8 @@ export function ChildGate({ childId, children }: Props) {
           <div className={styles.iconWrap}>
             <Lock size={28} />
           </div>
-          <h2 className={styles.title}>家长验证</h2>
-          <p className={styles.sub}>请输入4位数字密码</p>
+          <h2 className={styles.title}>{t("title")}</h2>
+          <p className={styles.sub}>{t("sub")}</p>
 
           <input
             type="password"
@@ -111,7 +113,7 @@ export function ChildGate({ childId, children }: Props) {
           />
 
           {error && (
-            <p className={styles.error}>密码错误</p>
+            <p className={styles.error}>{t("error")}</p>
           )}
 
           <button
@@ -120,7 +122,7 @@ export function ChildGate({ childId, children }: Props) {
             className={styles.btn}
             onClick={handleVerify}
           >
-            {pending ? "验证中…" : "验证"}
+            {pending ? t("verifying") : t("verify")}
           </button>
         </div>
       </div>
