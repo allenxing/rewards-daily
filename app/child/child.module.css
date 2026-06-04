@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap");
+/* Inter loaded via next/font/google in layout */
 
 /* === 5 主题 (sky/coral/mint/lavender/sun) — 动态 CSS 变量,完全保留 === */
 .themeSky {
@@ -45,7 +45,7 @@
 /* === Root === */
 .root {
   @apply min-h-svh pb-20 relative;
-  font-family: var(--font-nunito), "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-inter), "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
   color: #2D3436;
   background: linear-gradient(
     180deg,
@@ -123,7 +123,7 @@
 .sectionTitle {
   @apply font-extrabold mb-4 flex items-center gap-2;
   font-size: 1.3rem;
-  font-family: var(--font-nunito), "Nunito", sans-serif;
+  font-family: var(--font-inter), "Inter", sans-serif;
 }
 
 .sectionTitleEmoji {
@@ -202,7 +202,7 @@
 .taskSubmit {
   @apply px-[18px] py-2 border-none rounded-full text-white shrink-0;
   background: linear-gradient(135deg, #6BCB77, #4CAF50);
-  font-family: var(--font-nunito), "Nunito", sans-serif;
+  font-family: var(--font-inter), "Inter", sans-serif;
   font-weight: 800;
   font-size: 0.85rem;
   box-shadow: 0 3px 10px rgba(107, 203, 119, 0.35);

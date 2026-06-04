@@ -1,23 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Poppins, Nunito } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/common/toast";
 import { IntlProvider } from "@/components/common/intl-provider";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const inter = Inter({
+  variable: "--font-inter",
   display: "swap",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const nunito = Nunito({
-  variable: "--font-nunito",
-  display: "swap",
-  subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const viewport: Viewport = {
@@ -39,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className={`${poppins.variable} ${nunito.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased`}>
         <Suspense fallback={null}>
           <IntlProvider>
             <ThemeProvider
