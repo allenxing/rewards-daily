@@ -1,29 +1,11 @@
 .container {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
+  @apply fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none;
   max-width: calc(100% - 32px);
 }
 
 .toast {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #ffffff;
-  border: 1px solid #e5ddd5;
-  border-radius: 10px;
-  padding: 12px 14px;
+  @apply flex items-center gap-2.5 bg-white border border-cafe-border rounded-[10px] p-3 min-w-[240px] max-w-[360px] pointer-events-auto text-sm font-medium;
   box-shadow: 0 6px 20px rgba(62, 43, 30, 0.12);
-  min-width: 240px;
-  max-width: 360px;
-  pointer-events: auto;
-  font-size: 0.875rem;
-  font-weight: 500;
   animation: slideIn 220ms ease-out;
 }
 
@@ -39,40 +21,29 @@
 }
 
 .icon {
-  display: flex;
-  flex-shrink: 0;
+  @apply flex shrink-0;
 }
 
 .success .icon {
-  color: #16a34a;
+  @apply text-cafe-success;
 }
 
 .error .icon {
-  color: #dc2626;
+  @apply text-cafe-danger;
 }
 
 .info .icon {
-  color: #5d4432;
+  @apply text-cafe-primary;
 }
 
 .message {
-  flex: 1;
-  color: #3e2b1e;
-  line-height: 1.4;
+  @apply flex-1 text-cafe-text leading-relaxed;
 }
 
 .close {
-  background: none;
-  border: none;
-  color: #8b7b6b;
-  cursor: pointer;
-  padding: 2px;
-  display: flex;
-  border-radius: 4px;
-  transition: background 150ms ease;
+  @apply bg-transparent border-none text-cafe-text-secondary cursor-pointer p-0.5 flex rounded transition-colors duration-150;
 }
 
 .close:hover {
-  background: #f3efeb;
-  color: #3e2b1e;
+  @apply bg-cafe-surface-alt text-cafe-text;
 }

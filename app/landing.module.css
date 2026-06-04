@@ -1,247 +1,149 @@
-/* Landing 私有样式 — 来自 design/index.html
-   颜色统一引用 globals.css 里的 CSS 变量,后续主题切换改 :root 即可 */
+/* Landing 私有样式 — 全部颜色通过 tailwind cafe 色板引用 */
 
 .page {
-  min-height: 100vh;
-  min-height: 100svh;
+  @apply min-h-svh text-cafe-text;
   background: #ffffff;
-  color: #3e2b1e;
 }
 
 /* === Navbar === */
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
+  @apply fixed top-0 left-0 right-0 h-16 flex items-center justify-between z-[100];
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--cafe-border, #e5ddd5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 0 clamp(24px, 5vw, 64px);
-  z-index: 100;
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  @apply flex items-center gap-2.5;
 }
 
 .brandLogo {
-  width: 32px;
-  height: 32px;
-  background: var(--cafe-primary, #5d4432);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+  @apply w-8 h-8 bg-cafe-primary rounded-lg flex items-center justify-center text-white;
   font-size: 0.9rem;
 }
 
 .brandName {
-  font-weight: 600;
-  font-size: 1.125rem;
-  color: var(--cafe-text, #3e2b1e);
+  @apply font-semibold text-lg text-cafe-text;
 }
 
 .loginBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  background: var(--cafe-primary, #5d4432);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
+  @apply inline-flex items-center gap-2 px-5 py-2 bg-cafe-primary text-white border-none rounded-lg text-sm font-medium cursor-pointer no-underline;
   transition: background 150ms ease;
-  text-decoration: none;
 }
 
 .loginBtn:hover {
-  background: var(--cafe-primary-light, #7a5c48);
+  @apply bg-cafe-primary-light;
 }
 
 .signupBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background: #ffffff;
-  color: var(--cafe-primary, #5d4432);
-  border: 1.5px solid var(--cafe-primary, #5d4432);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
+  @apply inline-flex items-center gap-1.5 px-5 py-2 bg-white text-cafe-primary border border-cafe-primary rounded-lg text-sm font-medium cursor-pointer;
+  border-width: 1.5px;
   transition: background 150ms ease, color 150ms ease;
   font-family: inherit;
 }
 
 .signupBtn:hover {
-  background: var(--cafe-surface, #f9f7f5);
+  @apply bg-cafe-surface;
 }
 
 .userArea {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
+  @apply inline-flex items-center gap-3;
 }
 
 .userName {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--cafe-text, #3e2b1e);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @apply text-sm font-medium text-cafe-text max-w-[200px] truncate;
 }
 
 .iconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--cafe-surface, #f9f7f5);
-  color: var(--cafe-text, #3e2b1e);
-  border: 1px solid var(--cafe-border, #e5ddd5);
-  border-radius: 8px;
-  cursor: pointer;
+  @apply inline-flex items-center justify-center w-9 h-9 bg-cafe-surface text-cafe-text border border-cafe-border rounded-lg cursor-pointer;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
 .iconBtn:hover {
-  background: var(--cafe-secondary, #e9e3dd);
-  color: var(--cafe-primary, #5d4432);
-  border-color: var(--cafe-primary, #5d4432);
+  @apply bg-cafe-secondary text-cafe-primary border-cafe-primary;
 }
 
 /* === Hero === */
 .hero {
+  @apply text-center;
   padding: 160px clamp(24px, 5vw, 64px) 100px;
-  text-align: center;
   background: linear-gradient(180deg, var(--cafe-surface, #f9f7f5) 0%, #ffffff 100%);
 }
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  background: var(--cafe-secondary, #e9e3dd);
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--cafe-text-secondary, #8b7b6b);
-  margin-bottom: 24px;
+  @apply inline-flex items-center gap-1.5 px-4 py-1.5 bg-cafe-secondary rounded-full text-xs font-medium text-cafe-text-secondary mb-6;
 }
 
 .heroTitle {
+  @apply font-bold leading-tight text-cafe-text mx-0 mb-5;
   font-size: clamp(2rem, 5vw, 3.25rem);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--cafe-text, #3e2b1e);
-  margin: 0 0 20px;
 }
 
 .heroTitleAccent {
-  color: var(--cafe-primary, #5d4432);
+  @apply text-cafe-primary;
 }
 
 .heroSub {
+  @apply text-cafe-text-secondary max-w-[540px] mx-auto mb-9 leading-relaxed;
   font-size: clamp(1rem, 2vw, 1.125rem);
-  color: var(--cafe-text-secondary, #8b7b6b);
-  max-width: 540px;
-  margin: 0 auto 36px;
-  line-height: 1.7;
 }
 
 .heroActions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
+  @apply flex gap-3 justify-center flex-wrap;
 }
 
 /* === Buttons === */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 28px;
+  @apply inline-flex items-center justify-center gap-2 px-7 py-3 rounded-lg border-none cursor-pointer no-underline leading-snug;
   font-size: 0.9375rem;
   font-weight: 500;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
   transition: all 150ms ease;
-  text-decoration: none;
-  line-height: 1.4;
 }
 
 .btnPrimary {
-  background: var(--cafe-primary, #5d4432);
-  color: #ffffff;
+  @apply bg-cafe-primary text-white;
 }
 
 .btnPrimary:hover {
-  background: var(--cafe-primary-light, #7a5c48);
+  @apply bg-cafe-primary-light;
 }
 
 .btnOutline {
-  background: #ffffff;
-  color: var(--cafe-text, #3e2b1e);
-  border: 1.5px solid var(--cafe-border, #e5ddd5);
+  @apply bg-white text-cafe-text border border-cafe-border;
+  border-width: 1.5px;
 }
 
 .btnOutline:hover {
-  border-color: var(--cafe-primary, #5d4432);
-  color: var(--cafe-primary, #5d4432);
+  @apply border-cafe-primary text-cafe-primary;
 }
 
 /* === Features === */
 .features {
+  @apply bg-white;
   padding: 80px clamp(24px, 5vw, 64px);
-  background: #ffffff;
 }
 
 .sectionHeader {
-  text-align: center;
-  margin-bottom: 56px;
+  @apply text-center mb-14;
 }
 
 .sectionTitle {
+  @apply font-semibold text-cafe-text mx-0 mb-3;
   font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 600;
-  margin: 0 0 12px;
-  color: var(--cafe-text, #3e2b1e);
 }
 
 .sectionSub {
-  color: var(--cafe-text-secondary, #8b7b6b);
+  @apply text-cafe-text-secondary max-w-[480px] mx-auto leading-normal;
   font-size: 1rem;
-  max-width: 480px;
-  margin: 0 auto;
-  line-height: 1.5;
 }
 
 .featuresGrid {
-  display: grid;
+  @apply grid mx-auto;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   max-width: 1100px;
-  margin: 0 auto;
 }
 
 @media (max-width: 900px) {
@@ -257,113 +159,72 @@
 }
 
 .featureCard {
-  padding: 28px 32px;
-  border: 1px solid var(--cafe-border, #e5ddd5);
-  border-radius: 12px;
+  @apply p-7 border border-cafe-border rounded-xl bg-white;
   transition: box-shadow 200ms ease, border-color 200ms ease;
-  background: #ffffff;
 }
 
 .featureCardHeader {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
+  @apply flex items-center gap-3.5 mb-3.5;
 }
 
 .featureCard:hover {
+  @apply border-cafe-primary;
   box-shadow: 0 4px 16px rgba(62, 43, 30, 0.06);
-  border-color: var(--cafe-primary, #5d4432);
 }
 
 .featureIcon {
-  width: 48px;
-  height: 48px;
-  background: var(--cafe-surface, #f9f7f5);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply w-12 h-12 bg-cafe-surface rounded-xl flex items-center justify-center shrink-0;
   font-size: 1.25rem;
-  flex-shrink: 0;
 }
 
 .featureCardTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  color: var(--cafe-text, #3e2b1e);
+  @apply text-lg font-semibold m-0 text-cafe-text;
 }
 
 .featureCardDesc {
-  font-size: 0.875rem;
-  color: var(--cafe-text-secondary, #8b7b6b);
-  line-height: 1.6;
-  margin: 0;
+  @apply text-sm text-cafe-text-secondary leading-relaxed m-0;
 }
 
 /* === Advantages === */
 .advantages {
+  @apply bg-cafe-surface;
   padding: 80px clamp(24px, 5vw, 64px);
-  background: var(--cafe-surface, #f9f7f5);
 }
 
 .advantagesGrid {
+  @apply mx-auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .advantageItem {
-  display: flex;
-  gap: 16px;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  border: 1px solid var(--cafe-border, #e5ddd5);
+  @apply flex gap-4 p-5 bg-white rounded-xl border border-cafe-border;
 }
 
 .advantageIcon {
-  width: 40px;
-  height: 40px;
-  background: var(--cafe-surface, #f9f7f5);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply w-10 h-10 bg-cafe-surface rounded-lg flex items-center justify-center shrink-0;
   font-size: 1.1rem;
-  flex-shrink: 0;
 }
 
 .advantageTitle {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  margin: 0 0 4px;
-  color: var(--cafe-text, #3e2b1e);
+  @apply text-[0.9375rem] font-semibold m-0 mb-1 text-cafe-text;
 }
 
 .advantageDesc {
-  font-size: 0.8125rem;
-  color: var(--cafe-text-secondary, #8b7b6b);
-  line-height: 1.5;
-  margin: 0;
+  @apply text-xs text-cafe-text-secondary leading-relaxed m-0;
 }
 
 /* === Footer === */
 .footer {
+  @apply text-center bg-white;
   padding: 40px clamp(24px, 5vw, 64px);
   border-top: 1px solid var(--cafe-border, #e5ddd5);
-  text-align: center;
-  background: #ffffff;
 }
 
 .footerText {
-  font-size: 0.8125rem;
-  color: var(--cafe-text-secondary, #8b7b6b);
-  line-height: 1.8;
-  margin: 0;
+  @apply text-xs text-cafe-text-secondary leading-relaxed m-0;
 }
 
 /* === Responsive === */
