@@ -114,13 +114,13 @@ export function RecordsClient({ initialRecords, kidsList, summary }: Props) {
         </select>
         <input
           type="date"
-          className={`${styles.filterBarInput} ${styles.filterBarDate}`}
+          className={styles.filterBarInput}
           value={filters.dateFrom ?? ""}
           onChange={(e) => setFilter({ dateFrom: e.target.value || undefined })}
         />
         <input
           type="date"
-          className={`${styles.filterBarInput} ${styles.filterBarDate}`}
+          className={styles.filterBarInput}
           value={filters.dateTo ?? ""}
           onChange={(e) => setFilter({ dateTo: e.target.value || undefined })}
         />

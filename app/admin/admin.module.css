@@ -733,9 +733,6 @@
   @apply border-cafe-primary;
 }
 
-.filterBarDate {
-  @apply w-[180px] min-w-0;
-}
 
 .recordRow {
   @apply bg-white border border-cafe-border rounded-xl px-5 py-4 flex items-center gap-4 mb-2.5 transition-shadow duration-200;
@@ -1019,8 +1016,7 @@
   }
 
   .filterBarSelect,
-  .filterBarInput,
-  .filterBarDate {
+  .filterBarInput {
     @apply w-full min-w-0;
   }
 
