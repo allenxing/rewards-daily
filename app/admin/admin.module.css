@@ -724,7 +724,7 @@
 
 .filterBarSelect,
 .filterBarInput {
-  @apply w-[180px] shrink-0 min-w-0 px-3.5 py-2.5 text-sm border border-cafe-border rounded-lg bg-white text-cafe-text outline-none box-border transition-colors duration-150;
+  @apply w-[180px] min-w-0 px-3.5 py-2.5 text-sm border border-cafe-border rounded-lg bg-white text-cafe-text outline-none box-border transition-colors duration-150;
   font-family: inherit;
 }
 
@@ -732,7 +732,6 @@
 .filterBarInput:focus {
   @apply border-cafe-primary;
 }
-
 
 .recordRow {
   @apply bg-white border border-cafe-border rounded-xl px-5 py-4 flex items-center gap-4 mb-2.5 transition-shadow duration-200;
@@ -1015,13 +1014,24 @@
     @apply flex-col items-stretch;
   }
 
+  .filterBar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+
   .filterBarSelect,
   .filterBarInput {
-    @apply w-full min-w-0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .filterBar .btn {
-    @apply w-auto self-start;
+    justify-self: start;
+    width: auto;
   }
 
   .summaryBar {
