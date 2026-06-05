@@ -120,6 +120,65 @@ export const getAuditsForChild = cache(async (
   });
 });
 
+export type TaskStatusResult = {
+  status: "todo" | "pending" | "done";
+  auditId?: number;
+};
+
+function getWindowStart(
+  cycle: "daily" | "weekly" | "once",
+  now: Date
+): Date | null {
+  if (cycle === "once") return null;
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  if (cycle === "weekly") {
+    const day = start.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    start.setDate(start.getDate() + diff);
+  }
+  return start;
+}
+
+export function computeChildTaskStatuses(
+  tasks: { id: number; cycle: "daily" | "weekly" | "once" }[],
+  audits: AuditWithJoins[],
+  now?: Date
+): Map<number, TaskStatusResult> {
+  const currentTime = now ?? new Date();
+  const auditsByTask = new Map<number, AuditWithJoins[]>();
+  for (const a of audits) {
+    const list = auditsByTask.get(a.taskId) ?? [];
+    list.push(a);
+    auditsByTask.set(a.taskId, list);
+  }
+
+  const result = new Map<number, TaskStatusResult>();
+  for (const task of tasks) {
+    const taskAudits = auditsByTask.get(task.id) ?? [];
+    const windowStart = getWindowStart(task.cycle, currentTime);
+    const filtered = windowStart
+      ? taskAudits.filter((a) => new Date(a.submitTime) >= windowStart)
+      : taskAudits;
+
+    if (filtered.length === 0) {
+      result.set(task.id, { status: "todo" });
+    } else {
+      // filtered preserves submit_time desc order from query
+      const latest = filtered[0];
+      if (latest.auditStatus === "pending") {
+        result.set(task.id, { status: "pending", auditId: latest.id });
+      } else if (latest.auditStatus === "agree") {
+        result.set(task.id, { status: "done", auditId: latest.id });
+      } else {
+        // refuse → todo, child can retry
+        result.set(task.id, { status: "todo" });
+      }
+    }
+  }
+  return result;
+}
+
 export function toReviewItem(a: AuditWithJoins): ReviewItem {
   return {
     id: a.id,

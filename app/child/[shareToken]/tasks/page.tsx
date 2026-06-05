@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ClipboardList, Clock, Trophy } from "lucide-react";
 import { getTasksForChildByShareToken } from "@/lib/queries/tasks";
-import { getAuditsForChild } from "@/lib/queries/task-audit";
+import { getAuditsForChild, computeChildTaskStatuses } from "@/lib/queries/task-audit";
 import { getRecordsForChild } from "@/lib/queries/points-records";
 import { TaskCard } from "@/components/child/task-card";
 import { WishTabs } from "@/components/child/wish-tabs";
@@ -26,20 +26,15 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
     getRecordsForChild(shareToken),
   ]);
 
-  const auditByTask = new Map<number, { id: number; status: string }>();
-  for (const a of allAudits) {
-    if (!auditByTask.has(a.taskId)) {
-      auditByTask.set(a.taskId, { id: a.id, status: a.auditStatus });
-    }
-  }
+  const computed = computeChildTaskStatuses(taskRows, allAudits);
 
   const todoTasks: ChildTask[] = [];
   const pendingTasks: ChildTask[] = [];
   const doneTasks: ChildTask[] = [];
 
   for (const row of taskRows) {
-    const a = auditByTask.get(row.id);
-    const status: ChildTask["status"] = !a ? "todo" : a.status === "pending" ? "pending" : "done";
+    const c = computed.get(row.id);
+    const status = c?.status ?? "todo";
     const item: ChildTask = {
       id: row.id,
       name: row.name,
@@ -49,7 +44,7 @@ export default async function ChildTasksPage({ params, searchParams }: Props) {
       points: row.points,
       status,
       assignedChildIds: row.assignedChildren,
-      auditId: a?.id,
+      auditId: c?.auditId,
     };
     if (status === "pending") pendingTasks.push(item);
     else if (status === "done") doneTasks.push(item);
