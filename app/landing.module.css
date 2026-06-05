@@ -72,9 +72,7 @@
   background: linear-gradient(180deg, var(--cafe-surface, #f9f7f5) 0%, #ffffff 100%);
 }
 
-.badge {
-  @apply inline-flex items-center gap-1.5 px-4 py-1.5 bg-cafe-secondary rounded-full text-xs font-medium text-cafe-text-secondary mb-6;
-}
+/* .badge removed — was inline-flex items-center gap-1.5 px-4 py-1.5 bg-cafe-secondary rounded-full text-xs font-medium text-cafe-text-secondary mb-6 */
 
 .heroTitle {
   @apply font-bold leading-tight text-cafe-text mx-0 mb-5;
@@ -141,18 +139,18 @@
 
 .featuresGrid {
   @apply grid mx-auto;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 1100px;
+  max-width: 860px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 700px) {
   .featuresGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 480px) {
   .featuresGrid {
     grid-template-columns: 1fr;
   }

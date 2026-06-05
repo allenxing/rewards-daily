@@ -150,7 +150,7 @@
 }
 
 .statValue {
-  @apply text-[1.75rem] font-bold leading-tight mb-1 text-cafe-text font-mono tabular-nums;
+  @apply text-xl font-bold leading-tight mb-1 text-cafe-text font-mono tabular-nums;
 }
 
 .statLabel {
@@ -291,7 +291,7 @@
 }
 
 .modalHeader {
-  @apply flex items-center justify-between px-8 py-6 border-b border-cafe-border shrink-0;
+  @apply flex items-center justify-between px-6 py-4 border-b border-cafe-border shrink-0;
 }
 
 .modalTitle {
@@ -308,11 +308,11 @@
 }
 
 .modalBody {
-  @apply p-8 flex-1 overflow-y-auto;
+  @apply p-6 flex-1 overflow-y-auto;
 }
 
 .modalFooter {
-  @apply flex justify-end gap-2 px-8 py-6 border-t border-cafe-border shrink-0;
+  @apply flex justify-end gap-2 px-6 py-4 border-t border-cafe-border shrink-0;
 }
 
 .formGroup {
@@ -392,7 +392,6 @@
 
 .taskCheck {
   @apply w-[18px] h-[18px] shrink-0 cursor-pointer;
-  accent-color: #5d4432;
 }
 
 .taskIconCell {
@@ -505,8 +504,17 @@
 }
 
 .checkboxRow input {
-  @apply w-4 h-4 cursor-pointer;
-  accent-color: #5d4432;
+  @apply w-4 h-4 cursor-pointer appearance-none shrink-0 rounded;
+  background: #fff;
+  border: 1.5px solid #d4cdc5;
+  transition: all 0.15s;
+}
+
+.checkboxRow input:checked {
+  background: #5d4432;
+  border-color: #5d4432;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+  background-size: contain;
 }
 
 /* === Wish card grid === */
@@ -1060,7 +1068,11 @@
 
 @media (max-width: 480px) {
   .statsGrid {
-    grid-template-columns: 1fr;
+    @apply gap-2;
+  }
+
+  .statCard {
+    @apply p-4;
   }
 
   .reviewItem,

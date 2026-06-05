@@ -35,7 +35,7 @@ export function ReviewItem({ item }: { item: ReviewItemData }) {
       <div className={styles.reviewActions}>
         <button
           type="button"
-          className={`${styles.btn} ${styles.btnSuccess}`}
+          className={`${styles.btn} ${styles.btnPrimary}`}
           disabled={pending}
           onClick={() =>
             startTransition(async () => {

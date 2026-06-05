@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { ClipboardList, Star, Music, Trophy } from "lucide-react";
+import { ClipboardList, Star, Music } from "lucide-react";
 import styles from "@/app/landing.module.css";
 
 export async function FeaturesGrid() {
@@ -9,7 +9,6 @@ export async function FeaturesGrid() {
     { icon: ClipboardList, title: t("task.title"), desc: t("task.desc") },
     { icon: Star, title: t("points.title"), desc: t("points.desc") },
     { icon: Music, title: t("wish.title"), desc: t("wish.desc") },
-    { icon: Trophy, title: t("medal.title"), desc: t("medal.desc") },
   ];
 
   return (

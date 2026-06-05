@@ -135,26 +135,23 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
             <div className={styles.taskActionsCell}>
               <button
                 type="button"
-                className={styles.iconBtn}
+                className={styles.btnGhost}
                 onClick={() => openEdit(task)}
-                aria-label={t("editAriaLabel")}
-                title={t("editButton")}
               >
-                <Pencil size={14} />
+                <Pencil size={12} /> {t("editButton")}
               </button>
               {task.status === "active" ? (
                 <button
                   type="button"
-                  className={`${styles.taskToggleBtn} ${styles.taskToggleBtnDisable}`}
+                  className={`${styles.btn} ${styles.btnOutline}`}
                   onClick={() => setCloseTaskId(task.id)}
                 >
-                  <Lock size={12} />
-                  {t("close")}
+                  <Lock size={12} /> {t("close")}
                 </button>
               ) : (
                 <button
                   type="button"
-                  className={styles.taskRestoreBtn}
+                  className={`${styles.btn} ${styles.btnOutline}`}
                   disabled={pending}
                   onClick={() => {
                     startTransition(async () => {
@@ -164,8 +161,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                     });
                   }}
                 >
-                  <Check size={12} />
-                  {t("restore")}
+                  <Check size={12} /> {t("restore")}
                 </button>
               )}
             </div>

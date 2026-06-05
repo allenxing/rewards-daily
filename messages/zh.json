@@ -32,8 +32,8 @@
       "learnMore": "了解更多"
     },
     "features": {
-      "sectionTitle": "四大核心能力",
-      "sectionSubtitle": "任务养成、积分激励、愿望奖励、勋章荣誉,构建完整的习惯养成闭环",
+      "sectionTitle": "三大核心能力",
+      "sectionSubtitle": "任务养成、积分激励、愿望奖励,构建完整的习惯养成闭环",
       "task": {
         "title": "任务养成",
         "desc": "自定义每日任务,设定执行周期与积分奖励,支持图片佐证提交,让好习惯可视化、可追踪。"

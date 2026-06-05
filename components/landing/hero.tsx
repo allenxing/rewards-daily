@@ -14,7 +14,6 @@ export function Hero({ isLoggedIn }: Props) {
   const t = useTranslations("landing.hero");
   return (
     <section className={styles.hero}>
-      <div className={styles.badge}>{t("badge")}</div>
       <h1 className={styles.heroTitle}>
         {t("titleLine1")}<span className={styles.heroTitleAccent}>{t("titleLine2")}</span>
       </h1>
