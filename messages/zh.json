@@ -217,6 +217,8 @@
       "cycleOnce": "一次性",
       "unassigned": "未指派",
       "autoReview": "自动审核",
+      "manualReview": "手动审核",
+      "autoCheckLabel": "提交后自动通过（跳过审核）",
       "closedReasonPrefix": "关闭原因:",
       "nameLabel": "任务名称",
       "namePlaceholder": "例如:刷牙打卡",

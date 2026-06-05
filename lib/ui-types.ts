@@ -22,6 +22,7 @@ export type Task = {
   iconColor: string;
   points: number;
   cycle: "daily" | "weekly" | "once";
+  autoCheck: boolean;
   status: "active" | "closed";
   closedReason: string | null;
   assignedChildren: number[];

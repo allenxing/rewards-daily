@@ -23,6 +23,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
   const [activeTab, setActiveTab] = useState<"active" | "closed">("active");
   const [pending, startTransition] = useTransition();
   const [iconPick, setIconPick] = useState("⭐");
+  const [autoCheck, setAutoCheck] = useState(false);
   const toast = useToast();
   const t = useTranslations("admin.tasks");
   const c = useTranslations("common");
@@ -41,12 +42,14 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
   const openAdd = () => {
     setEditingTask(null);
     setIconPick("⭐");
+    setAutoCheck(false);
     setAddOpen(true);
   };
 
   const openEdit = (task: Task) => {
     setEditingTask(task);
     setIconPick(task.icon);
+    setAutoCheck(task.autoCheck);
     setAddOpen(true);
   };
 
@@ -54,6 +57,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
     setAddOpen(false);
     setEditingTask(null);
     setIconPick("⭐");
+    setAutoCheck(false);
   };
 
   const isEdit = editingTask !== null;
@@ -120,7 +124,7 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                 ) : (
                   <>
                     <span>·</span>
-                    <span>{t("autoReview")}</span>
+                    <span>{task.autoCheck ? t("autoReview") : t("manualReview")}</span>
                   </>
                 )}
               </div>
@@ -302,6 +306,18 @@ export function TasksClient({ tasks, kidsList: kids }: Props) {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.checkboxRow}>
+              <input
+                type="checkbox"
+                name="autoCheck"
+                checked={autoCheck}
+                onChange={(e) => setAutoCheck(e.target.checked)}
+              />
+              <span>{t("autoCheckLabel")}</span>
+            </label>
           </div>
         </form>
       </Modal>

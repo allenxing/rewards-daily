@@ -29,13 +29,14 @@ export async function addTaskAction(formData: FormData): Promise<ActionResult<nu
     | "daily"
     | "weekly"
     | "once";
+  const autoCheck = formData.get("autoCheck") === "true";
   const assigned = formData.getAll("assignedChildren").map((v) => String(v));
   if (!name || points <= 0) return { ok: false, error: "TASK_NAME_REQUIRED" };
 
   const supabase = await createClient();
   const { data: task, error } = await supabase
     .from("tasks")
-    .insert({ owner_id: ownerId, name, icon, points, cycle, status: true })
+    .insert({ owner_id: ownerId, name, icon, points, cycle, auto_check: autoCheck, status: true })
     .select("id")
     .single();
   if (error) return fail(error);
@@ -64,13 +65,14 @@ export async function updateTaskAction(formData: FormData): Promise<ActionResult
     | "daily"
     | "weekly"
     | "once";
+  const autoCheck = formData.get("autoCheck") === "true";
   const assigned = formData.getAll("assignedChildren").map((v) => String(v));
   if (!name || points <= 0) return { ok: false, error: "TASK_NAME_REQUIRED" };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("tasks")
-    .update({ name, icon, points, cycle, updated_at: new Date().toISOString() })
+    .update({ name, icon, points, cycle, auto_check: autoCheck, updated_at: new Date().toISOString() })
     .eq("id", taskId)
     .eq("owner_id", ownerId);
   if (error) return fail(error);
@@ -136,17 +138,35 @@ export async function submitTaskAction(
   const taskIdNum = Number(taskId);
   if (!taskIdNum) return { ok: false, error: "MISSING_TASK_ID" };
 
+  // Check if task has auto_check enabled
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("auto_check")
+    .eq("id", taskIdNum)
+    .maybeSingle();
+
+  const auditStatus = task?.auto_check ? "agree" : "pending";
+
   const { data: audit, error } = await supabase
     .from("task_audit")
     .insert({
       owner_id: child.owner_id,
       child_id: child.id,
       task_id: taskIdNum,
-      audit_status: "pending",
+      audit_status: auditStatus,
     })
     .select("id")
     .single();
   if (error) return fail(error);
+
+  // Auto-approve: add points and write record when auto_check is on
+  if (auditStatus === "agree") {
+    const { error: rpcErr } = await supabase.rpc("approve_task", {
+      p_audit_id: audit.id,
+    });
+    if (rpcErr) return fail(rpcErr);
+  }
+
   revalidatePath(`/child/${shareToken}/tasks`);
   revalidatePath(`/child/${shareToken}`);
   return { ok: true, data: audit.id };

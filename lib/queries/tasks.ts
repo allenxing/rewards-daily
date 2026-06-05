@@ -51,6 +51,7 @@ function mapTask(
     iconColor: hashColor(r.icon, ICON_FG_PALETTE),
     points: r.points,
     cycle: (r.cycle as Task["cycle"]) ?? "daily",
+    autoCheck: r.auto_check ?? false,
     status: r.status ? "active" : "closed",
     closedReason: r.closed_reason,
     assignedChildren: assignments,
@@ -92,7 +93,7 @@ export const getTasksForAdmin = cache(async (): Promise<Task[]> => {
   if (!ownerId) return [];
   const { data: tasks, error } = await supabase
     .from("tasks")
-    .select("id, name, icon, points, cycle, status, closed_reason")
+    .select("id, name, icon, points, cycle, auto_check, status, closed_reason")
     .eq("owner_id", ownerId)
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -124,7 +125,7 @@ export const getTasksForChildByShareToken = cache(async (
   const [{ data: tasks, error }, childNames] = await Promise.all([
     supabase
       .from("tasks")
-      .select("id, name, icon, points, cycle, status, closed_reason")
+      .select("id, name, icon, points, cycle, auto_check, status, closed_reason")
       .in("id", taskIds)
       .eq("status", true)
       .order("created_at", { ascending: false }),

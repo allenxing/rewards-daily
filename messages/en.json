@@ -217,6 +217,8 @@
       "cycleOnce": "Once",
       "unassigned": "Unassigned",
       "autoReview": "Auto-approve",
+      "manualReview": "Manual review",
+      "autoCheckLabel": "Auto-approve on submission (skip review)",
       "closedReasonPrefix": "Reason:",
       "nameLabel": "Task Name",
       "namePlaceholder": "e.g. Brush teeth",
